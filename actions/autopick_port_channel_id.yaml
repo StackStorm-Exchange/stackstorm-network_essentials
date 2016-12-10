@@ -1,0 +1,28 @@
+---
+name: autopick_port_channel_id 
+pack: network_essentials
+runner_type: run-python
+description: provide port-channel number if not mentioned 
+enabled: true
+entry_point: autopick_port_channel_id.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management Virtual Ip address of the VDX device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  port_channel_id:
+    type: string
+    description: Portchannel interface number.<NUMBER:1-6144> 
+    position: 3
