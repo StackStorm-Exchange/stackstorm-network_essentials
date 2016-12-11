@@ -1,0 +1,25 @@
+---
+name: configure_anycast_gw_mac_evpn
+runner_type: run-python
+description: Affect an anycast gateway change on VDX switches
+enabled: true
+entry_point: configure_anycast.py
+parameters:
+  host:
+    type: string
+    description: Device to configure
+    required: true
+  rbridge_id:
+    type: string
+    description: rbridge id under which anycast MAC will be configured
+    required: true
+  mac:
+    type: string
+    description: Anycast MAC to configure
+    required: true
+  user:
+    type: string
+    description: login username
+  passwd:
+    type: string
+    description: login password
