@@ -13,9 +13,8 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
-#import pynos.device
-#import pynos.versions.base.yang.brocade_vcs
 from ipaddress import ip_interface
+
 
 class ConfigVcsVirtualIp(NosDeviceAction):
     """
@@ -34,7 +33,8 @@ class ConfigVcsVirtualIp(NosDeviceAction):
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to configure VCS virtual IP', self.host)
             changes['vip'] = self._configure_vip(device, vip=mgmt_vip)
-            self.logger.info('closing connection to %s after configuring virtual IP -- all done!', self.host)
+            self.logger.info('closing connection to %s after configuring virtual IP -- all done!',
+                             self.host)
         return changes
 
     def _configure_vip(self, device, vip):
@@ -42,20 +42,21 @@ class ConfigVcsVirtualIp(NosDeviceAction):
         """
 
         ipaddress = ip_interface(unicode(vip))
-	vips = device.vcs.vcs_vip(get=True)
+        vips = device.vcs.vcs_vip(get=True)
 
-	if ipaddress.version == 4:
-    	    ipv4_config = vips['ipv4_vip']
+        if ipaddress.version == 4:
+            ipv4_config = vips['ipv4_vip']
             conf = ipv4_config.data.find('.//{*}address')
         if ipaddress.version == 6:
             ipv6_config = vips['ipv6_vip']
             conf = ipv6_config.data.find('.//{*}ipv6address')
 
         if conf is not None:
-            self.logger.info("Managemnt virtual IPv%s address is already configured", ipaddress.version)
+            self.logger.info("Managemnt virtual IPv%s address is already configured",
+                             ipaddress.version)
         else:
-            self.logger.info("Configuring Managemnt virtual IPv%s address %s on %s", ipaddress.version, vip, self.host)
+            self.logger.info("Configuring Managemnt virtual IPv%s address %s on %s",
+                             ipaddress.version, vip, self.host)
             device.vcs.vcs_vip(vip=vip)
 
         return True
-

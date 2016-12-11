@@ -1,5 +1,4 @@
 from base1 import DeviceAction
-import pyswitchlib.asset
 
 
 class apply_acl(DeviceAction):
@@ -64,8 +63,8 @@ class apply_acl(DeviceAction):
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
                              acl_name, intf_type, intf)
             try:
-                aply = list(aply_acl(rbridge_id, intf, access_grp) \
-                                if rbridge_id else list(aply_acl(intf, access_grp)))
+                aply = list(aply_acl(rbridge_id, intf, access_grp) if rbridge_id else
+                            list(aply_acl(intf, access_grp)))
                 result.append(str(aply[0]))
                 if not eval(str(aply[0])):
                     self.logger.info('Cannot apply  %s on interface %s %s due to %s',
