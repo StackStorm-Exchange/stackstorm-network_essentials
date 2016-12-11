@@ -1,0 +1,79 @@
+---
+name: apply_acl
+pack: network_essentials
+runner_type: run-python
+description: Apply acl on interface
+enabled: true
+entry_point: apply_acl.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to apply the access-list
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - gigabitethernet
+      - tengigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+      - ve
+      - loopback
+      - ethernet
+    default: tengigabitethernet
+    description: Interface type to under which acl will be applied
+    required: true
+    position: 3
+  intf_name:
+    type: array
+    description: List of name/range of physical interface/port-channel
+    required: true
+    position: 4
+  rbridge_id:
+    type: string
+    description: rbridge id under which ve will be configured only needed for NOS device
+    required: false
+    position: 5
+  acl_name:
+    type: string
+    description: Name of the access list to be applied
+    required: true
+    position: 6
+  acl_direction:
+    type: string
+    description: direction of access list applied
+    required: true
+    position: 7
+    enum:
+      - in
+      - out
+    default: in
+  acl_type:
+    type: string
+    description: Type of access list
+    position: 8
+    enum:
+      - switched
+      - routed
+      - routed_ipv6
+    default: routed
+      
+    
+  
+    
+  
+ 
+

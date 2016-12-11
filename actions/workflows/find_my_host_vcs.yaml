@@ -1,0 +1,28 @@
+version: '2.0'
+network_essentials.where_is_my_vm:
+    description: Find where the VM/Server is logged in through its IP.
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - ip_address
+    tasks:
+        find_host_ip:
+            action: network_essentials.find_host_ip
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                ip_address: <% $.ip_address %>
+            publish:
+                pub: <% task(find_host_ip).result.result[0]%>
+            on-success:
+                - find_physical_interface
+        find_physical_interface:
+            action: network_essentials.find_mac
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                macs: <% [$.pub.get('mac-address', null)] %>

@@ -1,0 +1,38 @@
+---
+name: configure_arp_nd_suppression 
+pack: network_essentials
+runner_type: run-python
+description: configure ARP/ND suppression 
+enabled: true
+entry_point: configure_arp_nd_suppression.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: mgmt_ip of the Device 
+    required: true
+    position: 0
+  user:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  passwd:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vlan_id: 
+    type: string
+    description: vlan id 
+    required: true
+    position: 3
+  suppression_type:
+    type: string
+    enum:
+      - ARP 
+      - ND 
+      - Both 
+    description: Ipv4/Ipv6 address with subnet/prefix length. 
+    required: true
+    position: 4

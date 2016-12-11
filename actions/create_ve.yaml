@@ -1,0 +1,50 @@
+---
+name: create_ve
+pack: network_essentials
+runner_type: run-python
+description: Create a VE and associate an IP address and vrf if any per rbridge
+enabled: true
+entry_point: create_ve.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management Virtual Ip address of the VDX device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  rbridge_id:
+    type: array
+    description: Single or List of Rbridge ids separated by comma on the device for Node Specific configurations.
+                 Example:- '1,2'
+    required: true
+    position: 3
+  vlan_id:
+    type: string
+    description: Interface Vlan id. <NUMBER:1-4090/8191 when VFAB disabled/enabled>.
+    required: true
+    position: 4
+  ip_address:
+    type: array 
+    description:  Single or list of ip/ipv6 addresses to be configured on the Ve.
+                  IPv4/subnet-length or IPv6/prefix-length.
+                  Example:- '10.0.0.10/22, 30.0.0.10/22'
+    position: 5
+  vrf_name:
+    type: string
+    description: vrf name.Example:- 'vrf32 or 32' 
+    position: 6
+  ipv6_use_link_local_only:
+    type: boolean
+    description: ipv6 link local
+    default: false
+    position: 7

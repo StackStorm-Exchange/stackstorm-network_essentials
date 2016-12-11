@@ -1,0 +1,48 @@
+---
+name: redistribute_connected_bgp_vrf
+pack: network_essentials
+runner_type: run-python
+description: configure redistribute connected under default/non-default vrf address-family 
+enabled: true
+entry_point: redistribute_connected_bgp_vrf.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to get the NOS version
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  rbridge_id:
+    type: array
+    description: Single/List of rbridge ID's(example rbridge_id=1 or rbridge_id=1,2,3)
+    position: 3
+  ipv4_unicast:
+    type: boolean
+    default: False
+    description: Configure Address family unicast ipv4
+    required: true
+    position: 4
+  ipv6_unicast:
+    type: boolean
+    default: False
+    description: Configure Address family unicast ipv4
+    required: true
+    position: 5
+  ipv4_vrf_name:
+    type: string
+    description: ipv4 vrf name
+    position: 6
+  ipv6_vrf_name:
+    type: string
+    description: ipv6 vrf name
+    position: 7

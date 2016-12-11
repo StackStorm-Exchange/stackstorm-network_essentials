@@ -1,0 +1,30 @@
+---
+name: where_is_my_vm
+pack: network_essentials
+description: Find where the VM/Server is logged in through its IP or MAC.
+enabled: true
+runner_type: mistral-v2
+entry_point: workflows/where_is_my_vm.yaml
+parameters:
+    mgmt_ip:
+        type: string
+        description: Host to configure
+        required: true
+        position: 2
+    username:
+        type: string
+        description: User name to ssh into host
+        default: admin
+        position: 0
+    password:
+        type: string
+        description: Password to ssh into host
+        default: password
+        secret: true
+        position: 1
+    ip_address:
+        type: string
+        description: IP address to search.
+        required: true
+        position: 3
+    

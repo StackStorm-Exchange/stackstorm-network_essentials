@@ -1,0 +1,49 @@
+---
+name: validate_interface_state
+pack: network_essentials
+runner_type: run-python
+description: Validate the state for port channel or physical interface is UP
+enabled: true
+entry_point: validate_interface_state.py
+parameters:
+  host:
+    type: string
+    description: Device to get the NOS version
+    required: true
+    position: 0
+  user:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  passwd:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - gigabitethernet
+      - tengigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port-channel
+    default: tengigabitethernet
+    description: Interface type
+    required: true
+    position: 3
+  intf_name:
+    type: string
+    description: Interface name(example x/y/z for physical interface or integer for port-channels)
+    required: true
+    position: 4
+  intf_state:
+    type: string
+    enum:
+      - up
+      - down
+    description: Interface state(up/down)
+    required: true
+    position: 5

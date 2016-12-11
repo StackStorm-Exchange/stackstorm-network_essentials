@@ -1,0 +1,34 @@
+---
+name: configure_anycast_gateway_evpn 
+pack: network_essentials
+runner_type: run-python
+description: configure anycast gateway 
+enabled: true
+entry_point: configure_anycast_gateway_evpn.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: mgmt_ip of the Device 
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vlan_id: 
+    type: string
+    description: vlan id 
+    required: true
+    position: 3
+  anycast_address:
+    type: string
+    description: Ipv4/Ipv6 address with subnet/prefix length. 
+    required: true
+    position: 4

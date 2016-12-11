@@ -1,0 +1,52 @@
+---
+name: configure_evpn_instance 
+pack: network_essentials
+runner_type: run-python
+description: Configure EVPN instance .
+enabled: true
+entry_point: configure_evpn_instance.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Ip address of the device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  evi_name:
+    type: string
+    description: vrf name.Example:- 'evpn1 or 32'
+    required: true
+    position: 4
+  rbridge_id:
+    type: array 
+    description: Rbridge id of the device
+    position: 3
+  duplicate_mac_timer:
+    type: integer 
+    description: Value in integer,default 10 
+    default: 10 
+    position: 5
+  max_count:
+    type: integer
+    description: Value in integer,default 10
+    default: 10
+    position: 6
+  ignore_as:
+    type: boolean 
+    enum:
+      - True 
+      - False 
+    default: True 
+    description: Value in integer,default 10
+    position: 7
+

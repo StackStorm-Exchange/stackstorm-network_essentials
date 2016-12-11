@@ -1,0 +1,25 @@
+---
+name: find_host_ip
+pack: network_essentials
+runner_type: run-python
+description: Find the interfaces on which the specified MACs show up
+enabled: true
+entry_point: find_host_ip.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Ip address of the VDX device
+    required: true
+  username:
+    type: string
+    description: login username
+    default: admin
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+  ip_address:
+    type: string
+    description: IPv4 or IPv6 address of the VM/Host to be found
+    required: true

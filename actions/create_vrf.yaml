@@ -1,0 +1,34 @@
+---
+name: create_vrf
+pack: network_essentials
+runner_type: run-python
+description: Create VRF for L3 tenants.
+enabled: true
+entry_point: create_vrf.py 
+parameters:
+  vcs_virtual_ip:
+    type: string
+    description: Ip address of the device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vrf_name:
+    type: string
+    description: vrf name.Example:- 'vrf32 or 32'
+    required: true
+    position: 4
+  rbridge_id:
+    type: string
+    description: Rbridge id of the device
+    required: true
+    position: 3

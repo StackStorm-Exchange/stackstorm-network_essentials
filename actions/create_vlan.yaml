@@ -1,0 +1,33 @@
+---
+name: create_vlan
+pack: network_essentials
+runner_type: run-python
+description: Create interface VLANs on a device
+enabled: true
+entry_point: create_vlan.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to get the NOS version
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vlan_id:
+    type: string
+    description: single vlan or range of vlans
+    required: true
+    position: 3
+  intf_desc:
+    type: string
+    description: Interface description name
+    position: 4

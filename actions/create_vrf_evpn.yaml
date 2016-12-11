@@ -1,0 +1,58 @@
+---
+name: create_vrf_evpn
+pack: network_essentials
+runner_type: run-python
+description: Create VRF for L3 tenants.Assign l3vni,route_distinguisher and ipv4/ipv6 route target.
+enabled: true
+entry_point: create_vrf_evpn.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Ip address of the device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vrf_name:
+    type: string
+    description: vrf name.Example:- 'vrf32 or 32'
+    required: true
+    position: 3
+  l3vni:
+    type: integer
+    description: vni for the VRF. '<NUMBER:1-16777215>'
+    required: true
+    position: 4
+  route_distinguisher:
+    type: array
+    description: VPN Route Distinguisher. '<ASN:nn or IP-address:nn>'
+    position: 5
+  ipv4_route_target_import_evpn:
+    type: string
+    description: ipv4 import Target VPN community. 'ASN:nn' 
+    position: 6
+  ipv4_route_target_export_evpn:
+    type: string
+    description: ipv4 export Target VPN community. 'ASN:nn'
+    position: 7
+  ipv6_route_target_import_evpn:
+    type: string
+    description: ipv6 import Target VPN community. 'ASN:nn'
+    position: 8
+  ipv6_route_target_export_evpn:
+    type: string
+    description: ipv6 import Target VPN community. 'ASN:nn'
+    position: 9
+  rbridge_id:
+    type: array
+    description: Single/List of rbridge ID's(example rbridge_id=1 or rbridge_id=1,2,3)
+    position: 10

@@ -1,0 +1,40 @@
+---
+name: create_switchport_trunk 
+pack: network_essentials
+runner_type: run-python
+description: Create switch port on a interface with switch port mode trunk allowed vlan 
+enabled: true
+entry_point: create_switchport_trunk.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to get the version
+    required: true
+  username:
+    type: string
+    description: login username
+    default: admin
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+  intf_type:
+    type: string
+    enum: 
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+    default: tengigabitethernet
+    description: Interface type tengigabitethernet,gigabitethernet,fortygigabitethernet and hundredgigabitethernet. 
+    required: true
+  intf_name:
+    type: string
+    description: Interface name in 3-tuple format(example :2/0/96), port-channel number <1-6144> 
+    required: true
+  vlan_id: 
+    type: string
+    description: Vlan id to be configure on the switchport mode access 
+    required: true
