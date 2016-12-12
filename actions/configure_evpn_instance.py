@@ -29,7 +29,10 @@ class ConfigureEvpnInstance(NosDeviceAction):
         changes = {}
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
-            if rbridge_id[0] is None:
+            if type(rbridge_id) is list:
+                rbridge_id = rbridge_id[0]
+
+            if rbridge_id is None:
                 rb_list = self._vlag_pair(device)
             else:
                 rb_list = rbridge_id
