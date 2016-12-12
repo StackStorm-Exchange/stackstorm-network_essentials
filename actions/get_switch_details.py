@@ -41,22 +41,19 @@ class GetSwitchDetails(NosDeviceAction):
         """get the switch details.
         """
         sw_info = {}
-        vcs_info = device.vcs.vcs_nodes
         rb_list = []
+        sw_list = []
+        vcs_info = device.vcs.vcs_nodes
 
         for vcs in vcs_info:
             rb_list.append(vcs['node-rbridge-id'])
-            if vcs['node-is-principal'] == "true" and vcs['node-switch-ip'] == host:
-                sw_info['switch_ip'] = vcs['node-switch-ip']
+            if vcs['node-is-principal'] == "true":
                 sw_info['principal_ip'] = vcs['node-switch-ip']
-                break
+                continue
 
-            if vcs['node-is-principal'] == "true" and vcs['node-switch-ip'] != host:
-                sw_info['principal_ip'] = vcs['node-switch-ip']
-
-            if vcs['node-is-principal'] == "false" and vcs['node-switch-ip'] == host:
-                sw_info['switch_ip'] = vcs['node-switch-ip']
+            sw_list.append(vcs['node-switch-ip'])
 
         sw_info['rbridge_id'] = rb_list
+        sw_info['switch_ip'] = sw_list
 
         return sw_info
