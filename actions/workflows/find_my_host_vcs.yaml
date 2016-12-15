@@ -1,5 +1,5 @@
 version: '2.0'
-network_essentials.where_is_my_vm:
+network_essentials.find_my_host_vcs:
     description: Find where the VM/Server is logged in through its IP.
     type: direct
     input:

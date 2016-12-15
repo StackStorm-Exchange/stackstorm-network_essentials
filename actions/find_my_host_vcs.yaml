@@ -1,10 +1,10 @@
 ---
-name: where_is_my_vm
+name: find_my_host_vcs
 pack: network_essentials
 description: Find where the VM/Server is logged in through its IP or MAC.
 enabled: true
 runner_type: mistral-v2
-entry_point: workflows/where_is_my_vm.yaml
+entry_point: workflows/find_my_host_vcs.yaml
 parameters:
     mgmt_ip:
         type: string
