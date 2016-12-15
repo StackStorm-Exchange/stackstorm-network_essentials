@@ -47,7 +47,7 @@ class CreateVe(NosDeviceAction):
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create Ve', self.host)
             for each_rb in tmp_list:
-                rbridge_id = each_rb[0]
+                rbridge_id = each_rb
                 if vrf_name is not None and vrf_name != '' and\
                         ip_address is not None and ip_address != '':
                     ip_address = each_rb[1]
