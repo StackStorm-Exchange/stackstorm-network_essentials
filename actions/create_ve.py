@@ -54,7 +54,7 @@ class CreateVe(NosDeviceAction):
                     temp_address = each_rb[1]
                 if vrf_name is not None and vrf_name != '' and\
                         ip_address is not None and ip_address != '':
-                    ip_address = temp_address 
+                    ip_address = temp_address
                     ve_exists = self._check_requirements_ve(device, rbridge_id=rbridge_id,
                                                             ve_name=vlan_id)
                     changes['pre_validation_vrf'] = self._check_requirements_vrf(device,
@@ -96,7 +96,7 @@ class CreateVe(NosDeviceAction):
                                                                              rbridge_id=rbridge_id,
                                                                              ve_name=str(vlan_id))
                 elif ip_address is not None and ip_address != '':
-                    ip_address = temp_address 
+                    ip_address = temp_address
                     ve_exists = self._check_requirements_ve(device, rbridge_id=rbridge_id,
                                                             ve_name=vlan_id)
                     changes['pre_validation_ip'] = self._check_requirements_ip(device,
@@ -342,4 +342,3 @@ class CreateVe(NosDeviceAction):
                                  name, rbridge_id)
         except (ValueError, KeyError):
             self.logger.info('Invalid Input values while configuring IPV6 link local')
-
