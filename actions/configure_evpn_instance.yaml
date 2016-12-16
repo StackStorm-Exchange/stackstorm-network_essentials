@@ -42,11 +42,8 @@ parameters:
     default: 10
     position: 6
   ignore_as:
-    type: boolean 
-    enum:
-      - True 
-      - False 
-    default: True 
+    type: boolean
+    default: true
     description: Value in integer,default 10
     position: 7
 
