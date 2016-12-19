@@ -63,18 +63,23 @@ class apply_acl(DeviceAction):
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
                              acl_name, intf_type, intf)
             try:
+<<<<<<< HEAD:packs/dcfabric/actions/apply_acl.py
+                aply = list(aply_acl(rbridge_id, intf, access_grp)
+                    if rbridge_id else list(aply_acl(intf, access_grp)))
+=======
                 aply = list(aply_acl(rbridge_id, intf, access_grp) if rbridge_id else
                             list(aply_acl(intf, access_grp)))
+>>>>>>> origin/master:packs/network_essentials/actions/apply_acl.py
                 result.append(str(aply[0]))
                 if not eval(str(aply[0])):
                     self.logger.info('Cannot apply  %s on interface %s %s due to %s',
-                                     acl_name, intf_type, intf,
-                                     str(aply[1][0][self.host]['response']['json']['output']))
+                        acl_name, intf_type, intf,
+                        str(aply[1][0][self.host]['response']['json']['output']))
                 else:
                     self.logger.info('Successfully  applied  %s ACL on interface %s %s ',
-                                     acl_name, intf_type, intf)
+                        acl_name, intf_type, intf)
             except Exception as e:
                 self.logger.info('Cannot apply  %s on interface %s %s due to %s',
-                                 acl_name, intf_type, intf, e.message)
+                    acl_name, intf_type, intf, e.message)
                 raise ValueError(e.message)
         return result
