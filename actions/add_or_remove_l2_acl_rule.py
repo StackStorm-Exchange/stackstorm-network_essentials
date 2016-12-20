@@ -47,9 +47,9 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             raise ValueError("Connection failed while logging in to %s due to %s",
                              device_ip, cerr.message)
         except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in " \
+            self.logger.error("Failed to get a REST response while logging in "
                               "to %s due to %s", device_ip, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in " \
+            raise ValueError("Failed to get a REST response while logging in "
                              "to %s due to %s", device_ip, rierr.message)
         return device
 
@@ -66,47 +66,47 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             if source != "any" and source != "host":
                 self.logger.debug("source is a MAC address")
                 if not self.is_valid_mac(source):
-                    raise ValueError("The format of source MAC address %s is invalid. " \
+                    raise ValueError("The format of source MAC address %s is invalid. "
                                      "Valid format is HHHH.HHHH.HHHH", source)
 
                 if src_mac_addr_mask is None:
-                    raise ValueError("The src_mac_addr_mask is required when source " \
+                    raise ValueError("The src_mac_addr_mask is required when source "
                                      "is a MAC address value")
                 else:
                     if not self.is_valid_mac(src_mac_addr_mask):
-                        raise ValueError("The format of src_mac_addr_mask %s is invalid. " \
+                        raise ValueError("The format of src_mac_addr_mask %s is invalid. "
                                          "Valid format is HHHH.HHHH.HHHH", src_mac_addr_mask)
 
             if dst != "any" and dst != "host":
                 self.logger.debug("dst is a MAC address")
                 if not self.is_valid_mac(dst):
-                    raise ValueError("The format of dst MAC address %s is invalid. " \
+                    raise ValueError("The format of dst MAC address %s is invalid. "
                                      "Valid format is HHHH.HHHH.HHHH", dst)
 
                 if dst_mac_addr_mask is None:
-                    raise ValueError("The dst_mac_addr_mask is required when dst " \
+                    raise ValueError("The dst_mac_addr_mask is required when dst "
                                      "is a MAC address value")
                 else:
                     if not self.is_valid_mac(dst_mac_addr_mask):
-                        raise ValueError("The format of dst_mac_addr_mask %s is invalid. " \
+                        raise ValueError("The format of dst_mac_addr_mask %s is invalid. "
                                          "Valid format is HHHH.HHHH.HHHH", dst_mac_addr_mask)
 
             if ethertype != "arp" and ethertype != "fcoe" and ethertype != "ipv4":
                 try:
                     ethertype_id = (int(ethertype))
                 except ValueError as verr:
-                    raise ValueError("The ethertype value %s is invalid, could not convert to " \
+                    raise ValueError("The ethertype value %s is invalid, could not convert to "
                                      "integer due to %s", ethertype, verr.message)
 
                 if ethertype_id < 1536 or ethertype_id > 65535:
-                    raise ValueError("The ethertype value %s is invalid, " \
+                    raise ValueError("The ethertype value %s is invalid, "
                                      "valid value is 1536-65535", ethertype)
 
             if vlan is not None:
                 try:
                     vlan_id = (int(vlan))
                 except ValueError as verr:
-                    raise ValueError("The vlan value %s is invalid, could not convert to " \
+                    raise ValueError("The vlan value %s is invalid, could not convert to "
                                      "integer due to %s", vlan, verr.message)
 
                 if vlan_id < 1 or vlan_id > 4090:
@@ -164,9 +164,9 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             raise ValueError("Connection failed while removing rule from %s due to %s",
                              l2_acl_name, cerr.message)
         except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while removing " \
+            self.logger.error("Failed to get a REST response while removing "
                               "rule from %s due to %s", l2_acl_name, rierr.message)
-            raise ValueError("Failed to get a REST response while removing " \
+            raise ValueError("Failed to get a REST response while removing "
                              "rule from %s due to %s", l2_acl_name, rierr.message)
 
         self.check_status_code(post, device_ip)
@@ -203,9 +203,9 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             raise ValueError("Connection failed while adding rule to %s due to %s",
                              l2_acl_name, cerr.message)
         except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while adding " \
+            self.logger.error("Failed to get a REST response while adding "
                               "rule to %s due to %s", l2_acl_name, rierr.message)
-            raise ValueError("Failed to get a REST response while adding " \
+            raise ValueError("Failed to get a REST response while adding "
                              "rule to %s due to %s", l2_acl_name, rierr.message)
 
         self.check_status_code(post, device_ip)
@@ -225,7 +225,7 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                               l2_acl_name, err.message)
             raise
         except AttributeError as aerr:
-            self.logger.info("Get this error because the ACL %s is not standard, " \
+            self.logger.info("Get this error because the ACL %s is not standard, "
                              "error is %s - returning False", l2_acl_name, aerr.message)
             return False
 
@@ -244,7 +244,7 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                               l2_acl_name, err.message)
             raise
         except AttributeError as aerr:
-            self.logger.info("Get this error because the ACL %s is not extended, " \
+            self.logger.info("Get this error because the ACL %s is not extended, "
                              "error is %s - returning False", l2_acl_name, aerr.message)
             return False
 
