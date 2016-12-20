@@ -314,3 +314,11 @@ class DeviceAction(Action):
         except:
             self.logger.info('cannot get seq in acl %s', acl_name)
             return None
+
+    def check_status_code(self, operation, device_ip):
+        status_code = operation[1][0][device_ip]['response']['status_code']
+        self.logger.debug("Operation returned %s", status_code)
+        if status_code >= 400:
+            error_msg = operation[1][0][device_ip]['response']['text']
+            self.logger.debug("REST Operation failed with status code %s", status_code)
+            raise ValueError(error_msg)
