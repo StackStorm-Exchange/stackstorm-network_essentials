@@ -41,12 +41,12 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                               device_ip, verr.message)
             raise ValueError('Error while logging in to %s due to %s',
                              device_ip, verr.message)
-        except ConnectionError as cerr:
+        except self.ConnectionError as cerr:
             self.logger.error('Connection failed while logging in to %s due to %s',
                               device_ip, cerr.message)
             raise ValueError('Connection failed while logging in to %s due to %s',
                              device_ip, cerr.message)
-        except RestInterfaceError as rierr:
+        except self.RestInterfaceError as rierr:
             self.logger.error('Failed to get a REST response while logging in \
                               to %s due to %s', device_ip, rierr.message)
             raise ValueError('Failed to get a REST response while logging in \
@@ -94,9 +94,9 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             if ethertype != 'arp' and ethertype != 'fcoe' and ethertype != 'ipv4':
                 try:
                     ethertype_id = (int(ethertype))
-                except ValueError as e:
-                    raise ValueError('The ethertype value %s is invalid, \
-                                     could not convert to integer', ethertype)
+                except ValueError as verr:
+                    raise ValueError('The ethertype value %s is invalid, could not convert to \
+                                     integer due to %s', ethertype, verr.message)
 
                 if ethertype_id < 1536 or ethertype_id > 65535:
                     raise ValueError('The ethertype value %s is invalid, \
@@ -145,22 +145,25 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             if l2_acl_type == 'standard':
                 self.logger.debug('Removing rule from standard acl %s', l2_acl_name)
                 post = device.mac_access_list_standard_seq_delete(standard=l2_acl_name,
-                    seq=(seq_id, None, None, None, None, None, None))
+                                                                  seq=(seq_id, None, None, None,
+                                                                       None, None, None))
             elif l2_acl_type == 'extended':
                 self.logger.debug('Removing rule from extended acl %s', l2_acl_name)
                 post = device.mac_access_list_extended_seq_delete(extended=l2_acl_name,
-                    seq=(seq_id, None, None, None, None, None, None, None, None, None, None, None))
+                                                                  seq=(seq_id, None, None, None,
+                                                                       None, None, None, None, None,
+                                                                       None, None, None))
         except ValueError as verr:
             self.logger.error('Error while removing rule from %s due to %s',
                               l2_acl_name, verr.message)
             raise ValueError('Error while removing rule from %s due to %s',
                              l2_acl_name, verr.message)
-        except ConnectionError as cerr:
+        except self.ConnectionError as cerr:
             self.logger.error('Connection failed while removing rule from %s due to %s',
                               l2_acl_name, cerr.message)
             raise ValueError('Connection failed while removing rule from %s due to %s',
                              l2_acl_name, cerr.message)
-        except RestInterfaceError as rierr:
+        except self.RestInterfaceError as rierr:
             self.logger.error('Failed to get a REST response while removing \
                               rule from %s due to %s', l2_acl_name, rierr.message)
             raise ValueError('Failed to get a REST response while removing \
@@ -172,28 +175,34 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                  source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask, ethertype,
                  vlan, count, log):
         self.logger.debug('Trying to add rule')
-        
+
         try:
             if l2_acl_type == 'standard':
                 self.logger.debug('Removing rule from standard acl %s', l2_acl_name)
                 post = device.mac_access_list_standard_seq_create(standard=l2_acl_name,
-                    seq=(seq_id, action, source, srchost, src_mac_addr_mask, count, log))
+                                                                  seq=(seq_id, action, source,
+                                                                       srchost, src_mac_addr_mask,
+                                                                       count, log))
             elif l2_acl_type == 'extended':
                 self.logger.debug('Removing rule from extended acl %s', l2_acl_name)
                 post = device.mac_access_list_extended_seq_create(extended=l2_acl_name,
-                    seq=(seq_id, action, source, srchost, src_mac_addr_mask, dst, dsthost,
-                         dst_mac_addr_mask, ethertype, vlan, count, log))
+                                                                  seq=(seq_id, action, source,
+                                                                       srchost, src_mac_addr_mask,
+                                                                       dst, dsthost,
+                                                                       dst_mac_addr_mask,
+                                                                       ethertype, vlan, count,
+                                                                       log))
         except ValueError as verr:
             self.logger.error('Error while adding rule to %s due to %s',
                               l2_acl_name, verr.message)
             raise ValueError('Error while adding rule to %s due to %s',
                              l2_acl_name, verr.message)
-        except ConnectionError as cerr:
+        except self.ConnectionError as cerr:
             self.logger.error('Connection failed while adding rule to %s due to %s',
                               l2_acl_name, cerr.message)
             raise ValueError('Connection failed while adding rule to %s due to %s',
                              l2_acl_name, cerr.message)
-        except RestInterfaceError as rierr:
+        except self.RestInterfaceError as rierr:
             self.logger.error('Failed to get a REST response while adding \
                               rule to %s due to %s', l2_acl_name, rierr.message)
             raise ValueError('Failed to get a REST response while adding \
@@ -204,31 +213,31 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
     def is_standard_l2_acl(self, device_ip, device, l2_acl_name):
         try:
             get = device.mac_access_list_standard_get(standard=l2_acl_name)
-            type = str(get[1][0][device_ip]['response']['json']['output'].keys()[0])
-            if type == 'standard':
+            acltype = str(get[1][0][device_ip]['response']['json']['output'].keys()[0])
+            if acltype == 'standard':
                 self.logger.debug('is_standard_l2_acl - returning True for %s', l2_acl_name)
                 return True
             else:
                 self.logger.debug('is_standard_l2_acl - returning False for %s', l2_acl_name)
                 return False
-        except (ValueError, ConnectionError, RestInterfaceError):
+        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
             self.logger.debug('Failed to get standard ACL %s due to %s - returning False',
-                              l2_acl_name, e.message)
+                              l2_acl_name, err.message)
             return False
 
     def is_extended_l2_acl(self, device_ip, device, l2_acl_name):
         try:
             get = device.mac_access_list_extended_get(extended=l2_acl_name)
-            type = str(get[1][0][device_ip]['response']['json']['output'].keys()[0])
-            if type == 'extended':
+            acltype = str(get[1][0][device_ip]['response']['json']['output'].keys()[0])
+            if acltype == 'extended':
                 self.logger.debug('is_extended_l2_acl - returning True for %s', l2_acl_name)
                 return True
             else:
                 self.logger.debug('is_extended_l2_acl - returning False for %s', l2_acl_name)
                 return False
-        except (ValueError, ConnectionError, RestInterfaceError) as e:
+        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
             self.logger.debug('Failed to get extended ACL %s due to %s - returning False',
-                              l2_acl_name, e.message)
+                              l2_acl_name, err.message)
             return False
 
     def get_next_seq_id(self, device_ip, device, l2_acl_name, l2_acl_type):
@@ -242,7 +251,7 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
 
             if 'seq' in rules_list:
                 seq_list = rules_list['seq']
-                if type(seq_list) == list:
+                if isinstance(seq_list) == list:
                     last_seq_id = int(seq_list[len(seq_list) - 1]['seq-id'])
                 else:
                     last_seq_id = int(seq_list['seq-id'])
@@ -255,6 +264,6 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                 seq_id = 10
 
             return seq_id
-        except (ValueError, ConnectionError, RestInterfaceError) as e:
-            self.logger.debug('exception in get_next_seq_id - %s, returning None', e.message)
+        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
+            self.logger.debug('exception in get_next_seq_id - %s, returning None', err.message)
             return None
