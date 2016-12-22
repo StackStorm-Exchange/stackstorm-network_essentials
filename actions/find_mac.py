@@ -17,43 +17,79 @@ from ne_base import NosDeviceAction
 
 class FindMAC(NosDeviceAction):
     """
-       Implements the logic to find MACs on an interface on VDX Switches .
+       Implements the logic to find MACs on an interface on VDX or SLX Devices .
     """
 
-    def run(self, mgmt_ip, username, password, macs):
+    def run(self, mgmt_ip, user, passwd, macs):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        results = {}
 
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to find MACs on a VCS', self.host)
-            self._check_requirements(macs)
-            results = self._find_mac_addresses(device, macs)
-            self.logger.info('closing connection to %s after searching MACs -- all done!',
-                             self.host)
+        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
+        results = []
+        try:
+            device = self.asset(ip_addr=self.host, auth=self.auth)
+            self.logger.info('successfully connected to %s to enable interface', self.host)
+        except AttributeError as e:
+            self.logger.info('Failed to connect to %s due to %s', self.host, e.message)
+            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
+        except ValueError as verr:
+            self.logger.error("Error while logging in to %s due to %s",
+                              self.host, verr.message)
+            raise ValueError("Error while logging in to %s due to %s",
+                             self.host, verr.message)
+        except self.ConnectionError as cerr:
+            self.logger.error("Connection failed while logging in to %s due to %s",
+                              self.host, cerr.message)
+            raise ValueError("Connection failed while logging in to %s due to %s",
+                             self.host, cerr.message)
+        except self.RestInterfaceError as rierr:
+            self.logger.error("Failed to get a REST response while logging in "
+                              "to %s due to %s", self.host, rierr.message)
+            raise ValueError("Failed to get a REST response while logging in "
+                             "to %s due to %s", self.host, rierr.message)
+        self._check_requirements(macs)
+        results = self._find_mac_addresses(device, macs)
+        self.logger.info('Closing connection to %s after searching MACs -- all done!',
+                         self.host)
 
         return results
 
     def _check_requirements(self, macs):
-        """ Verify if the port channel already exists """
         for mac in macs:
             if not self.is_valid_mac(mac):
                 raise ValueError('Not a valid MAC %s to find', mac)
 
     def _find_mac_addresses(self, device, macs):
+
         """ Find MACs found on interfaces in a VCS."""
-        mac_table = device.mac_table
-        port_channels = device.interface.port_channels
+        try:
+            mac_table = device.get_mac_address_table_rpc(None)
+        except Exception as e:
+            raise ValueError(e.message)
         mac_list = []
+        results = []
         for mac in macs:
             mac_list.append(self.mac_converter(mac))
-        results = [x for x in mac_table if x['mac_address'] in mac_list]
-        for result in results:
-            result['member-ports'] = []
-            if result['interface'].startswith('port-channel'):
-                for po in port_channels:
-                    if result['interface'] == ('port-channel' + po['aggregator_id']):
-                        for interface in po['interfaces']:
-                            result['member-ports'].append(interface['interface-name'])
+        mac_result = mac_table[1][0][self.host]['response']['json']['output']['mac-address-table']
+        if type(mac_result) == dict:
+            mac_result = [mac_result, ]
+        for each in mac_list:
+            found = False
+            for mac in mac_result:
+                if mac['mac-address'] == each:
+                    output = {}
+                    found = True
+                    self.logger.info('mac-address %s found', each)
+                    for key, value in mac.iteritems():
+                        output[key] = value
+                    if output['forwarding-interface']['interface-type'].startswith('port-channel'):
+                        output['member-ports'] = []
+                        port_channel_num = int(output['forwarding-interface']['interface-name'])
+                        members = self._get_port_channel_members(device, port_channel_num)
+                        for member in members:
+                            output['member-ports'].\
+                                append(member['interface-type'] + ' ' + member['interface-name'])
+                    results.append(output)
+            if found is False:
+                self.logger.info('mac-address %s not found', each)
         return results
