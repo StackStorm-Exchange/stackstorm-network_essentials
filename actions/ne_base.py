@@ -20,7 +20,6 @@ import pynos.device
 import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
-import socket
 from st2actions.runners.pythonrunner import Action
 
 
@@ -297,7 +296,6 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
-
 
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
