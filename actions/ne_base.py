@@ -18,6 +18,8 @@ import re
 import ipaddress
 import pynos.device
 import pynos.utilities
+import pyswitchlib.asset
+import requests.exceptions
 from st2actions.runners.pythonrunner import Action
 
 
@@ -30,6 +32,9 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.asset = pyswitchlib.asset.Asset
+        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
@@ -161,7 +166,7 @@ class NosDeviceAction(Action):
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                 str(intf))
+                                str(intf))
             int_list = int_list
         else:
             msg = 'Invalid interface format'
@@ -253,3 +258,71 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
+
+    def _get_acl_type_(self, device, acl_name):
+        acl_type = {}
+        try:
+            get = device.ip_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ip_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            self.logger.info('Cannot get acl-type for  %s', acl_name)
+            return None
+
+    def _get_seq_(self, device, acl_name, acl_type, seq_id):
+
+        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+            device.ip_access_list_standard_get
+
+        try:
+            get_output = get(acl_name, resource_depth=3)
+            acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
+            if 'seq' in acl_dict:
+                seq_list = acl_dict['seq']
+                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                for seq in seq_list:
+                    if seq['seq-id'] == str(seq_id):
+                        return seq
+            else:
+                self.logger.info('No seq present in acl %s', acl_name)
+                return None
+
+        except:
+            self.logger.info('cannot get seq in acl %s', acl_name)
+            return None

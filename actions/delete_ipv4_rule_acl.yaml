@@ -1,0 +1,34 @@
+---
+name: delete_ipv4_rule_acl
+pack: network_essentials
+runner_type: run-python
+description: Delete an L3 IPV4 ACL rule of an existing ACL
+enabled: true
+entry_point: delete_ipv4_rule_acl.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to delete the acl rule
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: Name of the access list (standard or extended) to delete the rule from
+    required: true
+    position: 3
+  seq_id:
+    type: integer
+    description: Sequence number of the rule to be deleted.
+    required: true
+    position: 4
