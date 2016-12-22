@@ -23,10 +23,10 @@ class CreateVlan(NosDeviceAction):
            2.Check for the vlan on the Device,if not present create it
     """
 
-    def run(self, mgmt_ip, user, passwd, vlan_id, intf_desc):
+    def run(self, mgmt_ip, username, password, vlan_id, intf_desc):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
         try:
@@ -82,20 +82,21 @@ class CreateVlan(NosDeviceAction):
             else:
                 result['result'] = 'False'
                 result['output'] = 'VLAN already exists on the device'
-                self.logger.info('Cannot create VLAN %s as VLAN already exists', vlan)
+                self.logger.info('VLAN %s already exists, not created', vlan)
 
             if intf_desc:
                 self.logger.info('Configuring VLAN description as %s', intf_desc)
                 try:
                     desc = device.vlan_update(vlan=str(vlan), description=str(intf_desc))
                     if 'False' in str(desc[0]):
-                        self.logger.info('Cannot configure vlan interface description because %s',
+                        self.logger.info('Cannot update vlan interface description because %s',
                                          desc[1][0][self.host]['response']['json']['output'])
                     elif 'True' in str(desc[0]):
-                        self.logger.info('Successfully configured VLAN description')
-                except:
+                        self.logger.info('Successfully updated VLAN description')
+                except self.ValueError as vr:
                     self.logger.info('Configuring VLAN interface failed')
+                    raise ValueError('Configuring VLAN interface failed', vr.message)
             else:
-                self.logger.debug('Skipping to configure Interface description,'
+                self.logger.debug('Skipping to update Interface description,'
                                   ' as no info provided')
         return result
