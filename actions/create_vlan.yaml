@@ -2,21 +2,21 @@
 name: create_vlan
 pack: network_essentials
 runner_type: run-python
-description: Create interface VLANs on a device
+description: Create interface VLANs on VDX or SLX device
 enabled: true
 entry_point: create_vlan.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to get the NOS version
+    description: Device to create VLANs
     required: true
     position: 0
-  username:
+  user:
     type: string
     description: login username
     default: admin
     position: 1
-  password:
+  passwd:
     type: string
     description: login password
     default: password
