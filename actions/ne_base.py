@@ -18,6 +18,8 @@ import re
 import ipaddress
 import pynos.device
 import pynos.utilities
+import pyswitchlib.asset
+import requests.exceptions
 from st2actions.runners.pythonrunner import Action
 
 
@@ -30,6 +32,9 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.asset = pyswitchlib.asset.Asset
+        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
