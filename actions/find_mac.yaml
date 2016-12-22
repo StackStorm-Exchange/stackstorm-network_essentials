@@ -10,11 +10,11 @@ parameters:
     type: string
     description: Ip address of the VDX or SLX device
     required: true
-  user:
+  username:
     type: string
     description: login username
     default: admin
-  passwd:
+  password:
     type: string
     description: login password
     default: password

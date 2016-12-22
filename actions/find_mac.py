@@ -20,11 +20,11 @@ class FindMAC(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX or SLX Devices .
     """
 
-    def run(self, mgmt_ip, user, passwd, macs):
+    def run(self, mgmt_ip, username, password, macs):
         """Run helper methods to implement the desired state.
         """
 
-        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         results = []
         try:
             device = self.asset(ip_addr=self.host, auth=self.auth)
