@@ -17,94 +17,85 @@ from ne_base import NosDeviceAction
 
 class CreateVlan(NosDeviceAction):
     """
-       Implements the logic to create vlans on VDX switches.
-       This action acheives the below functionality
-           1.Vlan Id validation
+       Implements the logic to create vlans on VDX and SLX devices.
+       This action achieves the below functionality
+           1.Vlan Id and description validation
            2.Check for the vlan on the Device,if not present create it
     """
 
-    virtual_fabric = "Fabric is not enabled to support Virtual Fabric configuration"
-
-    def run(self, mgmt_ip, username, password, vlan_id, intf_desc):
+    def run(self, mgmt_ip, user, passwd, vlan_id, intf_desc):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
         changes = {}
 
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to create vlan', self.host)
-            # Check is the user input for VLANS is correct
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
-            # Check if the description is valid
-            valid_desc = True
-            if intf_desc:
-                # if description is passed we validate that the length is good.
-                valid_desc = self.check_int_description(intf_description=intf_desc)
-            if vlan_list and valid_desc:
-                changes['vlan'] = self._create_vlan(device, vlan_id=vlan_list, intf_desc=intf_desc)
-            else:
-                raise ValueError('Input is not a valid vlan or description')
-            self.logger.info('closing connection to %s after configuring create vlan -- all done!',
-                             self.host)
+        try:
+            device = self.asset(ip_addr=self.host, auth=self.auth)
+            self.logger.info('successfully connected to %s to enable interface', self.host)
+        except AttributeError as e:
+            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
+        except ValueError as verr:
+            self.logger.error("Error while logging in to %s due to %s",
+                              self.host, verr.message)
+            raise ValueError("Error while logging in to %s due to %s",
+                             self.host, verr.message)
+        except self.ConnectionError as cerr:
+            self.logger.error("Connection failed while logging in to %s due to %s",
+                              self.host, cerr.message)
+            raise ValueError("Connection failed while logging in to %s due to %s",
+                             self.host, cerr.message)
+        except self.RestInterfaceError as rierr:
+            self.logger.error("Failed to get a REST response while logging in "
+                              "to %s due to %s", self.host, rierr.message)
+            raise ValueError("Failed to get a REST response while logging in "
+                             "to %s due to %s", self.host, rierr.message)
+
+        # Check is the user input for VLANS is correct
+        vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+
+        valid_desc = True
+        if intf_desc:
+            # if description is passed we validate that the length is good.
+            valid_desc = self.check_int_description(intf_description=intf_desc)
+
+        if vlan_list and valid_desc:
+            changes['vlan'] = self._create_vlan(device, vlan_id=vlan_list, intf_desc=intf_desc)
+        else:
+            raise ValueError('Input is not a valid vlan or description')
+
+        self.logger.info('Closing connection to %s after configuring create vlan -- all done!',
+                         self.host)
+
         return changes
 
     def _create_vlan(self, device, vlan_id, intf_desc):
-        """Configure vlan under global mode.
-        """
+        result = {}
 
-        vlan_len = len(vlan_id)
-        sysvlans = device.interface.vlans
-        is_vlan_interface_present = False
-
-        """ The below code is to verify the given vlan is already present in VDX switch
-        """
-        vlan_list = []
         for vlan in vlan_id:
-            for svlan in sysvlans:
-                temp_vlan = int(svlan['vlan-id'])
-                if temp_vlan == vlan:
-                    is_vlan_interface_present = True
-                    vlan_list.append(vlan)
-                    self.logger.info('vlan %s already present on %s', vlan, self.host)
-                    if intf_desc:
-                        device.interface.description(int_type="vlan", name=vlan,
-                                                     desc=intf_desc)
-                    else:
-                        self.logger.debug('Skipping description configuration')
-                    if vlan_len == 1:
-                        break
+            check_vlan = device.vlan_get(vlan)
 
-            """ The below code is for creating single vlan.
-            """
-            if not is_vlan_interface_present and vlan_len == 1:
-                self.logger.info('configuring vlan %s on %s', vlan, self.host)
-                error = device.interface.add_vlan_int(str(vlan))
-                if intf_desc:
-                    device.interface.description(int_type="vlan", name=vlan,
-                                                 desc=intf_desc)
-                else:
-                    self.logger.debug('Skipping description configuration')
-                if not error:
-                    msg = 'Fabric is not enabled to support Virtual Fabric configuration \
-                           on %s' % self.host
-                    raise ValueError(msg)
+            if str(check_vlan[0]) == 'False':
+                cr_vlan = device.vlan_create(vlan)
+                self.logger.info('Successfully created a VLAN %s', vlan)
+                result['result'] = cr_vlan[0]
+                result['output'] = cr_vlan[1][0][self.host]['response']['json']['output']
+            else:
+                result['result'] = 'False'
+                result['output'] = 'VLAN already exists on the device'
+                self.logger.info('Cannot create VLAN %s as VLAN already exists', vlan)
 
-        """ The below code is for creating more than one vlan.
-        """
-        if vlan_len > 1:
-            vid_list = [x for x in vlan_id if x not in vlan_list]
-            for vlan in vid_list:
-                self.logger.info('configuring vlan %s on %s', vlan, self.host)
-                error = device.interface.add_vlan_int(str(vlan))
-                if intf_desc:
-                    device.interface.description(int_type="vlan", name=vlan,
-                                                 desc=intf_desc)
-                else:
-                    self.logger.debug('Skipping description configuration')
-
-                if not error:
-                    msg = 'Fabric is not enabled to support Virtual Fabric configuration \
-                           on %s' % self.host
-                    raise ValueError(msg)
-
-        return True
+            if intf_desc:
+                self.logger.info('Configuring VLAN description as %s', intf_desc)
+                try:
+                    desc = device.vlan_update(vlan=str(vlan), description=str(intf_desc))
+                    if 'False' in str(desc[0]):
+                        self.logger.info('Cannot configure vlan interface description because %s',
+                                         desc[1][0][self.host]['response']['json']['output'])
+                    elif 'True' in str(desc[0]):
+                        self.logger.info('Successfully configured VLAN description')
+                except:
+                    self.logger.info('Configuring VLAN interface failed')
+            else:
+                self.logger.debug('Skipping to configure Interface description,'
+                                  ' as no info provided')
+        return result
