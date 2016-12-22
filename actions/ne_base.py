@@ -24,7 +24,6 @@ from st2actions.runners.pythonrunner import Action
 
 
 class NosDeviceAction(Action):
-
     def __init__(self, config=None, action_service=None):
         super(NosDeviceAction, self).__init__(config=config, action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
@@ -351,9 +350,10 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
-    
-        def _get_acl_type_(self, device, acl_name):
+
+    def _get_acl_type_(self, device, acl_name):
         acl_type = {}
+
         try:
             get = device.ip_access_list_standard_get(acl_name)
             acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
