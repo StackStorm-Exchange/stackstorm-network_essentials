@@ -18,6 +18,8 @@ import re
 import ipaddress
 import pynos.device
 import pynos.utilities
+import pyswitchlib.asset
+import requests.exceptions
 from st2actions.runners.pythonrunner import Action
 
 
@@ -30,6 +32,9 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.asset = pyswitchlib.asset.Asset
+        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
@@ -161,7 +166,7 @@ class NosDeviceAction(Action):
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                 str(intf))
+                                str(intf))
             int_list = int_list
         else:
             msg = 'Invalid interface format'
