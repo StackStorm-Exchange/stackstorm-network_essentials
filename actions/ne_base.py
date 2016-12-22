@@ -18,6 +18,8 @@ import re
 import ipaddress
 import pynos.device
 import pynos.utilities
+import pyswitchlib.asset
+import requests.exceptions
 from st2actions.runners.pythonrunner import Action
 
 
@@ -30,6 +32,9 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.asset = pyswitchlib.asset.Asset
+        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
@@ -161,7 +166,7 @@ class NosDeviceAction(Action):
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                 str(intf))
+                                str(intf))
             int_list = int_list
         else:
             msg = 'Invalid interface format'
@@ -253,3 +258,43 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
+
+    def _get_port_channel_members(self, device, portchannel_num):
+        members = []
+        results = []
+        port_channel_exist = False
+        keys = ['interface-type', 'rbridge-id', 'interface-name', 'sync']
+        get = device.get_port_channel_detail_rpc()
+        output = get[1][0][self.host]['response']['json']['output']
+        if 'lacp' in output:
+            port_channel_get = output['lacp']
+        else:
+            self.logger.info(
+                'Port Channel is not configured on the device')
+            return None
+        if type(port_channel_get) == dict:
+            port_channel_get = [port_channel_get, ]
+        for port_channel in port_channel_get:
+            print port_channel
+            if port_channel['aggregator-id'] == str(portchannel_num):
+                port_channel_exist = True
+                if 'aggr-member' in port_channel:
+                    members = port_channel['aggr-member']
+                else:
+                    self.logger.info('Port Channel %s does not have any members',
+                                     str(portchannel_num))
+                    return results
+        if not port_channel_exist:
+            self.logger.info('Port Channel %s is not configured on the device',
+                             str(portchannel_num))
+            return results
+
+        if type(members) == dict:
+            members = [members, ]
+        for member in members:
+            result = {}
+            for key, value in member.iteritems():
+                if key in keys:
+                    result[key] = value
+            results.append(result)
+        return results
