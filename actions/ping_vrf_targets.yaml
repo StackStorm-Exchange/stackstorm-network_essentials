@@ -1,0 +1,55 @@
+---
+name: ping_vrf_targets
+pack: dcfabric
+runner_type: run-python
+description: ping vrf targets
+enabled: true
+entry_point: ping_vrf_targets.py
+parameters:
+  host:
+    type: string
+    description: Ip address of the VDX device
+    required: true
+    position: 0
+  user:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  passwd:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  targets:
+    type: array
+    description: CLI commands to execute on the specified VDX device
+    required: true
+    position: 3
+  count:
+    type: integer
+    description: Count parameter for ping command. Specifies the number of transmission(pings).
+    required: false
+    default: 4
+  timeout_value:
+    type: integer
+    description: Timeout parameter for ping command. Specifies the time(in seconds) to wait for a response
+    required: false
+    default: 1
+  vrf:
+    type: string
+    description: vrf name
+    required: false
+    default: 'default-vrf'
+    position: 4
+  size:
+    type: integer
+    description: datagram-size
+    required: false
+    default: 56
+  intf_type:
+    type: string
+    description: interface type
+    required: false
+    position: 5
