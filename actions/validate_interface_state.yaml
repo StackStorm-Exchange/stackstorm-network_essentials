@@ -47,3 +47,8 @@ parameters:
     description: Interface state(up/down)
     required: true
     position: 5
+  rbridge_id:
+    type: string
+    description: rbridge id under which ve will be configured only needed for NOS device
+    required: false
+    position: 6
