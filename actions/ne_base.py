@@ -258,3 +258,49 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
+
+    def _get_acl_type_(self, device, acl_name):
+        acl_type = {}
+        try:
+            get = device.ip_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ip_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            self.logger.info('Cannot get acl-type for  %s', acl_name)
+            return None
