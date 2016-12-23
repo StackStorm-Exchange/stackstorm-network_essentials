@@ -2,7 +2,7 @@
 name: validate_interface_vlan
 pack: network_essentials
 runner_type: run-python
-description: Validate port channel/physical interface and mode belongs to a VLAN on a Device
+description: Validate port channel/physical interface and mode belongs to a VLAN/SLX on a Device (TODO: change vland_id to vlan_list)
 enabled: true
 entry_point: validate_interface_vlan.py
 parameters:
