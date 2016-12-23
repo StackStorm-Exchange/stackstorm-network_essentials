@@ -21,6 +21,7 @@ class CreateVlan(NosDeviceAction):
        This action achieves the below functionality
            1.Vlan Id and description validation
            2.Check for the vlan on the Device,if not present create it
+           3.No errors reported when the VLAN already exists (idempotent)
     """
 
     def run(self, mgmt_ip, username, password, vlan_id, intf_desc):
