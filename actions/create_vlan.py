@@ -93,9 +93,9 @@ class CreateVlan(NosDeviceAction):
                                          desc[1][0][self.host]['response']['json']['output'])
                     elif 'True' in str(desc[0]):
                         self.logger.info('Successfully updated VLAN description')
-                except self.ValueError as vr:
+                except (KeyError, ValueError, AttributeError) as e:
                     self.logger.info('Configuring VLAN interface failed')
-                    raise ValueError('Configuring VLAN interface failed', vr.message)
+                    raise ValueError('Configuring VLAN interface failed', e.message)
             else:
                 self.logger.debug('Skipping to update Interface description,'
                                   ' as no info provided')
