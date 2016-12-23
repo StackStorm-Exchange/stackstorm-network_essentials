@@ -76,16 +76,19 @@ class CreatePortChannel(NosDeviceAction):
         for each in intf_name:
             r1 = self.validate_interface(intf_type=intf_type, intf_name=each)
             if not r1:
+                self.logger.error('Not a valid interface type %s or number %s', intf_type, each)
                 raise ValueError('Not a valid interface type or number', intf_type, each)
 
         r2 = self.validate_interface(intf_type='port_channel', intf_name=portchannel_num)
         if not r2:
+            self.logger.error('Port Channel number %s is not a valid value', portchannel_num)
             raise ValueError('Port Channel number %s is not a valid value', portchannel_num)
 
         valid_desc = True
         if intf_desc:
             valid_desc = self.check_int_description(intf_description=intf_desc)
             if not valid_desc:
+                self.logger.error('Invalid interface description %s', intf_desc)
                 raise ValueError('Invalid interface description %s', intf_desc)
             members = self._get_port_channel_members(device, portchannel_num)
         port_channels = self._get_port_channels(device)
@@ -154,7 +157,7 @@ class CreatePortChannel(NosDeviceAction):
                                      result[1][0][self.host]['response']['json']['output'])
 
             except (AttributeError, ValueError) as e:
-                self.logger.info('Port Channel %s Creation and setting channel mode %s '
+                self.logger.error('Port Channel %s Creation and setting channel mode %s '
                                  'failed due to %s', portchannel_num, channel_type, e.message)
                 raise ValueError(e.message)
 
@@ -216,13 +219,13 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
 
                 elif conf_intf[0] == 'False':
-                    self.logger.info('disabling fabric trunk on %s %s failed due to %s',
+                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
                                      intf_type,
                                      intf,
                                      conf_intf[1][0][self.host]
                                      ['response']['json']['output'])
         except (KeyError, ValueError, AttributeError):
-            self.logger.info('Invalid Input values while disabling fabric trunk')
+            self.logger.error('Invalid Input values while disabling fabric trunk')
             return False
         return True
 
@@ -252,7 +255,7 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
 
                 elif conf_intf[0] == 'False':
-                    self.logger.info('disabling fabric trunk on %s %s failed due to %s',
+                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
                                      intf_type,
                                      intf,
                                      conf_intf[1][0][self.host]
@@ -290,7 +293,7 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
 
                 elif conf_intf[0] == 'False':
-                    self.logger.info('disabling fabric trunk on %s %s failed due to %s',
+                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
                                      intf_type,
                                      intf,
                                      conf_intf[1][0][self.host]
