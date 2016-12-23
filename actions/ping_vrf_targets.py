@@ -45,7 +45,7 @@ class CheckPing(Action):
                 cli_cmd.append(cli)
             return cli_cmd
         except ValueError:
-            self.logger.info('Invalid IP')
+            self.logger.error('Invalid IP')
             return False
 
     def execute_cli(self, opt, cli_list):
@@ -57,12 +57,15 @@ class CheckPing(Action):
                 cli_output[cmd] = (net_connect.send_command(cmd))
                 self.logger.info('successfully executed cli %s', cmd)
         except (NetMikoTimeoutException, NetMikoAuthenticationException,) as e:
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
             raise ValueError('Failed to execute cli on %s due to %s', opt['ip'], reason)
         except SSHException as e:
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
             raise ValueError('Failed to execute cli on %s due to %s', opt['ip'], reason)
         except Exception as e:
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
             # This is in case of I/O Error, which could be due to
             # connectivity issue or due to pushing commands faster than what
