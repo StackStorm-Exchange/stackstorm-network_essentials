@@ -57,22 +57,23 @@ class CheckPing(Action):
                 cli_output[cmd] = (net_connect.send_command(cmd))
                 self.logger.info('successfully executed cli %s', cmd)
         except (NetMikoTimeoutException, NetMikoAuthenticationException,) as e:
-            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             raise ValueError('Failed to execute cli on %s due to %s', opt['ip'], reason)
+
         except SSHException as e:
-            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             raise ValueError('Failed to execute cli on %s due to %s', opt['ip'], reason)
         except Exception as e:
-            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             reason = e.message
             # This is in case of I/O Error, which could be due to
             # connectivity issue or due to pushing commands faster than what
             #  the switch can handle
+            self.logger.error('Failed to execute cli on %s due to %s', opt['ip'], reason)
             raise ValueError('Failed to execute cli on %s due to %s', opt['ip'], reason)
         finally:
-            if net_connect is not None:
+            if not net_connect:
                 net_connect.disconnect()
         return cli_output
 
