@@ -6,17 +6,17 @@ description: Validate the state for port channel or physical interface is UP
 enabled: true
 entry_point: validate_interface_state.py
 parameters:
-  host:
+  mgmt_ip:
     type: string
     description: Device to get the NOS version
     required: true
     position: 0
-  user:
+  username:
     type: string
     description: login username
     default: admin
     position: 1
-  passwd:
+  password:
     type: string
     description: login password
     default: password
