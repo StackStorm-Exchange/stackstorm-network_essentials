@@ -45,7 +45,7 @@ class CheckPing(Action):
                 cli_cmd.append(cli)
             return cli_cmd
         except ValueError:
-            print "Invalid IP"
+            self.logger.info('Invalid IP')
             return False
 
     def execute_cli(self, opt, cli_list):
@@ -157,5 +157,4 @@ class CheckPing(Action):
             final_output.append(output_dict)
         json_outputformat = json.dumps(
             final_output, sort_keys=True, indent=4, separators=(',', ': '))
-        print json_outputformat
         return json_outputformat
