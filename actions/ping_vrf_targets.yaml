@@ -6,17 +6,17 @@ description: ping vrf targets
 enabled: true
 entry_point: ping_vrf_targets.py
 parameters:
-  host:
+  mgmt_ip:
     type: string
     description: Ip address of the VDX or SLX device
     required: true
     position: 0
-  user:
+  username:
     type: string
     description: login username
     default: admin
     position: 1
-  passwd:
+  password:
     type: string
     description: login password
     default: password
