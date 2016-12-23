@@ -24,7 +24,7 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: single VLAN
+    description: single VLAN or List of VLANS with , seperated
     required: true
     position: 3
   intf_name:
