@@ -21,10 +21,10 @@ class ValidateInterfaceState(NosDeviceAction):
        state on VDX and SLX devices.
     """
 
-    def run(self, host, user, passwd, intf_type, intf_name, intf_state, rbridge_id):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name, intf_state, rbridge_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=host, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
         try:
             device = self.asset(ip_addr=self.host, auth=self.auth)
