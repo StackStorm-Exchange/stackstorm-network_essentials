@@ -54,7 +54,7 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
         try:
             intf_vlan_list = output[1][0][self.host]['response']['json']['output']['switchport']
         except:
-            self.logger.info('No switchport configured')
+            self.logger.error('No switchport configured')
             return False
         if type(intf_vlan_list) == dict:
             intf_vlan_list = [intf_vlan_list, ]
@@ -64,7 +64,7 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
                 try:
                     vid = out['active-vlans']['vlanid']
                 except:
-                    self.logger.info('No active VLAN associated with %s', vlan_id)
+                    self.logger.error('No active VLAN associated with %s', vlan_id)
                     return False
                 if vlanid in str(vid):
                     is_vlan_interface_present = True
@@ -78,10 +78,10 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
                 else:
                     continue
         if not is_vlan_interface_present:
-            self.logger.info("Vlan not exist on the device")
+            self.logger.error("Vlan not exist on the device")
             return False
         if not is_intf_name_mode_present:
-            self.logger.info("Invalid port channel/physical interface or mode belongs to a VLAN")
+            self.logger.error("Invalid port channel/physical interface or mode belongs to a VLAN")
             return False
 
         return True
