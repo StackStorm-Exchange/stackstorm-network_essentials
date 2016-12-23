@@ -90,7 +90,7 @@ class CreatePortChannel(NosDeviceAction):
             if not valid_desc:
                 self.logger.error('Invalid interface description %s', intf_desc)
                 raise ValueError('Invalid interface description %s', intf_desc)
-            members = self._get_port_channel_members(device, portchannel_num)
+
         port_channels = self._get_port_channels(device)
 
         # Verify if the port channel to interface mapping is already existing
@@ -104,20 +104,20 @@ class CreatePortChannel(NosDeviceAction):
                         if member['interface-type'] == intf_type \
                                 and member['interface-name'] in intf_name:
                             if portchannel_num == int(port_chann['aggregator-id']):
-                                self.logger.info(
+                                self.logger.error(
                                     'Port Channel %s to interface %s %s mapping is'
                                     ' pre-existing',
                                     portchannel_num, member['interface-type'],
                                     member['interface-name'])
                             else:
-                                self.logger.info('Interface %s %s is already mapped to a'
-                                                 ' different port channel %s',
-                                                 member['interface-type'],
-                                                 member['interface-name'],
-                                                 port_chann['aggregator-id'])
+                                self.logger.error('Interface %s %s is already mapped to a'
+                                                  ' different port channel %s',
+                                                  member['interface-type'],
+                                                  member['interface-name'],
+                                                  port_chann['aggregator-id'])
 
                             return False
-        self.logger.info('Check requirements completed')
+        self.logger.info('Check requirements passed')
         return True
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
@@ -136,8 +136,8 @@ class CreatePortChannel(NosDeviceAction):
         elif intf_type == 'hundredgigabitethernet':
             create = device.interface_hundredgigabitethernet_channel_group_update
         else:
-            self.logger.info('intf_type %s is not supported',
-                             intf_type)
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
 
         for intf in intf_name:
@@ -150,15 +150,20 @@ class CreatePortChannel(NosDeviceAction):
                                      ' and protocol as active on interface %s is done',
                                      portchannel_num, channel_type, intf)
                 else:
-                    self.logger.info('Port Channel %s Creation and setting channel mode %s failed'
-                                     ' due to %s',
-                                     portchannel_num,
-                                     channel_type,
-                                     result[1][0][self.host]['response']['json']['output'])
+                    self.logger.error('Port Channel %s creation and setting channel mode %s failed'
+                                      ' due to %s',
+                                      portchannel_num,
+                                      channel_type,
+                                      result[1][0][self.host]['response']['json']['output'])
+                    raise self.RestInterfaceError(result[1][0]
+                                                  [self.host]['response']['json']['output'])
 
             except (AttributeError, ValueError) as e:
                 self.logger.error('Port Channel %s Creation and setting channel mode %s '
-                                 'failed due to %s', portchannel_num, channel_type, e.message)
+                                  'failed due to %s',
+                                  portchannel_num,
+                                  channel_type,
+                                  e.message)
                 raise ValueError(e.message)
 
             # no-shut on the interface
@@ -206,8 +211,8 @@ class CreatePortChannel(NosDeviceAction):
         elif intf_type == 'hundredgigabitethernet':
             update = device.interface_hundredgigabitethernet_fabric_isl_update
         else:
-            self.logger.info('intf_type %s is not supported',
-                             intf_type)
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
 
         try:
@@ -220,10 +225,10 @@ class CreatePortChannel(NosDeviceAction):
 
                 elif conf_intf[0] == 'False':
                     self.logger.error('disabling fabric trunk on %s %s failed due to %s',
-                                     intf_type,
-                                     intf,
-                                     conf_intf[1][0][self.host]
-                                     ['response']['json']['output'])
+                                      intf_type,
+                                      intf,
+                                      conf_intf[1][0][self.host]
+                                      ['response']['json']['output'])
         except (KeyError, ValueError, AttributeError):
             self.logger.error('Invalid Input values while disabling fabric trunk')
             return False
@@ -243,8 +248,8 @@ class CreatePortChannel(NosDeviceAction):
         elif intf_type == 'hundredgigabitethernet':
             update = device.interface_hundredgigabitethernet_fabric_trunk_update
         else:
-            self.logger.info('intf_type %s is not supported',
-                             intf_type)
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
 
         try:
@@ -256,12 +261,12 @@ class CreatePortChannel(NosDeviceAction):
 
                 elif conf_intf[0] == 'False':
                     self.logger.error('disabling fabric trunk on %s %s failed due to %s',
-                                     intf_type,
-                                     intf,
-                                     conf_intf[1][0][self.host]
-                                     ['response']['json']['output'])
+                                      intf_type,
+                                      intf,
+                                      conf_intf[1][0][self.host]
+                                      ['response']['json']['output'])
         except (KeyError, ValueError, AttributeError):
-            self.logger.info('Invalid Input values while disabling fabric trunk')
+            self.logger.error('Invalid Input values while disabling fabric trunk')
             return False
         return True
 
@@ -280,8 +285,8 @@ class CreatePortChannel(NosDeviceAction):
         elif intf_type == 'hundredgigabitethernet':
             update = device.interface_hundredgigabitethernet_fabric_neighbor_discovery_update
         else:
-            self.logger.info('intf_type %s is not supported',
-                             intf_type)
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
 
         try:
@@ -294,11 +299,11 @@ class CreatePortChannel(NosDeviceAction):
 
                 elif conf_intf[0] == 'False':
                     self.logger.error('disabling fabric trunk on %s %s failed due to %s',
-                                     intf_type,
-                                     intf,
-                                     conf_intf[1][0][self.host]
-                                     ['response']['json']['output'])
+                                      intf_type,
+                                      intf,
+                                      conf_intf[1][0][self.host]
+                                      ['response']['json']['output'])
         except (KeyError, ValueError, AttributeError):
-            self.logger.info('Invalid Input values while disabling fabric trunk')
+            self.logger.error('Invalid Input values while disabling fabric trunk')
             return False
         return True

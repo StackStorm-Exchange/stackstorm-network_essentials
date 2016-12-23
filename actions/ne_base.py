@@ -113,13 +113,13 @@ class NosDeviceAction(Action):
             reserved_vlan_list.append(1002)
 
             if not tmp_vlan_id:
-                self.logger.info("'Not a valid VLAN %s", vid)
+                self.logger.error("'Not a valid VLAN %s", vid)
                 return None
             if vid == 1:
-                self.logger.info("vlan %s is default vlan", vid)
+                self.logger.error("vlan %s is default vlan", vid)
                 return None
             elif vid in reserved_vlan_list:
-                self.logger.info("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                self.logger.error("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
                 return None
 
         return vlan_id
@@ -148,8 +148,8 @@ class NosDeviceAction(Action):
         else:
             msg = 'Invalid interface format'
 
-        if msg is not None:
-            self.logger.info(msg)
+        if msg:
+            self.logger.error(msg)
             return False
 
         intTypes = ["ve", "loopback", "ethernet"]
@@ -313,18 +313,9 @@ class NosDeviceAction(Action):
                         self.logger.info('Port Channel %s does not have any members',
                                          str(portchannel_num))
                         return results
-        get = device.get_port_channel_detail_rpc()
-        output = get[1][0][self.host]['response']['json']['output']
-        if 'lacp' in output:
-            port_channel_get = output['lacp']
         else:
-            self.logger.info(
-                'Port Channel is not configured on the device')
             return None
-        if type(port_channel_get) == dict:
-            port_channel_get = [port_channel_get, ]
         for port_channel in port_channel_get:
-            print port_channel
             if port_channel['aggregator-id'] == str(portchannel_num):
                 port_channel_exist = True
                 if 'aggr-member' in port_channel:
@@ -349,8 +340,17 @@ class NosDeviceAction(Action):
         return results
 
     def _get_port_channels(self, device):
-        get = device.get_port_channel_detail_rpc()
-        output = get[1][0][self.host]['response']['json']['output']
+        connected = False
+        for _ in range(5):
+            get = device.get_port_channel_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get Port Channels')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
         if 'lacp' in output:
             port_channel_get = output['lacp']
         else:
@@ -401,7 +401,17 @@ class NosDeviceAction(Action):
     def _get_interface_admin_state(self, device, intf_type, intf_name):
         is_intf_name_present = False
         admin_state = None
-        output = device.get_interface_detail_rpc()[1][0][self.host]['response']['json']['output']
+        connected = False
+        for _ in range(5):
+            get = device.get_interface_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get interface details')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
         if 'interface' in output:
             intf_dict = output['interface']
             if type(intf_dict) == dict:
