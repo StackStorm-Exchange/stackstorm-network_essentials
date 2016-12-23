@@ -296,6 +296,7 @@ class NosDeviceAction(Action):
                 return False
 
         return True
+    
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
         results = []
