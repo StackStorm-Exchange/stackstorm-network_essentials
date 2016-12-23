@@ -11,12 +11,12 @@ parameters:
     description: Device to validate the VLAN interface
     required: true
     position: 0
-  user:
+  username:
     type: string
     description: login username
     default: admin
     position: 1
-  passwd:
+  password:
     type: string
     description: login password
     default: password
