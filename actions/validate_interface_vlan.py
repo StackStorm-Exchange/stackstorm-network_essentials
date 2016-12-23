@@ -7,9 +7,9 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
        mode belongs to a VLAN on VDX and SLX devices.
     """
 
-    def run(self, mgmt_ip, user, passwd, vlan_id, intf_name, intf_mode):
+    def run(self, mgmt_ip, username, password, vlan_id, intf_name, intf_mode):
         """Run helper methods to implement the desired state."""
-        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
         try:
