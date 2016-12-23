@@ -4,11 +4,10 @@ from ne_base import NosDeviceAction
 class ValidateInterfaceVlanPy(NosDeviceAction):
     """
        Implements the logic to Validate port channel or physical interface and \
-       mode belongs to a VLAN on VDX and SLX devices.
+       mode belongs to a VLAN on devices.
     """
 
     def run(self, mgmt_ip, username, password, vlan_id, intf_name, intf_mode):
-        """Run helper methods to implement the desired state."""
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
@@ -17,6 +16,7 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
             self.logger.info('successfully connected to %s to validate interface vlan', self.host)
         except AttributeError as e:
             changes["result"] = "False"
+            self.logger.error("Failed to connect to %s due to %s", self.host, e.message)
             raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
         except ValueError as verr:
             self.logger.error("Error while logging in to %s due to %s",
@@ -40,6 +40,7 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
                                                                intf_name,
                                                                intf_mode)
         else:
+            self.logger.error('Input is not a valid vlan')
             raise ValueError('Input is not a valid vlan')
         self.logger.info('closing connection to %s after configuring create vlan -- all done!',
                          self.host)
