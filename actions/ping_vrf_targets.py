@@ -73,7 +73,7 @@ class CheckPing(Action):
                 net_connect.disconnect()
         return cli_output
 
-    def run(self, host, user, passwd, targets, count, timeout_value, vrf, size, intf_type):
+    def run(self, mgmt_ip, username, password, targets, count, timeout_value, vrf, size, intf_type):
         ipv4_address = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
         ipv6_address = re.compile('(?:(?:[0-9A-Fa-f]{1,4}:){6}(?:[0-9A-Fa-f]{1,4}:'
                                   '[0-9A-Fa-f]{1,4}|(?:(?:[0-9]|[1-9][0-9]|1[0-9]'
@@ -112,9 +112,9 @@ class CheckPing(Action):
         timeout_value = timeout_value if timeout_value else config['timeout_value']
         cli_list = self.create_ping_cmd(targets, vrf, count, timeout_value, size, intf_type)
         opt = {'device_type': 'brocade_vdx'}
-        opt['ip'] = host
-        opt['username'] = user
-        opt['password'] = passwd
+        opt['ip'] = mgmt_ip
+        opt['username'] = username
+        opt['password'] = password
         opt['verbose'] = True
         opt['global_delay_factor'] = 0.5
         cli_output = self.execute_cli(opt, cli_list)
