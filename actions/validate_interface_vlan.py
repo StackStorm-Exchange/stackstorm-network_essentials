@@ -75,8 +75,7 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
                                          intf_name, intf_mode, vlanid)
                     else:
                         continue
-                else:
-                    continue
+
         if not is_vlan_interface_present:
             self.logger.error("Vlan not exist on the device")
             return False
