@@ -1,0 +1,24 @@
+---
+name: get_os_version
+pack: network_essentials
+runner_type: run-python
+description: get os version for NOS or SLX device
+enabled: true
+entry_point: get_os_version.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to get the OS version
+    required: true
+    position: 0
+  user:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  passwd:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
