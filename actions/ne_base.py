@@ -397,7 +397,7 @@ class NosDeviceAction(Action):
         except:
             self.logger.info('Cannot get acl-type for  %s', acl_name)
             return None
-        
+
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
         results = []
