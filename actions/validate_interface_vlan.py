@@ -74,8 +74,6 @@ class ValidateInterfaceVlanPy(NosDeviceAction):
                         self.logger.info("Successfully Validated port channel/physical "
                                          "interface %s and mode %s belongs to a VLAN %s",
                                          intf_name, intf_mode, vlanid)
-                    else:
-                        continue
 
         if not is_vlan_interface_present:
             self.logger.error("Vlan not exist on the device")
