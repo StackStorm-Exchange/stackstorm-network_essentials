@@ -36,6 +36,7 @@ class ValidateL2PortChannelState(NosDeviceAction):
             device = self.asset(ip_addr=self.host, auth=self.auth)
             self.logger.info('successfully connected to %s to validate l2 port channel', self.host)
         except AttributeError as e:
+            self.logger.error('Failed to connect to %s due to %s', self.host, e.message)
             raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
         except ValueError as verr:
             self.logger.error("Error while logging in to %s due to %s",
