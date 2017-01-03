@@ -277,15 +277,6 @@ class NosDeviceAction(Action):
                         return results
         else:
             return None
-        for port_channel in port_channel_get:
-            if port_channel['aggregator-id'] == str(portchannel_num):
-                port_channel_exist = True
-                if 'aggr-member' in port_channel:
-                    members = port_channel['aggr-member']
-                else:
-                    self.logger.info('Port Channel %s does not have any members',
-                                     str(portchannel_num))
-                    return results
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
                              str(portchannel_num))
