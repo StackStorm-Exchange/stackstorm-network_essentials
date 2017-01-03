@@ -36,25 +36,21 @@ class CreateAcl(NosDeviceAction):
     def _create_acl(self, device, acl_type, acl_name):
         create = []
         result = {}
-        if acl_type == 'extended':
-            atype = 'extended'
-        elif acl_type == 'standard':
-            atype = 'standard'
-        else:
-            self.logger.info('Invalid acl_type %s', acl_type)
+        if not any([acl_type == 'extended', acl_type == 'standard']):
+            self.logger.error('Invalid acl_type %s', acl_type)
             return result
-        method = 'ip_access_list_{}_create'.format(atype)
+        method = 'ip_access_list_{}_create'.format(acl_type)
         create_acl = eval('device.{}'.format(method))
-        self.logger.info('Creating ACL %s', acl_name)
+        self.logger.info('Creating ACL %s of type %s', acl_name, acl_type)
         try:
             create = create_acl(acl_name)
             if not create[0]:
-                self.logger.info('Cannot create ACL %s due to %s', acl_name,
-                                 str(create[1][0][self.host]['response']['json']['output']))
+                self.logger.error('Cannot create ACL %s due to %s', acl_name,
+                                  str(create[1][0][self.host]['response']['json']['output']))
             else:
                 self.logger.info('Successfully created ACL %s in %s', acl_name, self.host)
         except (KeyError, ValueError, AttributeError) as e:
-            self.logger.info('Cannot create ACl %s due to %s', acl_name, e.message)
+            self.logger.error('Cannot create ACl %s due to %s', acl_name, e.message)
             raise ValueError(e.message)
         result['result'] = create[0]
         return result
