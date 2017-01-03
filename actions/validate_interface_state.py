@@ -16,10 +16,6 @@ from ne_base import NosDeviceAction
 
 
 class ValidateInterfaceState(NosDeviceAction):
-    """
-       Implements the logic to Validate port-channel/physical interface
-       state on VDX and SLX devices.
-    """
 
     def run(self, mgmt_ip, username, password, intf_type, intf_name, intf_state, rbridge_id):
         """Run helper methods to implement the desired state.
@@ -62,6 +58,7 @@ class ValidateInterfaceState(NosDeviceAction):
                                                              intf_state=intf_state,
                                                              rbridge_id=rbridge_id)
         else:
+            self.logger.error("'Input is not a valid interface type or name")
             raise ValueError('Input is not a valid interface type or name')
         self.logger.info('closing connection to %s after Validating interface state -- all done!',
                          self.host)
