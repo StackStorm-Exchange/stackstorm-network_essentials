@@ -86,10 +86,10 @@ class ValidateInterfaceState(NosDeviceAction):
                 continue
 
         if not is_intf_name_present:
-            self.logger.info("Invalid port channel/physical interface name/type")
+            self.logger.error("Invalid port channel/physical interface name/type")
             return False
         if not is_intf_state_present:
-            self.logger.info("Invalid port channel/physical interface state")
+            self.logger.error("Invalid port channel/physical interface state")
             return False
 
         return True
