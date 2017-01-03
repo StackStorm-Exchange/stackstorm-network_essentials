@@ -8,7 +8,7 @@ entry_point: find_mac.py
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the VDX device
+    description: Ip address of the VDX or SLX device
     required: true
   username:
     type: string
