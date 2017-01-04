@@ -148,7 +148,7 @@ class NosDeviceAction(Action):
             msg = 'Invalid interface format'
 
         if msg is not None:
-            self.logger.info(msg)
+            self.logger.error(msg)
             return False
 
         intTypes = ["ve", "loopback", "ethernet"]
@@ -156,7 +156,7 @@ class NosDeviceAction(Action):
             tmp_vlan_id = pynos.utilities.valid_interface(intf_type, name=str(intf))
 
             if not tmp_vlan_id:
-                self.logger.info("Not a valid interface type %s or name %s", intf_type, intf)
+                self.logger.error("Not a valid interface type %s or name %s", intf_type, intf)
                 return False
 
         return True
@@ -395,7 +395,7 @@ class NosDeviceAction(Action):
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except:
-            self.logger.info('Cannot get acl-type for  %s', acl_name)
+            self.logger.error('Cannot get acl-type for  %s', acl_name)
             return None
 
     def _get_port_channel_members(self, device, portchannel_num):
