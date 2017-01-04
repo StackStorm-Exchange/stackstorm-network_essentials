@@ -188,7 +188,7 @@ class CreatePortChannel(NosDeviceAction):
                                                 description=intf_desc,
                                                 shutdown=change_shutdown_state)
         if not conf_port_chan:
-            self.logger.info('Configuring no-shut and description on '
+            self.logger.error('Configuring no-shut and description on '
                              'port_channel %s failed',
                              portchannel_num)
             return False
