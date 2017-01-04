@@ -71,7 +71,6 @@ class APPLY_ACL(NosDeviceAction):
 
             aply_acl = eval('device.{}'.format(method))
             access_grp = (acl_name, acl_direction, traffic_type)
-            print access_grp
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
                              acl_name, intf_type, intf)
             try:
