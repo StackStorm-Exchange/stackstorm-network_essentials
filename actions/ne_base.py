@@ -302,7 +302,7 @@ class NosDeviceAction(Action):
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except:
-            self.logger.info('Cannot get acl-type for  %s', acl_name)
+            self.logger.error('Cannot get acl-type for  %s', acl_name)
             return None
 
     def _get_port_channel_members(self, device, portchannel_num):
