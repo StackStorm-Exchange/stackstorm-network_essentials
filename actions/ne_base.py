@@ -442,6 +442,21 @@ class NosDeviceAction(Action):
         if 'lacp' in output:
             port_channel_get = output['lacp']
         else:
+            self.logger.info(
+                'Port Channel is not configured on the device')
+            return None
+        if type(port_channel_get) == dict:
+            port_channel_get = [port_channel_get, ]
+        for port_channel in port_channel_get:
+            print port_channel
+            if port_channel['aggregator-id'] == str(portchannel_num):
+                port_channel_exist = True
+                if 'aggr-member' in port_channel:
+                    members = port_channel['aggr-member']
+                else:
+                    self.logger.info('Port Channel %s does not have any members',
+                                     str(portchannel_num))
+                    return results
             return None
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
