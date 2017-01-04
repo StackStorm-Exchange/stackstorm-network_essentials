@@ -79,15 +79,15 @@ class REMOVE_ACL(NosDeviceAction):
                 rmve = list(rmve_acl(rbridge_id, intf, access_grp)
                             if rbridge_id else list(rmve_acl(intf, access_grp)))
                 result.append(str(rmve[0]))
-                if not eval(str(rmve[0])):
-                    self.logger.info('Cannot remove  %s on interface %s %s due to %s',
-                                     acl_name, intf_type, intf,
-                                     str(rmve[1][0][self.host]['response']['json']['output']))
+                if not rmve[0]:
+                    self.logger.error('Cannot remove  %s on interface %s %s due to %s',
+                                      acl_name, intf_type, intf,
+                                      str(rmve[1][0][self.host]['response']['json']['output']))
                 else:
                     self.logger.info('Successfully  removed  %s ACL on interface %s %s ',
                                      acl_name, intf_type, intf)
-            except Exception as e:
-                self.logger.info('Cannot remove %s on interface %s %s due to %s',
-                                 acl_name, intf_type, intf, e.message)
+            except (AttributeError, ValueError) as e:
+                self.logger.error('Cannot remove %s on interface %s %s due to %s',
+                                  acl_name, intf_type, intf, e.message)
                 raise ValueError(e.message)
         return result
