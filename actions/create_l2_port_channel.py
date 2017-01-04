@@ -77,7 +77,7 @@ class CreatePortChannel(NosDeviceAction):
             r1 = self.validate_interface(intf_type=intf_type, intf_name=each)
             if not r1:
                 self.logger.error('Not a valid interface type %s or number %s', intf_type, each)
-                raise ValueError('Not a valid interface type or number', intf_type, each)
+                raise ValueError('Not a valid interface type %s or number %s', intf_type, each)
 
         r2 = self.validate_interface(intf_type='port_channel', intf_name=portchannel_num)
         if not r2:

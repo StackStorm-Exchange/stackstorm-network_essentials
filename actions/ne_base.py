@@ -367,8 +367,8 @@ class NosDeviceAction(Action):
         elif intf_type == 'port-channel':
             update = device.interface_port_channel_update
         else:
-            self.logger.info('intf_type %s is not supported',
-                             intf_type)
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
 
         try:
@@ -380,13 +380,13 @@ class NosDeviceAction(Action):
                                  intf_type, intf_name)
                 return True
             elif result[0] == 'False':
-                self.logger.info('Updating %s %s interface failed because %s',
-                                 intf_type, intf_name,
-                                 result[1][0][self.host]['response']['json']['output'])
+                self.logger.error('Updating %s %s interface failed because %s',
+                                  intf_type, intf_name,
+                                  result[1][0][self.host]['response']['json']['output'])
                 return False
 
         except AttributeError as e:
-            self.logger.info('Interface update failed because %s', e.message)
+            self.logger.error('Interface update failed because %s', e.message)
             return False
 
     def _get_interface_admin_state(self, device, intf_type, intf_name):
