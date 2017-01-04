@@ -1,7 +1,7 @@
 from ne_base import NosDeviceAction
 
 
-class REMOVE_ACL(NosDeviceAction):
+class Remove_Acl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type, intf_name,
             rbridge_id, acl_name, acl_direction, traffic_type):
         """Run helper methods to remove ACL on desired interface.
@@ -45,7 +45,8 @@ class REMOVE_ACL(NosDeviceAction):
         for intf in interface_list:
             if not self.validate_interface(intf_type, intf, rbridge_id):
                 msg = "Input is not a valid Interface"
-                break
+                self.logger.error(msg)
+                raise ValueError(msg)
         if msg is None:
             changes = self._remove_acl(device, intf_type=intf_type,
                                        intf_name=interface_list,
@@ -54,8 +55,6 @@ class REMOVE_ACL(NosDeviceAction):
                                        acl_direction=acl_direction,
                                        ag_type=ag_type,
                                        traffic_type=traffic_type)
-        else:
-            raise ValueError(msg)
         output['result'] = changes
         self.logger.info('closing connection to %s after removing access-list-- all done!',
                          self.host)
@@ -65,7 +64,6 @@ class REMOVE_ACL(NosDeviceAction):
                     acl_name, acl_direction, ag_type, traffic_type):
         result = []
         for intf in intf_name:
-            print ag_type
             method = 'rbridge_id_interface_{}_{}_access_group_delete'. \
                 format(intf_type, ag_type) if rbridge_id \
                 else 'interface_{}_{}_access_group_delete'.format(intf_type, ag_type)
