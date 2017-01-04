@@ -24,7 +24,6 @@ from st2actions.runners.pythonrunner import Action
 
 
 class NosDeviceAction(Action):
-
     def __init__(self, config=None, action_service=None):
         super(NosDeviceAction, self).__init__(config=config, action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
@@ -113,16 +112,54 @@ class NosDeviceAction(Action):
             reserved_vlan_list.append(1002)
 
             if not tmp_vlan_id:
-                self.logger.info("'Not a valid VLAN %s", vid)
+                self.logger.error("'Not a valid VLAN %s", vid)
                 return None
             if vid == 1:
-                self.logger.info("vlan %s is default vlan", vid)
+                self.logger.error("vlan %s is default vlan", vid)
                 return None
             elif vid in reserved_vlan_list:
-                self.logger.info("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                self.logger.error("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
                 return None
 
         return vlan_id
+
+    def validate_interface(self, intf_type, intf_name, rbridge_id=None):
+        msg = None
+        # int_list = intf_name
+        re_pattern1 = r"^(\d+)$"
+        re_pattern2 = r"^(\d+)\/(\d+)\/(\d+)$"
+        re_pattern3 = r"^(\d+)\/(\d+)$"
+        intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet",
+                    "fortygigabitethernet", "hundredgigabitethernet", "ethernet"]
+        NosIntTypes = ["gigabitethernet", "tengigabitethernet", "fortygigabitethernet"]
+        if rbridge_id is None and 'loopback' in intf_type:
+            msg = 'Must specify `rbridge_id` when specifying a `loopback`'
+        elif rbridge_id is None and 've' in intf_type:
+            msg = 'Must specify `rbridge_id` when specifying a `ve`'
+        elif rbridge_id is not None and intf_type in intTypes:
+            msg = 'Should not specify `rbridge_id` when specifying a ' + intf_type
+        elif re.search(re_pattern1, intf_name):
+            intf = intf_name
+        elif re.search(re_pattern2, intf_name) and intf_type in NosIntTypes:
+            intf = intf_name
+        elif re.search(re_pattern3, intf_name) and 'ethernet' in intf_type:
+            intf = intf_name
+        else:
+            msg = 'Invalid interface format'
+
+        if msg is not None:
+            self.logger.error(msg)
+            return False
+
+        intTypes = ["ve", "loopback", "ethernet"]
+        if intf_type not in intTypes:
+            tmp_vlan_id = pynos.utilities.valid_interface(intf_type, name=str(intf))
+
+            if not tmp_vlan_id:
+                self.logger.error("Not a valid interface type %s or name %s", intf_type, intf)
+                return False
+
+        return True
 
     def expand_interface_range(self, intf_type, intf_name, rbridge_id):
         msg = None
@@ -183,6 +220,61 @@ class NosDeviceAction(Action):
                 if not tmp_vlan_id:
                     self.logger.info("Not a valid interface type %s or name %s", intf_type, intf)
                     return None
+
+        return int_list
+
+    def extend_interface_range(self, intf_type, intf_name):
+        msg = None
+
+        int_list = intf_name
+        re_pattern1 = r"^(\d+)\-?(\d+)$"
+        re_pattern2 = r"^(\d+)\/(\d+)\-?(\d+)$"
+        re_pattern3 = r"^(\d+)\/(\d+)\/(\d+)\-?(\d+)$"
+
+        if re.search(re_pattern1, int_list):
+            try:
+                int_list = re.match(re_pattern1, int_list)
+            except Exception:
+                return None
+
+            if int(int_list.groups()[0]) == int(int_list.groups()[1]):
+                self.logger.info("Use range command only for unique values")
+            int_list = range(int(int_list.groups()[0]), int(int_list.groups()[1]) + 1)
+
+        elif re.search(re_pattern2, int_list):
+            try:
+                temp_list = re.match(re_pattern2, int_list)
+            except Exception:
+                return None
+
+            if int(temp_list.groups()[1]) == int(temp_list.groups()[2]):
+                self.logger.info("Use range command only for unique values")
+            intList = range(int(temp_list.groups()[1]), int(temp_list.groups()[2]) + 1)
+            int_list = []
+            for intf in intList:
+                int_list.append(temp_list.groups()[0] + '/' + str(intf))
+            int_list = int_list
+
+        elif re.search(re_pattern3, int_list):
+            try:
+                temp_list = re.match(re_pattern3, int_list)
+            except Exception:
+                return None
+
+            if int(temp_list.groups()[2]) == int(temp_list.groups()[3]):
+                self.logger.info("Use range command only for unique values")
+            intList = range(int(temp_list.groups()[2]), int(temp_list.groups()[3]) + 1)
+            int_list = []
+            for intf in intList:
+                int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
+                                str(intf))
+            int_list = int_list
+        else:
+            msg = 'Invalid interface format'
+
+        if msg is not None:
+            self.logger.error(msg)
+            return None
 
         return int_list
 
@@ -297,11 +389,92 @@ class NosDeviceAction(Action):
 
         return True
 
+    def _get_acl_type_(self, device, acl_name):
+        acl_type = {}
+        try:
+            get = device.ip_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ip_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            self.logger.error('Cannot get acl-type for  %s', acl_name)
+            return None
+
+    def _get_seq_(self, device, acl_name, acl_type, seq_id):
+
+        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+            device.ip_access_list_standard_get
+
+        try:
+            get_output = get(acl_name, resource_depth=3)
+            acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
+            if 'seq' in acl_dict:
+                seq_list = acl_dict['seq']
+                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                for seq in seq_list:
+                    if seq['seq-id'] == str(seq_id):
+                        return seq
+            else:
+                self.logger.info('No seq present in acl %s', acl_name)
+                return None
+
+        except:
+            self.logger.info('cannot get seq in acl %s', acl_name)
+            return None
+
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
         results = []
         port_channel_exist = False
         keys = ['interface-type', 'rbridge-id', 'interface-name', 'sync']
+        port_channel_get = self._get_port_channels(device)
+        if port_channel_get:
+            for port_channel in port_channel_get:
+                if port_channel['aggregator-id'] == str(portchannel_num):
+                    port_channel_exist = True
+                    if 'aggr-member' in port_channel:
+                        members = port_channel['aggr-member']
+                    else:
+                        self.logger.info('Port Channel %s does not have any members',
+                                         str(portchannel_num))
+                        return results
+        else:
+            return None
         get = device.get_port_channel_detail_rpc()
         output = get[1][0][self.host]['response']['json']['output']
         if 'lacp' in output:
@@ -322,6 +495,7 @@ class NosDeviceAction(Action):
                     self.logger.info('Port Channel %s does not have any members',
                                      str(portchannel_num))
                     return results
+            return None
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
                              str(portchannel_num))
@@ -336,3 +510,97 @@ class NosDeviceAction(Action):
                     result[key] = value
             results.append(result)
         return results
+
+    def _get_port_channels(self, device):
+        connected = False
+        for _ in range(5):
+            get = device.get_port_channel_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get Port Channels')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'lacp' in output:
+            port_channel_get = output['lacp']
+        else:
+            self.logger.info(
+                'Port Channel is not configured on the device')
+            return None
+        if type(port_channel_get) == dict:
+            port_channel_get = [port_channel_get, ]
+        return port_channel_get
+
+    def _interface_update(self, device, intf_type, intf_name,
+                          ifindex=None, description=None, shutdown=None, mtu=None):
+        if intf_type == 'ethernet':
+            update = device.interface_ethernet_update
+        elif intf_type == 'gigabitethernet':
+            update = device.interface_gigabitethernet_update
+        elif intf_type == 'tengigabitethernet':
+            update = device.interface_tengigabitethernet_update
+        elif intf_type == 'fortygigabitethernet':
+            update = device.interface_fortygigabitethernet_update
+        elif intf_type == 'hundredgigabitethernet':
+            update = device.interface_hundredgigabitethernet_update
+        elif intf_type == 'port-channel':
+            update = device.interface_port_channel_update
+        else:
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
+            return False
+
+        try:
+            result = update(intf_name, ifindex=ifindex,
+                            description=description, shutdown=shutdown,
+                            mtu=mtu)
+            if result[0] == 'True':
+                self.logger.info('Updating %s %s interface is done',
+                                 intf_type, intf_name)
+                return True
+            elif result[0] == 'False':
+                self.logger.error('Updating %s %s interface failed because %s',
+                                  intf_type, intf_name,
+                                  result[1][0][self.host]['response']['json']['output'])
+                return False
+
+        except AttributeError as e:
+            self.logger.error('Interface update failed because %s', e.message)
+            return False
+
+    def _get_interface_admin_state(self, device, intf_type, intf_name):
+        is_intf_name_present = False
+        admin_state = None
+        connected = False
+        for _ in range(5):
+            get = device.get_interface_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get interface details')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'interface' in output:
+            intf_dict = output['interface']
+            if type(intf_dict) == dict:
+                intf_dict = [intf_dict, ]
+        else:
+            self.logger.info("No interfaces found in host %s", self.host)
+            return None
+
+        for out in intf_dict:
+            if intf_name in out['if-name'] and intf_type == out['interface-type']:
+                is_intf_name_present = True
+                admin_state = out['line-protocol-state-info']
+                break
+            else:
+                continue
+
+        if not is_intf_name_present:
+            self.logger.info("Invalid port channel/physical interface name/type")
+
+        return admin_state

@@ -1,10 +1,10 @@
 ---
-name: apply_acl
+name: remove_acl
 pack: network_essentials
 runner_type: run-python
-description: Apply acl on interface
+description: Remove acl on interface
 enabled: true
-entry_point: apply_acl.py
+entry_point: remove_acl.py
 parameters:
   mgmt_ip:
     type: string
@@ -69,4 +69,3 @@ parameters:
     enum:
       - switched
       - routed
-
