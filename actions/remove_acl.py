@@ -70,7 +70,6 @@ class Remove_Acl(NosDeviceAction):
 
             rmve_acl = eval('device.{}'.format(method))
             access_grp = (acl_name, acl_direction, traffic_type)
-            print access_grp
             self.logger.info('Removing ACL %s on int-type - %s int-name- %s',
                              acl_name, intf_type, intf)
             try:
