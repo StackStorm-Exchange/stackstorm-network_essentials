@@ -277,6 +277,26 @@ class NosDeviceAction(Action):
                         return results
         else:
             return None
+        get = device.get_port_channel_detail_rpc()
+        output = get[1][0][self.host]['response']['json']['output']
+        if 'lacp' in output:
+            port_channel_get = output['lacp']
+        else:
+            self.logger.info(
+                'Port Channel is not configured on the device')
+            return None
+        if type(port_channel_get) == dict:
+            port_channel_get = [port_channel_get, ]
+        for port_channel in port_channel_get:
+            print port_channel
+            if port_channel['aggregator-id'] == str(portchannel_num):
+                port_channel_exist = True
+                if 'aggr-member' in port_channel:
+                    members = port_channel['aggr-member']
+                else:
+                    self.logger.info('Port Channel %s does not have any members',
+                                     str(portchannel_num))
+                    return results
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
                              str(portchannel_num))
