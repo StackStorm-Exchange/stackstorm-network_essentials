@@ -87,11 +87,11 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
             aply = list(delete_acl(acl_name, seq))
             result = str(aply[0])
             if str(aply[0]) == 'False':
-                self.logger.info('Cannot delete rule on %s due to %s', acl_name,
-                                 str(aply[1][0][self.host]['response']['json']['output']))
+                self.logger.error('Cannot delete rule on %s due to %s', acl_name,
+                                  str(aply[1][0][self.host]['response']['json']['output']))
             else:
                 self.logger.info('Successfully deleted rule on %s on seq_id %s', acl_name, seq[0])
-        except Exception as e:
-            self.logger.info('Cannot delete rule on %s due to %s', acl_name, e.message)
+        except (AttributeError, ValueError) as e:
+            self.logger.error('Cannot delete rule on %s due to %s', acl_name, e.message)
             raise ValueError(e.message)
         return result
