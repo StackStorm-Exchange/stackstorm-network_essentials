@@ -273,7 +273,7 @@ class NosDeviceAction(Action):
             msg = 'Invalid interface format'
 
         if msg is not None:
-            self.logger.info(msg)
+            self.logger.error(msg)
             return None
 
         return int_list
