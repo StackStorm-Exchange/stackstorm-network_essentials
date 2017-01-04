@@ -1,7 +1,7 @@
 from ne_base import NosDeviceAction
 
 
-class APPLY_ACL(NosDeviceAction):
+class Apply_Acl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type, intf_name,
             rbridge_id, acl_name, acl_direction, traffic_type):
         """Run helper methods to apply ACL on desired interface.
