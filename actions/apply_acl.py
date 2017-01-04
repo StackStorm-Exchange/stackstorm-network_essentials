@@ -46,7 +46,8 @@ class APPLY_ACL(NosDeviceAction):
         for intf in interface_list:
             if not self.validate_interface(intf_type, intf, rbridge_id):
                 msg = "Input is not a valid Interface"
-                break
+                self.logger.error(msg)
+                raise ValueError(msg)
         if msg is None:
             changes = self._apply_acl(device, intf_type=intf_type,
                                       intf_name=interface_list,
@@ -55,9 +56,6 @@ class APPLY_ACL(NosDeviceAction):
                                       acl_direction=acl_direction,
                                       ag_type=ag_type,
                                       traffic_type=traffic_type)
-        else:
-            self.logger.error(msg)
-            raise ValueError(msg)
         output['result'] = changes
         self.logger.info('closing connection to %s after removing access-list-- \
                       all done!', self.host)
