@@ -112,13 +112,13 @@ class NosDeviceAction(Action):
             reserved_vlan_list.append(1002)
 
             if not tmp_vlan_id:
-                self.logger.info("'Not a valid VLAN %s", vid)
+                self.logger.error("'Not a valid VLAN %s", vid)
                 return None
             if vid == 1:
-                self.logger.info("vlan %s is default vlan", vid)
+                self.logger.error("vlan %s is default vlan", vid)
                 return None
             elif vid in reserved_vlan_list:
-                self.logger.info("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                self.logger.error("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
                 return None
 
         return vlan_id
@@ -353,7 +353,6 @@ class NosDeviceAction(Action):
 
     def _get_acl_type_(self, device, acl_name):
         acl_type = {}
-
         try:
             get = device.ip_access_list_standard_get(acl_name)
             acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
@@ -398,31 +397,52 @@ class NosDeviceAction(Action):
             self.logger.error('Cannot get acl-type for  %s', acl_name)
             return None
 
+    def _get_seq_(self, device, acl_name, acl_type, seq_id):
+
+        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+            device.ip_access_list_standard_get
+
+        try:
+            get_output = get(acl_name, resource_depth=3)
+            acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
+            if 'seq' in acl_dict:
+                seq_list = acl_dict['seq']
+                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                for seq in seq_list:
+                    if seq['seq-id'] == str(seq_id):
+                        return seq
+            else:
+                self.logger.info('No seq present in acl %s', acl_name)
+                return None
+
+        except:
+            self.logger.info('cannot get seq in acl %s', acl_name)
+            return None
+
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
         results = []
         port_channel_exist = False
         keys = ['interface-type', 'rbridge-id', 'interface-name', 'sync']
+        port_channel_get = self._get_port_channels(device)
+        if port_channel_get:
+            for port_channel in port_channel_get:
+                if port_channel['aggregator-id'] == str(portchannel_num):
+                    port_channel_exist = True
+                    if 'aggr-member' in port_channel:
+                        members = port_channel['aggr-member']
+                    else:
+                        self.logger.info('Port Channel %s does not have any members',
+                                         str(portchannel_num))
+                        return results
+        else:
+            return None
         get = device.get_port_channel_detail_rpc()
         output = get[1][0][self.host]['response']['json']['output']
         if 'lacp' in output:
             port_channel_get = output['lacp']
         else:
-            self.logger.info(
-                'Port Channel is not configured on the device')
             return None
-        if type(port_channel_get) == dict:
-            port_channel_get = [port_channel_get, ]
-        for port_channel in port_channel_get:
-            print port_channel
-            if port_channel['aggregator-id'] == str(portchannel_num):
-                port_channel_exist = True
-                if 'aggr-member' in port_channel:
-                    members = port_channel['aggr-member']
-                else:
-                    self.logger.info('Port Channel %s does not have any members',
-                                     str(portchannel_num))
-                    return results
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
                              str(portchannel_num))
@@ -437,3 +457,97 @@ class NosDeviceAction(Action):
                     result[key] = value
             results.append(result)
         return results
+
+    def _get_port_channels(self, device):
+        connected = False
+        for _ in range(5):
+            get = device.get_port_channel_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get Port Channels')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'lacp' in output:
+            port_channel_get = output['lacp']
+        else:
+            self.logger.info(
+                'Port Channel is not configured on the device')
+            return None
+        if type(port_channel_get) == dict:
+            port_channel_get = [port_channel_get, ]
+        return port_channel_get
+
+    def _interface_update(self, device, intf_type, intf_name,
+                          ifindex=None, description=None, shutdown=None, mtu=None):
+        if intf_type == 'ethernet':
+            update = device.interface_ethernet_update
+        elif intf_type == 'gigabitethernet':
+            update = device.interface_gigabitethernet_update
+        elif intf_type == 'tengigabitethernet':
+            update = device.interface_tengigabitethernet_update
+        elif intf_type == 'fortygigabitethernet':
+            update = device.interface_fortygigabitethernet_update
+        elif intf_type == 'hundredgigabitethernet':
+            update = device.interface_hundredgigabitethernet_update
+        elif intf_type == 'port-channel':
+            update = device.interface_port_channel_update
+        else:
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
+            return False
+
+        try:
+            result = update(intf_name, ifindex=ifindex,
+                            description=description, shutdown=shutdown,
+                            mtu=mtu)
+            if result[0] == 'True':
+                self.logger.info('Updating %s %s interface is done',
+                                 intf_type, intf_name)
+                return True
+            elif result[0] == 'False':
+                self.logger.error('Updating %s %s interface failed because %s',
+                                  intf_type, intf_name,
+                                  result[1][0][self.host]['response']['json']['output'])
+                return False
+
+        except AttributeError as e:
+            self.logger.error('Interface update failed because %s', e.message)
+            return False
+
+    def _get_interface_admin_state(self, device, intf_type, intf_name):
+        is_intf_name_present = False
+        admin_state = None
+        connected = False
+        for _ in range(5):
+            get = device.get_interface_detail_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get interface details')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'interface' in output:
+            intf_dict = output['interface']
+            if type(intf_dict) == dict:
+                intf_dict = [intf_dict, ]
+        else:
+            self.logger.info("No interfaces found in host %s", self.host)
+            return None
+
+        for out in intf_dict:
+            if intf_name in out['if-name'] and intf_type == out['interface-type']:
+                is_intf_name_present = True
+                admin_state = out['line-protocol-state-info']
+                break
+            else:
+                continue
+
+        if not is_intf_name_present:
+            self.logger.info("Invalid port channel/physical interface name/type")
+
+        return admin_state
