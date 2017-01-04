@@ -36,7 +36,7 @@ class DeleteAcl(NosDeviceAction):
             self.logger.info('successfully identified the acl_type as %s', acl_type)
             changes = self._delete_acl(device, acl_type, acl_name)
         else:
-            self.logger.info('Failed to identify acl_type. Check if the ACL %s exists', acl_name)
+            self.logger.error('Failed to identify acl_type. Check if the ACL %s exists', acl_name)
             changes = None
         return changes
 
