@@ -171,7 +171,7 @@ class CreatePortChannel(NosDeviceAction):
             if 'down' in intf_admin_state:
                 intf_update = self._interface_update(device, intf_type, intf, shutdown=False)
                 if not intf_update:
-                    self.logger.info('Configuring no-shut on interface %s %s failed',
+                    self.logger.error('Configuring no-shut on interface %s %s failed',
                                      intf_type, intf)
                 else:
                     self.logger.info('Successfully configured no-shut on interface')
