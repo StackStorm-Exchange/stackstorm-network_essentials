@@ -55,6 +55,7 @@ class APPLY_ACL(NosDeviceAction):
                                       ag_type=ag_type,
                                       traffic_type=traffic_type)
         else:
+            self.logger.error(msg)
             raise ValueError(msg)
         output['result'] = changes
         self.logger.info('closing connection to %s after removing access-list-- \
