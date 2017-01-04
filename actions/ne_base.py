@@ -123,44 +123,6 @@ class NosDeviceAction(Action):
 
         return vlan_id
 
-    def validate_interface(self, intf_type, intf_name, rbridge_id=None):
-        msg = None
-        # int_list = intf_name
-        re_pattern1 = r"^(\d+)$"
-        re_pattern2 = r"^(\d+)\/(\d+)\/(\d+)$"
-        re_pattern3 = r"^(\d+)\/(\d+)$"
-        intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet",
-                    "fortygigabitethernet", "hundredgigabitethernet", "ethernet"]
-        NosIntTypes = ["gigabitethernet", "tengigabitethernet", "fortygigabitethernet"]
-        if rbridge_id is None and 'loopback' in intf_type:
-            msg = 'Must specify `rbridge_id` when specifying a `loopback`'
-        elif rbridge_id is None and 've' in intf_type:
-            msg = 'Must specify `rbridge_id` when specifying a `ve`'
-        elif rbridge_id is not None and intf_type in intTypes:
-            msg = 'Should not specify `rbridge_id` when specifying a ' + intf_type
-        elif re.search(re_pattern1, intf_name):
-            intf = intf_name
-        elif re.search(re_pattern2, intf_name) and intf_type in NosIntTypes:
-            intf = intf_name
-        elif re.search(re_pattern3, intf_name) and 'ethernet' in intf_type:
-            intf = intf_name
-        else:
-            msg = 'Invalid interface format'
-
-        if msg is not None:
-            self.logger.error(msg)
-            return False
-
-        intTypes = ["ve", "loopback", "ethernet"]
-        if intf_type not in intTypes:
-            tmp_vlan_id = pynos.utilities.valid_interface(intf_type, name=str(intf))
-
-            if not tmp_vlan_id:
-                self.logger.error("Not a valid interface type %s or name %s", intf_type, intf)
-                return False
-
-        return True
-
     def expand_interface_range(self, intf_type, intf_name, rbridge_id):
         msg = None
 
