@@ -69,6 +69,7 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
                                              acl_type=acl_type,
                                              seq=tuple(seq))
         except Exception as msg:
+            self.logger.error(msg)
             raise ValueError(msg)
         output['result'] = changes
         self.logger.info('closing connection to %s after adding rule access-list--all done!',
