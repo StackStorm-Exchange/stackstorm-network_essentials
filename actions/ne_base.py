@@ -259,6 +259,74 @@ class NosDeviceAction(Action):
 
         return rbridge_id
 
+    def _get_acl_type_(self, device, acl_name):
+        acl_type = {}
+        try:
+            get = device.ip_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ip_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ip'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.mac_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'mac'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_standard_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            pass
+        try:
+            get = device.ipv6_access_list_extended_get(acl_name)
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['protocol'] = 'ipv6'
+            return acl_type
+        except:
+            self.logger.info('Cannot get acl-type for  %s', acl_name)
+            return None
+
+    def _get_seq_(self, device, acl_name, acl_type, seq_id):
+
+        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+            device.ip_access_list_standard_get
+
+        try:
+            get_output = get(acl_name, resource_depth=3)
+            acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
+            if 'seq' in acl_dict:
+                seq_list = acl_dict['seq']
+                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                for seq in seq_list:
+                    if seq['seq-id'] == str(seq_id):
+                        return seq
+            else:
+                self.logger.info('No seq present in acl %s', acl_name)
+                return None
+
+        except:
+            self.logger.info('cannot get seq in acl %s', acl_name)
+            return None
+
     def _get_port_channel_members(self, device, portchannel_num):
         members = []
         results = []
