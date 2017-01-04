@@ -43,22 +43,18 @@ class DeleteAcl(NosDeviceAction):
     def _delete_acl(self, device, acl_type, acl_name):
         delete = []
         result = {}
-        if acl_type == 'extended':
-            atype = 'extended'
-        elif acl_type == 'standard':
-            atype = 'standard'
-        method = 'ip_access_list_{}_delete'.format(atype)
+        method = 'ip_access_list_{}_delete'.format(acl_type)
         dl_acl = eval('device.{}'.format(method))
         self.logger.info('Deleting ACL %s', acl_name)
         try:
             delete = dl_acl(acl_name)
             if not delete[0]:
-                self.logger.info('Cannot delete ACL %s due to %s', acl_name,
+                self.logger.error('Cannot delete ACL %s due to %s', acl_name,
                                  str(delete[1][0][self.host]['response']['json']['output']))
             else:
                 self.logger.info('Successfully deleted ACL %s from %s', acl_name, self.host)
         except (KeyError, ValueError, AttributeError) as e:
-            self.logger.info('Cannot delete ACl %s due to %s', acl_name, e.message)
+            self.logger.error('Cannot delete ACl %s due to %s', acl_name, e.message)
             raise ValueError(e.message)
         result['result'] = delete[0]
         return result
