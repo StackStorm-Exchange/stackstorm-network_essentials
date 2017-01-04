@@ -14,8 +14,23 @@ class APPLY_ACL(NosDeviceAction):
         try:
             device = self.asset(ip_addr=self.host, auth=self.auth)
             self.logger.info('successfully connected to %s to enable interface', self.host)
-        except Exception as e:
+        except AttributeError as e:
             raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
+        except ValueError as verr:
+            self.logger.error("Error while logging in to %s due to %s",
+                              self.host, verr.message)
+            raise ValueError("Error while logging in to %s due to %s",
+                             self.host, verr.message)
+        except self.ConnectionError as cerr:
+            self.logger.error("Connection failed while logging in to %s due to %s",
+                              self.host, cerr.message)
+            raise ValueError("Connection failed while logging in to %s due to %s",
+                             self.host, cerr.message)
+        except self.RestInterfaceError as rierr:
+            self.logger.error("Failed to get a REST response while logging in "
+                              "to %s due to %s", self.host, rierr.message)
+            raise ValueError("Failed to get a REST response while logging in "
+                             "to %s due to %s", self.host, rierr.message)
         ag_type = self._get_acl_type_(device, acl_name)['protocol']
         self.logger.info('successfully identified the access group type as %s', ag_type)
         # Check is the user input for Interface Name is correct
@@ -63,15 +78,15 @@ class APPLY_ACL(NosDeviceAction):
                 aply = list(aply_acl(rbridge_id, intf, access_grp)
                             if rbridge_id else list(aply_acl(intf, access_grp)))
                 result.append(str(aply[0]))
-                if not eval(str(aply[0])):
-                    self.logger.info('Cannot apply  %s on interface %s %s due to %s', acl_name,
-                                     intf_type, intf, str(aply[1][0][self.host]
-                                                          ['response']['json']['output']))
+                if not aply[0]:
+                    self.logger.error('Cannot apply  %s on interface %s %s due to %s', acl_name,
+                                      intf_type, intf, str(aply[1][0][self.host]
+                                                           ['response']['json']['output']))
                 else:
                     self.logger.info('Successfully  applied  %s ACL on interface %s %s ',
                                      acl_name, intf_type, intf)
-            except Exception as e:
-                self.logger.info('Cannot apply %s on interface %s %s due to %s',
-                                 acl_name, intf_type, intf, e.message)
+            except (AttributeError, ValueError) as e:
+                self.logger.error('Cannot apply %s on interface %s %s due to %s',
+                                  acl_name, intf_type, intf, e.message)
                 raise ValueError(e.message)
         return result
