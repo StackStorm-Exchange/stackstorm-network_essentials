@@ -1,0 +1,29 @@
+---
+name: delete_acl
+pack: network_essentials
+runner_type: run-python
+description: Deleting an ACL
+enabled: true
+entry_point: delete_acl.py
+parameters:
+    mgmt_ip:
+        type: string
+        description: Device to delete an ACL
+        required: true
+        position: 0
+    username:
+        type: string
+        description: login username
+        default: admin
+        position: 1
+    password:
+        type: string
+        description: login password
+        default: password
+        position: 2
+    acl_name:
+        type: string
+        description: name of the acl
+        required: true
+        position: 3
+
