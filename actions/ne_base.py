@@ -20,6 +20,7 @@ import pynos.device
 import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
+import socket
 from st2actions.runners.pythonrunner import Action
 
 
@@ -313,6 +314,13 @@ class NosDeviceAction(Action):
 
         return rbridge_id
 
+    def _validate_ip_(self, addr):
+        try:
+            socket.inet_aton(addr)
+            return True
+        except socket.error:
+            return False
+
     def validate_interface(self, intf_type, intf_name, rbridge_id=None):
         msg = None
         # int_list = intf_name
@@ -395,6 +403,39 @@ class NosDeviceAction(Action):
             return acl_type
         except:
             self.logger.error('Cannot get acl-type for  %s', acl_name)
+            return None
+
+    def _get_seq_id_(self, device, acl_name, acl_type, ip_type=None):
+        if ip_type is None:
+            get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+                device.ip_access_list_standard_get
+        elif ip_type == 'ipv6':
+            get = device.ipv6_access_list_extended_get if acl_type == 'extended' else \
+                device.ipv6_access_list_standard_get
+        elif ip_type == 'mac':
+            get = device.mac_access_list_extended_get if acl_type == 'extended' else \
+                device.mac_access_list_standard_get
+        try:
+            get_output = get(acl_name)[1][0][self.host]['response']['json']['output']
+            if acl_type in get_output:
+                acl_dict = get_output[acl_type]
+            else:
+                self.logger.info('%s access list %s does not exist', acl_type, acl_name)
+                return None
+            if 'seq' in acl_dict:
+                seq_list = acl_dict['seq']
+                if type(seq_list) == list:
+                    last_seq_id = int(seq_list[len(seq_list) - 1]['seq-id'])
+                else:
+                    last_seq_id = int(seq_list['seq-id'])
+                if last_seq_id % 10 == 0:  # divisible by 10
+                    seq_id = last_seq_id + 10
+                else:
+                    seq_id = (last_seq_id + 9) // 10 * 10  # rounding up to the nearest 10
+            else:
+                seq_id = 10
+            return seq_id
+        except KeyError:
             return None
 
     def _get_seq_(self, device, acl_name, acl_type, seq_id):
