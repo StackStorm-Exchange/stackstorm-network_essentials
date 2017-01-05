@@ -2,7 +2,7 @@
 name: add_ipv4_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Apply acl on interface
+description: Add an L3 IPV4 ACL rule to an existing ACL
 enabled: true
 entry_point: add_ipv4_rule_acl.py
 parameters:
@@ -48,13 +48,13 @@ parameters:
     position: 6
   source:
     type: string
-    description: Definition of source being filtered, including tcp and udp port numbers
+    description: Definition of source being filtered, including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: true
     position: 7
     default: any
   destination:
     type: string
-    description: Definition of destiation being filtered, including tcp and udp port numbers
+    description: Definition of destination being filtered, including tcp and udp port numbers. { any | D_IPaddress mask | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
     required: false
     position: 8
   dscp:
