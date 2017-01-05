@@ -420,7 +420,7 @@ class NosDeviceAction(Action):
             if acl_type in get_output:
                 acl_dict = get_output[acl_type]
             else:
-                self.logger.info('%s access list %s does not exist', acl_type, acl_name)
+                self.logger.error('%s access list %s does not exist', acl_type, acl_name)
                 return None
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
@@ -453,11 +453,11 @@ class NosDeviceAction(Action):
                     if seq['seq-id'] == str(seq_id):
                         return seq
             else:
-                self.logger.info('No seq present in acl %s', acl_name)
+                self.logger.error('No seq present in acl %s', acl_name)
                 return None
 
         except:
-            self.logger.info('cannot get seq in acl %s', acl_name)
+            self.logger.error('cannot get seq in acl %s', acl_name)
             return None
 
     def _get_port_channel_members(self, device, portchannel_num):
