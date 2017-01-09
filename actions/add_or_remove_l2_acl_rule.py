@@ -9,21 +9,21 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                                 dst_mac_addr_mask, ethertype, vlan, count, log
     """
 
-    def run(self, to_remove, device_ip, username, password, l2_acl_name, seq_id,
+    def run(self, delete, device_ip, username, password, l2_acl_name, seq_id,
             action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
             ethertype, vlan, count, log):
 
-        self.validate_input_parameters(to_remove, seq_id, source, srchost, src_mac_addr_mask,
+        self.validate_input_parameters(delete, seq_id, source, srchost, src_mac_addr_mask,
                                        dst, dsthost, dst_mac_addr_mask, ethertype, vlan)
 
         device = self.device_login(device_ip, username, password)
 
         l2_acl_type = self.find_acl_type(device_ip, device, l2_acl_name)
 
-        seq_id = self.find_seq_id(to_remove, seq_id, device_ip, device,
+        seq_id = self.find_seq_id(delete, seq_id, device_ip, device,
                                   l2_acl_name, l2_acl_type)
 
-        if to_remove:
+        if delete:
             self.remove_rule(device_ip, device, l2_acl_name, l2_acl_type, seq_id)
         else:
             self.add_rule(device_ip, device, l2_acl_name, l2_acl_type, seq_id, action,
@@ -53,16 +53,16 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                              "to %s due to %s", device_ip, rierr.message)
         return device
 
-    def validate_input_parameters(self, to_remove, seq_id, source, srchost, src_mac_addr_mask,
+    def validate_input_parameters(self, delete, seq_id, source, srchost, src_mac_addr_mask,
                                   dst, dsthost, dst_mac_addr_mask, ethertype, vlan):
 
         self.logger.debug("Doing validations")
         # validations only for remove operation
-        if to_remove and seq_id is None:
+        if delete and seq_id is None:
             raise ValueError("Sequence id is not input, it is required for remove operation")
 
         # validations only for add operation, for remove operation these parameters are ignored
-        if not to_remove:
+        if not delete:
             if source != "any" and source != "host":
                 self.logger.debug("source is a MAC address")
                 if not self.is_valid_mac(source):
@@ -125,10 +125,10 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             raise ValueError("The L2 acl %s does not exist", l2_acl_name)
         return l2_acl_type
 
-    def find_seq_id(self, to_remove, seq_id, device_ip, device, l2_acl_name, l2_acl_type):
+    def find_seq_id(self, delete, seq_id, device_ip, device, l2_acl_name, l2_acl_type):
         self.logger.debug("Trying to figure out the sequence id")
 
-        if not to_remove and seq_id is None:
+        if not delete and seq_id is None:
             self.logger.debug("Sequence id is not input so generating a new sequence id")
             seq_id = self.get_next_seq_id(device_ip, device, l2_acl_name, l2_acl_type)
             if seq_id is None:
