@@ -1,0 +1,37 @@
+---
+name: create_acl
+pack: network_essentials
+runner_type: run-python
+description: Creating an ACL
+enabled: true
+entry_point: create_acl.py
+parameters:
+    mgmt_ip:
+        type: string
+        description: Device to create ACL
+        required: true
+        position: 0
+    username:
+        type: string
+        description: login username
+        default: admin
+        position: 1
+    password:
+        type: string
+        description: login password
+        default: password
+        position: 2
+    acl_type:
+        type: string
+        enum:
+            - standard
+            - extended
+        description: ACL type extended or standard
+        required: true
+        position: 3
+    acl_name:
+        type: string
+        description: name of the ACL
+        required: true
+        position: 4
+

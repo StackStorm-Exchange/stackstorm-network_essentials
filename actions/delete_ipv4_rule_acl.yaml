@@ -1,14 +1,14 @@
 ---
-name: create_vlan
+name: delete_ipv4_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Create interface VLANs on VDX or SLX device
+description: Delete an L3 IPV4 ACL rule of an existing ACL
 enabled: true
-entry_point: create_vlan.py
+entry_point: delete_ipv4_rule_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to create VLANs
+    description: Device to delete the acl rule
     required: true
     position: 0
   username:
@@ -22,12 +22,13 @@ parameters:
     default: password
     secret: true
     position: 2
-  vlan_id:
+  acl_name:
     type: string
-    description: single vlan or range of vlans
+    description: Name of the access list (standard or extended) to delete the rule from
     required: true
     position: 3
-  intf_desc:
-    type: string
-    description: Interface description name
+  seq_id:
+    type: integer
+    description: Sequence number of the rule to be deleted.
+    required: true
     position: 4

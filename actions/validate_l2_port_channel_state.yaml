@@ -1,14 +1,14 @@
 ---
-name: create_vlan
+name: validate_L2_port_channel_state
 pack: network_essentials
 runner_type: run-python
-description: Create interface VLANs on VDX or SLX device
+description: Validating a port channel state.
 enabled: true
-entry_point: create_vlan.py
+entry_point: validate_L2_port_channel_state.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to create VLANs
+    description: Managment Ip address of the VDX or SLX device
     required: true
     position: 0
   username:
@@ -22,12 +22,8 @@ parameters:
     default: password
     secret: true
     position: 2
-  vlan_id:
+  port_channel_id:
     type: string
-    description: single vlan or range of vlans
+    description: Portchannel interface number. <VAlID INPUT NUMBER:1-6144>
     required: true
     position: 3
-  intf_desc:
-    type: string
-    description: Interface description name
-    position: 4

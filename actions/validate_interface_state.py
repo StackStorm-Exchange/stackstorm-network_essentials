@@ -13,54 +13,70 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
-import pynos.utilities
 
 
 class ValidateInterfaceState(NosDeviceAction):
-    """
-       Implements the logic to Validate port-channel/physical interface state on VDX switches.
-    """
 
-    def run(self, host, user, passwd, intf_type, intf_name, intf_state):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name, intf_state, rbridge_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=host, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
-
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
+        try:
+            device = self.asset(ip_addr=self.host, auth=self.auth)
             self.logger.info('successfully connected to %s to validate interface state', self.host)
-            # Check is the user input for interface is correct
-            if intf_type == "port-channel":
-                temp_type = "port_channel"
-            else:
-                temp_type = intf_type
+        except AttributeError as e:
+            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
+        except ValueError as verr:
+            self.logger.error("Error while logging in to %s due to %s",
+                              self.host, verr.message)
+            raise ValueError("Error while logging in to %s due to %s",
+                             self.host, verr.message)
+        except self.ConnectionError as cerr:
+            self.logger.error("Connection failed while logging in to %s due to %s",
+                              self.host, cerr.message)
+            raise ValueError("Connection failed while logging in to %s due to %s",
+                             self.host, cerr.message)
+        except self.RestInterfaceError as rierr:
+            self.logger.error("Failed to get a REST response while logging in "
+                              "to %s due to %s", self.host, rierr.message)
+            raise ValueError("Failed to get a REST response while logging in "
+                             "to %s due to %s", self.host, rierr.message)
+        # Check is the user input for interface is correct
+        if intf_type == "port-channel":
+            temp_type = "port_channel"
+        else:
+            temp_type = intf_type
 
-            valid_intf = pynos.utilities.valid_interface(int_type=temp_type, name=intf_name)
+        valid_intf = self.validate_interface(intf_type=temp_type,
+                                             intf_name=intf_name,
+                                             rbridge_id=rbridge_id)
 
-            if valid_intf:
-                changes['intf'] = self._validate_interface_state(device, intf_type=intf_type,
-                                                                 intf_name=intf_name,
-                                                                 intf_state=intf_state)
-            else:
-                raise ValueError('Input is not a valid interface type or name')
-            self.logger.info(
-                'closing connection to %s after Validating interface state -- all done!', self.host)
+        if valid_intf:
+            changes['intf'] = self._validate_interface_state(device, intf_type=intf_type,
+                                                             intf_name=intf_name,
+                                                             intf_state=intf_state,
+                                                             rbridge_id=rbridge_id)
+        else:
+            self.logger.error("'Input is not a valid interface type or name")
+            raise ValueError('Input is not a valid interface type or name')
+        self.logger.info('closing connection to %s after Validating interface state -- all done!',
+                         self.host)
         return changes
 
-    def _validate_interface_state(self, device, intf_type, intf_name, intf_state):
+    def _validate_interface_state(self, device, intf_type, intf_name, intf_state, rbridge_id):
         """validate interface state.
         """
 
         is_intf_name_present = False
         is_intf_state_present = False
-        output = device.interface.interface_detail
-        for out in output:
-            if intf_name == out['interface-name'] and intf_type == out['interface-type']:
+        output = device.get_interface_detail_rpc()
+        intf_dict = output[1][0][self.host]['response']['json']['output']['interface']
+
+        for out in intf_dict:
+            if intf_name in out['if-name'] and intf_type == out['interface-type']:
                 is_intf_name_present = True
-                if_adminstate = out['interface-state']
-                if_operstate = out['interface-proto-state']
-                if intf_state in out['interface-state'] and intf_state == out[
-                   'interface-proto-state']:
+                if intf_state in out['line-protocol-state-info']:
                     is_intf_state_present = True
                     self.logger.info("Successfully Validated interface %s %s intf-state %s",
                                      intf_type, intf_name, intf_state)
@@ -70,11 +86,10 @@ class ValidateInterfaceState(NosDeviceAction):
                 continue
 
         if not is_intf_name_present:
-            raise ValueError('Invalid port channel/physical interface name/type')
+            self.logger.error("Invalid port channel/physical interface name/type")
+            return False
         if not is_intf_state_present:
-            self.logger.info('User input for intf-state %s is not matching with '
-                             'current intf-adminstate %s and intf-operstate %s',
-                             intf_state, if_adminstate, if_operstate)
+            self.logger.error("Invalid port channel/physical interface state")
             return False
 
         return True
