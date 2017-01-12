@@ -57,8 +57,8 @@ class Apply_Acl(NosDeviceAction):
                                       ag_type=ag_type,
                                       traffic_type=traffic_type)
         output['result'] = changes
-        self.logger.info('closing connection to %s after removing access-list-- \
-                      all done!', self.host)
+        self.logger.info('closing connection to %s after applying access-list-- '
+                         'all done!', self.host)
         return output
 
     def _apply_acl(self, device, intf_type, intf_name, rbridge_id,
