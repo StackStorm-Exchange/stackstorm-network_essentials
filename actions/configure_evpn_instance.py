@@ -30,7 +30,7 @@ class ConfigureEvpnInstance(NosDeviceAction):
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
             if rbridge_id is None or rbridge_id[0] is None:
-                rb_list = self._vlag_pair(device)
+                rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
             changes['evpn-instance'] = self._configure_evpn_instance(device,
@@ -113,14 +113,3 @@ class ConfigureEvpnInstance(NosDeviceAction):
         if is_evpn_instance_exist:
             return False
         return True
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))

@@ -50,7 +50,7 @@ class RedistributeConnectedBgpVrf(NosDeviceAction):
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
             if rbridge_id is None:
-                rbridge_id = self._vlag_pair(device)
+                rbridge_id = self.vlag_pair(device)
 
             changes['vrf'] = self._redistribute_connected_bgp_vrf(device,
                                                                   afi_list=afi_list,
@@ -141,14 +141,3 @@ class RedistributeConnectedBgpVrf(NosDeviceAction):
                         except (ValueError, KeyError):
                             self.logger.info('Invalid Input values')
         return result
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))

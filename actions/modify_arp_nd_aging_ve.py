@@ -35,7 +35,7 @@ class ModifyARPNDAgingVe(NosDeviceAction):
             self.logger.info('successfully connected to %s to create IP ARP/ND aging timeout on Ve',
                              self.host)
             if rbridge_id is None:
-                rb_list = self._vlag_pair(device)
+                rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
             for rbridge_id in rb_list:
@@ -102,14 +102,3 @@ class ModifyARPNDAgingVe(NosDeviceAction):
             if 'Ve' in each_ve['if-name'] and vlan_id in each_ve['if-name']:
                 return True
         return False
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))

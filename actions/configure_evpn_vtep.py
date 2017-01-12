@@ -45,7 +45,7 @@ class ConfigureEvpnVtep(NosDeviceAction):
         loopback_id = str(loopback_id)
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             if rbridge_id is None:
-                rb_list = self._vlag_pair(device)
+                rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
 
@@ -144,14 +144,3 @@ class ConfigureEvpnVtep(NosDeviceAction):
             result = False
 
         return result
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))

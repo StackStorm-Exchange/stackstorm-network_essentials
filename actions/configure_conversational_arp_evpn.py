@@ -28,7 +28,7 @@ class ConfigureConversationalArpEvpn(NosDeviceAction):
         changes = {}
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
-            rb_list = self._vlag_pair(device)
+            rb_list = self.vlag_pair(device)
             changes['conv-arp'] = self._configure_conversational_arp_evpn(device, rb_list=rb_list)
             self.logger.info('closing connection to %s after configuring conversational arp '
                              '-- all done!', self.host)
@@ -51,14 +51,3 @@ class ConfigureConversationalArpEvpn(NosDeviceAction):
             return False
 
         return True
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))

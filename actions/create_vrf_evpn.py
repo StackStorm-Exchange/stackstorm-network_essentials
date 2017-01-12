@@ -37,7 +37,7 @@ class CreateVrfEvpn(NosDeviceAction):
             self.logger.info('successfully connected to %s to Create VRF for EVPN tenants',
                              self.host)
             if rbridge_id is None:
-                rb_list = self._vlag_pair(device)
+                rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
 
@@ -263,14 +263,3 @@ class CreateVrfEvpn(NosDeviceAction):
                       'v6_rts_value': v6_rt_value_list}
 
         return final_dict
-
-    def _vlag_pair(self, device):
-        """ Fetch the RB list if VLAG is configured"""
-
-        rb_list = []
-        result = device.vcs.vcs_nodes
-        for each_rb in result:
-            rb_list.append(each_rb['node-rbridge-id'])
-        if len(rb_list) >= 3:
-            raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
-        return list(set(rb_list))
