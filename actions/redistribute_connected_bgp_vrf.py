@@ -66,7 +66,8 @@ class RedistributeConnectedBgpVrf(NosDeviceAction):
         """Configuring redistribute connceted under VRF AFI under router bgp.
         """
         result = True
-        for rb in rbridge_id:
+        for rbid in rbridge_id:
+            rb = str(rbid)
             for temp in zip(afi_list, vrf_list):
                 vrf_name = temp[1]
                 afi = temp[0]

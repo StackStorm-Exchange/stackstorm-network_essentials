@@ -47,7 +47,7 @@ class CreateVrfEvpn(NosDeviceAction):
             v6_export = ipv6_route_target_export_evpn
             for temp in zip(rb_list, route_distinguisher):
                 rd = temp[1]
-                rbridge_id = temp[0]
+                rbridge_id = str(temp[0])
                 changes['pre_validation_vrf'] = self._check_requirements_vrf(device, rbridge_id,
                                                                              vrf_name)
                 changes['pre_validation_rd'] = self._check_requirements_rd(device, rbridge_id,

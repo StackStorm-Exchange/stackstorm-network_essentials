@@ -52,7 +52,7 @@ class ConfigureEvpnVtep(NosDeviceAction):
             if len(rb_list) == 2:
                 rb_range = rb_list[0] + '-' + rb_list[1]
             else:
-                rb_range = rb_list[0]
+                rb_range = str(rb_list[0])
 
             self.logger.info('successfully connected to %s', self.host)
             changes['vtep'] = self._configure_evpn_vtep(device, name=name,
