@@ -48,7 +48,8 @@ class ConfigureEvpnInstance(NosDeviceAction):
         """Configuring EVPN instance under config mode.
         """
         is_evpn_instance_exist = False
-        for rb in rb_list:
+        for rbid in rb_list:
+            rb = str(rbid)
             get_code = device.interface.create_evpn_instance(get=True,
                                                              rbridge_id=rb)
             new_code = get_code.data.find('.//{*}instance-name')

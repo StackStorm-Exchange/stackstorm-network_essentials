@@ -38,7 +38,8 @@ class ModifyARPNDAgingVe(NosDeviceAction):
                 rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
-            for rbridge_id in rb_list:
+            for rbid in rb_list:
+                rbridge_id = str(rbid)
                 vlan_arp_nd_check_pass = self._check_requirements_arp_nd_check(device,
                                                                                vlan_id,
                                                                                arp_aging_type,
