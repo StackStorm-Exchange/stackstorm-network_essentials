@@ -49,7 +49,7 @@ parameters:
     description: port channel type
     enum:
       - standard
-      - brcd
+      - brocade
     default: standard
     position: 6
   protocol:
