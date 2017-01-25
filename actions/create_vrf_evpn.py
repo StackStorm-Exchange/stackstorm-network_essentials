@@ -40,7 +40,10 @@ class CreateVrfEvpn(NosDeviceAction):
                 rb_list = self.vlag_pair(device)
             else:
                 rb_list = rbridge_id
-
+            if len(route_distinguisher) == 1 and len(rbridge_id) >= 2:
+                route_distinguisher = route_distinguisher * len(rbridge_id)
+            if len(vrf_name) > 32:
+                raise ValueError('vrf_name %s length is greater than 32', vrf_name)
             v4_import = ipv4_route_target_import_evpn
             v4_export = ipv4_route_target_export_evpn
             v6_import = ipv6_route_target_import_evpn
