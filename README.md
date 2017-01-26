@@ -10,4 +10,7 @@ create_ve
 
 3. Configure a VLAN and set its description. action name configure_vlan
 
-4. 
+This is a repo to split the network essentials pack.
+
+We will eventually move this repo to exchange once we get the legal approval.
+
