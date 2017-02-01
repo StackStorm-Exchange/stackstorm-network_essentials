@@ -167,8 +167,8 @@ class CreatePortChannel(NosDeviceAction):
                 raise ValueError(e.message)
 
             # no-shut on the interface
-            intf_admin_state = self._get_interface_admin_state(device, intf_type, intf)
-            if 'down' in intf_admin_state:
+            intf_admin_state = self._get_interface_admin_state(device, intf_type, intf_name=intf)
+            if 'admin down' in intf_admin_state:
                 intf_update = self._interface_update(device, intf_type, intf, shutdown=False)
                 if not intf_update:
                     self.logger.error('Configuring no-shut on interface %s %s failed',
@@ -180,8 +180,12 @@ class CreatePortChannel(NosDeviceAction):
         port_chan_admin_state = self._get_interface_admin_state(device,
                                                                 intf_type='port-channel',
                                                                 intf_name=portchannel_num)
-        change_shutdown_state = False if port_chan_admin_state == 'down' else None
+        if "down" in port_chan_admin_state:
+            change_shutdown_state = False
+        else:
+            change_shutdown_state = None
 
+        # change_shutdown_state = False if "admin down" in port_chan_admin_state == 'down' else None
         conf_port_chan = self._interface_update(device,
                                                 intf_type='port-channel',
                                                 intf_name=portchannel_num,
@@ -255,7 +259,7 @@ class CreatePortChannel(NosDeviceAction):
         try:
             for intf in intf_name:
                 self.logger.info("disabling fabric trunk on %s %s", intf_type, intf)
-                conf_intf = update(intf, fabric_trunk_enable=True)
+                conf_intf = update(intf, fabric_trunk_enable=False)
                 if conf_intf[0] == 'True':
                     self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
 
@@ -295,15 +299,17 @@ class CreatePortChannel(NosDeviceAction):
                                  "settings on %s %s", intf_type, intf)
                 conf_intf = update(intf, disable=True)
                 if conf_intf[0] == 'True':
-                    self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
+                    self.logger.info('disabling fabric neighbor discovery on %s %s is done',
+                                     intf_type, intf)
 
                 elif conf_intf[0] == 'False':
-                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
+                    self.logger.error('disabling fabric neighbor discovery on %s %s '
+                                      'failed due to %s',
                                       intf_type,
                                       intf,
                                       conf_intf[1][0][self.host]
                                       ['response']['json']['output'])
         except (KeyError, ValueError, AttributeError):
-            self.logger.error('Invalid Input values while disabling fabric trunk')
+            self.logger.error('Invalid Input values while disabling fabric neighbor discovery')
             return False
         return True
