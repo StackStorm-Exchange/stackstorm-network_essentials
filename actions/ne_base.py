@@ -110,13 +110,9 @@ class NosDeviceAction(Action):
             tmp_vlan_id = pynos.utilities.valid_vlan_id(vid, extended=extended)
 
             reserved_vlan_list = range(4087, 4096)
-            reserved_vlan_list.append(1002)
 
             if not tmp_vlan_id:
                 self.logger.error("'Not a valid VLAN %s", vid)
-                return None
-            if vid == 1:
-                self.logger.error("vlan %s is default vlan", vid)
                 return None
             elif vid in reserved_vlan_list:
                 self.logger.error("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
@@ -478,27 +474,6 @@ class NosDeviceAction(Action):
                         return results
         else:
             return None
-        get = device.get_port_channel_detail_rpc()
-        output = get[1][0][self.host]['response']['json']['output']
-        if 'lacp' in output:
-            port_channel_get = output['lacp']
-        else:
-            self.logger.info(
-                'Port Channel is not configured on the device')
-            return None
-        if type(port_channel_get) == dict:
-            port_channel_get = [port_channel_get, ]
-        for port_channel in port_channel_get:
-            print port_channel
-            if port_channel['aggregator-id'] == str(portchannel_num):
-                port_channel_exist = True
-                if 'aggr-member' in port_channel:
-                    members = port_channel['aggr-member']
-                else:
-                    self.logger.info('Port Channel %s does not have any members',
-                                     str(portchannel_num))
-                    return results
-            return None
         if not port_channel_exist:
             self.logger.info('Port Channel %s is not configured on the device',
                              str(portchannel_num))
@@ -559,54 +534,49 @@ class NosDeviceAction(Action):
             result = update(intf_name, ifindex=ifindex,
                             description=description, shutdown=shutdown,
                             mtu=mtu)
-            if result[0] == 'True':
+            if result[0]:
                 self.logger.info('Updating %s %s interface is done',
                                  intf_type, intf_name)
                 return True
-            elif result[0] == 'False':
+            else:
                 self.logger.error('Updating %s %s interface failed because %s',
                                   intf_type, intf_name,
                                   result[1][0][self.host]['response']['json']['output'])
                 return False
 
-        except AttributeError as e:
+        except (TypeError, AttributeError, ValueError) as e:
             self.logger.error('Interface update failed because %s', e.message)
             return False
 
     def _get_interface_admin_state(self, device, intf_type, intf_name):
-        is_intf_name_present = False
-        admin_state = None
-        connected = False
-        for _ in range(5):
-            get = device.get_interface_detail_rpc()
-            if get[0]:
-                output = get[1][0][self.host]['response']['json']['output']
-                connected = True
-                break
-        if not connected:
-            self.logger.error(
-                'Cannot get interface details')
-            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
-        if 'interface' in output:
-            intf_dict = output['interface']
-            if type(intf_dict) == dict:
-                intf_dict = [intf_dict, ]
-        else:
-            self.logger.info("No interfaces found in host %s", self.host)
-            return None
-
-        for out in intf_dict:
-            if intf_name in out['if-name'] and intf_type == out['interface-type']:
-                is_intf_name_present = True
-                admin_state = out['line-protocol-state-info']
-                break
+        last_rcvd_interface = None
+        while True:
+            admin_state = None
+            connected = False
+            for _ in range(5):
+                get = device.get_interface_detail_rpc(last_rcvd_interface=last_rcvd_interface)
+                if get[0]:
+                    output = get[1][0][self.host]['response']['json']['output']
+                    connected = True
+                    break
+            if not connected:
+                self.logger.error(
+                    'Cannot get interface details')
+                raise self.ConnectionError()
+            if 'interface' in output:
+                intf_dict = output['interface']
+                if type(intf_dict) == dict:
+                    intf_dict = [intf_dict, ]
+                for out in intf_dict:
+                    if intf_name in out['if-name'] and intf_type == out['interface-type']:
+                        admin_state = out['line-protocol-state']
+                        return admin_state
+                last_rcvd_interface = (out['interface-type'], out['interface-name'])
+                if output['has-more']:
+                    continue
             else:
-                continue
-
-        if not is_intf_name_present:
-            self.logger.info("Invalid port channel/physical interface name/type")
-
-        return admin_state
+                self.logger.info("No interfaces found in host %s", self.host)
+                return admin_state
 
     def vlag_pair(self, device):
         """ Fetch the RB list if VLAG is configured"""

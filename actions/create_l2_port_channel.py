@@ -92,7 +92,6 @@ class CreatePortChannel(NosDeviceAction):
                 raise ValueError('Invalid interface description %s', intf_desc)
 
         port_channels = self._get_port_channels(device)
-
         # Verify if the port channel to interface mapping is already existing
         if port_channels:
             for port_chann in port_channels:
@@ -103,7 +102,7 @@ class CreatePortChannel(NosDeviceAction):
                     for member in members:
                         if member['interface-type'] == intf_type \
                                 and member['interface-name'] in intf_name:
-                            if portchannel_num == int(port_chann['aggregator-id']):
+                            if int(portchannel_num) == int(port_chann['aggregator-id']):
                                 self.logger.error(
                                     'Port Channel %s to interface %s %s mapping is'
                                     ' pre-existing',
@@ -172,7 +171,7 @@ class CreatePortChannel(NosDeviceAction):
                 intf_update = self._interface_update(device, intf_type, intf, shutdown=False)
                 if not intf_update:
                     self.logger.error('Configuring no-shut on interface %s %s failed',
-                                     intf_type, intf)
+                                      intf_type, intf)
                 else:
                     self.logger.info('Successfully configured no-shut on interface')
 
@@ -180,10 +179,7 @@ class CreatePortChannel(NosDeviceAction):
         port_chan_admin_state = self._get_interface_admin_state(device,
                                                                 intf_type='port-channel',
                                                                 intf_name=portchannel_num)
-        if "down" in port_chan_admin_state:
-            change_shutdown_state = False
-        else:
-            change_shutdown_state = None
+        change_shutdown_state = False if "down" in port_chan_admin_state else None
 
         # change_shutdown_state = False if "admin down" in port_chan_admin_state == 'down' else None
         conf_port_chan = self._interface_update(device,
@@ -193,8 +189,8 @@ class CreatePortChannel(NosDeviceAction):
                                                 shutdown=change_shutdown_state)
         if not conf_port_chan:
             self.logger.error('Configuring no-shut and description on '
-                             'port_channel %s failed',
-                             portchannel_num)
+                              'port_channel %s failed',
+                              portchannel_num)
             return False
         else:
             self.logger.info('Successfully configured no-shut and description')
