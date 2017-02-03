@@ -2,13 +2,13 @@
 name: autopick_port_channel_id 
 pack: network_essentials
 runner_type: run-python
-description: provide port-channel number if not mentioned 
+description: Auto pick the lowest available Port Channel ID on the device. 
 enabled: true
 entry_point: autopick_port_channel_id.py 
 parameters:
   mgmt_ip:
     type: string
-    description: Management Virtual Ip address of the VDX device
+    description: Management Virtual IP address of the VDX device
     required: true
     position: 0
   username:
