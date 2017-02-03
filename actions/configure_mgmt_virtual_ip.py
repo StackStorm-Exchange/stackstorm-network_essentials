@@ -24,10 +24,10 @@ class ConfigVcsVirtualIp(NosDeviceAction):
            2.Check for the management virtual IP on the Device,if not present configure it
     """
 
-    def run(self, prinicipal_mgmt_ip, user, passwd, mgmt_vip):
+    def run(self, principal_mgmt_ip, username, password, mgmt_vip):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=prinicipal_mgmt_ip, user=user, passwd=passwd)
+        self.setup_connection(host=principal_mgmt_ip, user=username, passwd=password)
         changes = {}
 
         with self.mgr(conn=self.conn, auth=self.auth) as device:

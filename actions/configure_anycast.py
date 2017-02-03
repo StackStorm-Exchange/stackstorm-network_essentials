@@ -21,10 +21,10 @@ class ConfigureAnycast(NosDeviceAction):
 
     un_supported_model = 'VDX8770'
 
-    def run(self, host, rbridge_id, mac, user=None, passwd=None):
+    def run(self, mgmt_ip, rbridge_id, mac, username=None, password=None):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=host, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
