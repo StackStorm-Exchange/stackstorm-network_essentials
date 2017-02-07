@@ -1,7 +1,7 @@
-from base1 import DeviceAction
+from ne_base import NosDeviceAction
 
 
-class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
+class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
 
     """
     standard rule elements --> seq_id, action, source, srchost, src_mac_addr_mask, count, log
@@ -13,8 +13,8 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
             action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
             ethertype, vlan, count, log):
 
-        self.validate_input_parameters(delete, seq_id, source, srchost, src_mac_addr_mask,
-                                       dst, dsthost, dst_mac_addr_mask, ethertype, vlan)
+        self.validate_input_parameters(delete, seq_id, source, src_mac_addr_mask,
+                                       dst, dst_mac_addr_mask, ethertype, vlan)
 
         device = self.device_login(device_ip, username, password)
 
@@ -53,8 +53,8 @@ class Add_Or_Remove_L2_Acl_Rule(DeviceAction):
                              "to %s due to %s", device_ip, rierr.message)
         return device
 
-    def validate_input_parameters(self, delete, seq_id, source, srchost, src_mac_addr_mask,
-                                  dst, dsthost, dst_mac_addr_mask, ethertype, vlan):
+    def validate_input_parameters(self, delete, seq_id, source, src_mac_addr_mask,
+                                  dst, dst_mac_addr_mask, ethertype, vlan):
 
         self.logger.debug("Doing validations")
         # validations only for remove operation
