@@ -1,0 +1,29 @@
+---
+name: set_l2_system_mtu
+pack: network_essentials
+runner_type: run-python
+description: Set L2 MTU to the whole fabric
+enabled: true
+entry_point: set_l2_system_mtu.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Virtual IP of VCS Fabric or management IP of a switch.
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  mtu_size:
+    type: integer
+    description: Value of MTU size in bytes <Number:1522-9216>
+    required: true
+    position: 3

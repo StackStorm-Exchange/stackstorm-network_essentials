@@ -3,10 +3,10 @@ from ne_base import NosDeviceAction
 
 class CreateAcl(NosDeviceAction):
     """
-    Creating ipv4 and ipv6 ACLs
+    Creating mac ipv4 and ipv6 ACLs
     """
 
-    def run(self, mgmt_ip, username, password, acl_type, acl_name):
+    def run(self, mgmt_ip, username, password, address_type, acl_type, acl_name):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
         try:
@@ -31,18 +31,19 @@ class CreateAcl(NosDeviceAction):
                               "to %s due to %s", self.host, rierr.message)
             raise ValueError("Failed to get a REST response while logging in "
                              "to %s due to %s", self.host, rierr.message)
-        changes = self._create_acl(device, acl_type, acl_name)
+        changes = self._create_acl(device, address_type, acl_type, acl_name)
         return changes
 
-    def _create_acl(self, device, acl_type, acl_name):
+    def _create_acl(self, device, address_type, acl_type, acl_name):
         create = []
         result = {}
         if not any([acl_type == 'extended', acl_type == 'standard']):
             self.logger.error('Invalid acl_type %s', acl_type)
             return result
-        method = 'ip_access_list_{}_create'.format(acl_type)
+        method = '{}_access_list_{}_create'.format(address_type, acl_type)
         create_acl = eval('device.{}'.format(method))
-        self.logger.info('Creating ACL %s of type %s', acl_name, acl_type)
+        self.logger.info('Creating %s ACL %s of type %s',
+                         address_type, acl_name, acl_type)
         try:
             create = create_acl(acl_name)
             if not create[0]:
