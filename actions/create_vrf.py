@@ -24,10 +24,10 @@ class CreateVRF(NosDeviceAction):
            1. Create VRF
     """
 
-    def run(self, vcs_virtual_ip, username, password, vrf_name, rbridge_id):
+    def run(self, mgmt_ip, username, password, vrf_name, rbridge_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=vcs_virtual_ip, user=username, passwd=password)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
         with self.mgr(conn=self.conn, auth=self.auth) as device:
