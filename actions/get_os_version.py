@@ -22,9 +22,9 @@ class GetOsVersion(NosDeviceAction):
            1.Get OS + Firmware version
     """
 
-    def run(self, mgmt_ip, user, passwd):
+    def run(self, mgmt_ip, username, password):
         """Run helper methods to implement the desired state."""
-        self.setup_connection(host=mgmt_ip, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         version = {}
 
         try:
