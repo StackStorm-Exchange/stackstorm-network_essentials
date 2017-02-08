@@ -10,16 +10,20 @@ parameters:
     type: string
     description: Ip address of the VDX or SLX device
     required: true
+    position: 0
   username:
     type: string
     description: login username
     default: admin
+    position: 1
   password:
     type: string
     description: login password
     default: password
     secret: true
+    position: 2
   macs:
     type: array
     description: Single MAC or comma separated list of MACs to be found on interfaces
     required: true
+    position: 3
