@@ -10,18 +10,18 @@ parameters:
         type: string
         description: Host to configure
         required: true
-        position: 2
+        position: 0
     username:
         type: string
         description: User name to ssh into host
         default: admin
-        position: 0
+        position: 1
     password:
         type: string
         description: Password to ssh into host
         default: password
         secret: true
-        position: 1
+        position: 2
     intf_type:
         type: string
         enum:
