@@ -6,7 +6,7 @@ description: Create VRF for L3 tenants.
 enabled: true
 entry_point: create_vrf.py 
 parameters:
-  vcs_virtual_ip:
+  mgmt_ip:
     type: string
     description: Ip address of the device
     required: true
