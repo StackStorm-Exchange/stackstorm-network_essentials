@@ -6,7 +6,7 @@ description: Execute CLI command and return the result
 enabled: true
 entry_point: execute_cli.py
 parameters:
-  host:
+  mgmt_ip:
     type: string
     description: Ip address of the VDX device
     required: true
