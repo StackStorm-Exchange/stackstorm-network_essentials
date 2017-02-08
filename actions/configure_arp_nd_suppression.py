@@ -83,8 +83,8 @@ class ConfigureARPNDSuppression(NosDeviceAction):
         cli_cmd = 'show hardware-profile current'
         DAI_pattern = 'DNY-ARP-INSP'
 
-        raw_cli_output = exec_cli.execute_cli_command(host=host_ip, user=host_username,
-                                                      passwd=host_password,
+        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
+                                                      password=host_password,
                                                       cli_cmd=cli_cmd)
         cli_output = raw_cli_output.values()[0]
         DAI_pattern = re.search(DAI_pattern, cli_output)

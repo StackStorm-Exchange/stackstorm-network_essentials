@@ -24,22 +24,22 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, host, user, passwd, cli_cmd):
+    def run(self, mgmt_ip, username, password, cli_cmd):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=host, user=user, passwd=passwd)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
         self.logger.info('successfully connected to %s to find execute CLI %s', self.host, cli_cmd)
-        result = self.execute_cli_command(host, user, passwd, cli_cmd)
+        result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd)
         self.logger.info('closing connection to %s after executions cli cmds -- all done!',
                          self.host)
         return result
 
-    def execute_cli_command(self, host, user, passwd, cli_cmd):
+    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd):
         opt = {'device_type': 'brocade_vdx'}
-        opt['ip'] = host
-        opt['username'] = user
-        opt['password'] = passwd
+        opt['ip'] = mgmt_ip
+        opt['username'] = username
+        opt['password'] = password
         opt['verbose'] = True
         opt['global_delay_factor'] = 0.5
         net_connect = None
@@ -54,16 +54,16 @@ class CliCMD(NosDeviceAction):
         except (NetMikoTimeoutException, NetMikoAuthenticationException,
                 ) as e:
             reason = e.message
-            raise ValueError('Failed to execute cli on %s due to %s', host, reason)
+            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
         except SSHException as e:
             reason = e.message
-            raise ValueError('Failed to execute cli on %s due to %s', host, reason)
+            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
         except Exception as e:
             reason = e.message
             # This is in case of I/O Error, which could be due to
             # connectivity issue or due to pushing commands faster than what
             #  the switch can handle
-            raise ValueError('Failed to execute cli on %s due to %s', host, reason)
+            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
         finally:
             if net_connect is not None:
                 net_connect.disconnect()

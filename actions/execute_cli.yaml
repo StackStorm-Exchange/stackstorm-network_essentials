@@ -10,16 +10,20 @@ parameters:
     type: string
     description: Ip address of the VDX device
     required: true
-  user:
+    position: 0
+  username:
     type: string
     description: login username
     default: admin
-  passwd:
+    position: 1
+  password:
     type: string
     description: login password
     default: password
     secret: true
+    position: 2
   cli_cmd:
     type: array
     description: CLI commands to execute on the specified VDX device
     required: true
+    position: 3

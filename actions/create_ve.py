@@ -202,9 +202,9 @@ class CreateVe(NosDeviceAction):
             v4_pattern = 'address-family ipv4 unicast'
             v6_pattern = 'address-family ipv6 unicast'
 
-            raw_cli_output = exec_cli.execute_cli_command(host=host_ip, user=host_username,
+            raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                           cli_cmd=cli_arr,
-                                                          passwd=host_password)
+                                                          password=host_password)
             cli_output = raw_cli_output[cli_cmd]
 
             if ip_interface(unicode(ip_address)).version == 4:
