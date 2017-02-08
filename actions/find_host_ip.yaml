@@ -10,16 +10,20 @@ parameters:
     type: string
     description: Ip address of the VDX device
     required: true
+    position: 0
   username:
     type: string
     description: login username
     default: admin
+    position: 1
   password:
     type: string
     description: login password
     default: password
     secret: true
+    position: 2
   ip_address:
     type: string
     description: IPv4 or IPv6 address of the VM/Host to be found
     required: true
+    position: 3
