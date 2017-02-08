@@ -76,11 +76,12 @@ class CreateVRF(NosDeviceAction):
         host_ip = self.host
         host_username = self.auth[0]
         host_password = self.auth[1]
+        cli_arr = []
         cli_cmd = 'show vrf ' + vrf_name
-
+        cli_arr.append(cli_cmd)
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
-                                                      cli_cmd=cli_cmd)
+                                                      cli_cmd=cli_arr)
         output = str(raw_cli_output)
         self.logger.info(output)
         return True
