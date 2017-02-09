@@ -7,26 +7,7 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
 
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to enable interface', self.host)
-        except AttributeError as e:
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
+        device = self.get_device()
         seq = []
         output = {}
         seq_variables_std = ('seq-id', 'action', 'src-host-any-sip', 'src-host-ip', 'src-mask',
@@ -46,8 +27,13 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
                              'dport-number-range-higher-udp', 'dscp', 'urg', 'ack', 'push',
                              'fin', 'rst', 'sync', 'vlan', 'count', 'log')
 
-        acl_type = self._get_acl_type_(device, acl_name)['type']
-        self.logger.info('successfully identified the acl_type as %s', acl_type)
+        try:
+            acl_type = self._get_acl_type_(device, acl_name)['type']
+            self.logger.info('successfully identified the acl_type as %s', acl_type)
+        except:
+            self.logger.error('Failed to get access list. Check is ACL %s exists', acl_name)
+            raise ValueError('Failed to get access list. Check if ACL exists')
+
         if acl_type == 'standard':
             seq_variables = seq_variables_std
         elif acl_type == 'extended':

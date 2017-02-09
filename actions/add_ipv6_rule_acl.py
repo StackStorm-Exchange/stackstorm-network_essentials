@@ -1,12 +1,12 @@
-import sys
 from ne_base import NosDeviceAction
 
 
-class Add_Ipv4_Rule_Acl(NosDeviceAction):
+class Add_Ipv6_Rule_Acl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, acl_name, seq_id,
             action, protocol_type, source, destination, dscp, vlan_id,
             count, log):
-        """Run helper methods to add an L3 IPV4 ACL rule to an existing ACL
+        """Run helper methods to apply IPv6 ACL on desired interface.
+        :type protocol_type: object
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         device = self.get_device()
@@ -32,8 +32,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             acl_type = self._get_acl_type_(device, acl_name)['type']
             self.logger.info('successfully identified the acl_type as %s', acl_type)
         except:
-            self.logger.error('Failed to get access list. Check is ACL %s exists', acl_name)
-            raise ValueError('Failed to get access list. Check if ACL exists')
+            self.logger.error('cannot get acl_type')
+            raise ValueError('cannot get acl_type')
         if acl_type == 'standard':
             seq_variables = seq_variables_std
         elif acl_type == 'extended':
@@ -57,8 +57,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             raise ValueError('Cannot get seq_variables')
 
         if seq_id is None:
-            self.logger.info('seq_id not provided getting the seq_id')
-            seq_id = self._get_seq_id_(device, acl_name, acl_type)
+            self.logger.info('seq_id not provided, getting the seq_id')
+            seq_id = self._get_seq_id_(device, acl_name, acl_type, ip_type='ipv6')
             if seq_id is None:
                 self.logger.error('Cannot get seq_id')
                 raise ValueError('Cannot get seq_id')
@@ -89,7 +89,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         for v in seq_variables:
             seq.append(seq_dict[v])
         try:
-            changes = self._add_ipv4_acl_(device,
+            changes = self._add_ipv6_acl_(device,
                                           acl_name=acl_name,
                                           acl_type=acl_type,
                                           seq=tuple(seq))
@@ -113,13 +113,13 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             try:
                 output[key + '_host_any_ip'] = statement_list.pop(0)
                 host_ip = statement_list.pop(0)
-                if self._validate_ip_(host_ip):
+                if self._validate_ipv6_(host_ip):
                     output[key + '_host_ip'] = host_ip
                 else:
                     msg = 'host ip in {} statement is invalid'.format(key)
             except:
                 msg = 'host ip missing in {} statement'.format(key)
-        elif self._validate_ip_(statement_list[0]):
+        elif self._validate_ipv6_(statement_list[0]):
             output[key + '_host_any_ip'] = statement_list.pop(0)
             try:
                 output[key + '_mask'] = statement_list.pop(0)
@@ -162,27 +162,23 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             raise ValueError(msg)
         return output
 
-    def _add_ipv4_acl_(self, device, acl_name, acl_type, seq):
+    def _add_ipv6_acl_(self, device, acl_name, acl_type, seq):
         self.logger.info('Adding rule on access list- %s',
                          acl_name)
         result = 'False'
         try:
             if acl_type == 'standard':
-                add_acl = device.ip_access_list_standard_seq_create
+                add_acl = device.ipv6_access_list_standard_seq_create
             elif acl_type == 'extended':
-                add_acl = device.ip_access_list_extended_seq_create
-            else:
-                self.logger.error('Invalid access list type %s', acl_type)
-                raise ValueError('Invalid access list type %s', acl_type)
+                add_acl = device.ipv6_access_list_extended_seq_create
             aply = list(add_acl(acl_name, seq))
-            result = str(aply[0])
+            result = aply[0]
             if not aply[0]:
                 self.logger.error('Cannot add rule on %s due to %s', acl_name,
                                   str(aply[1][0][self.host]['response']['json']['output']))
-                sys.exit(-1)
             else:
                 self.logger.info('Successfully added rule on %s', acl_name)
-        except (KeyError, AttributeError, ValueError) as e:
+        except Exception as e:
             self.logger.error('Cannot add rule on %s due to %s', acl_name, e.message)
             raise ValueError(e.message)
         return result

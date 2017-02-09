@@ -21,6 +21,15 @@ parameters:
         description: login password
         default: password
         position: 2
+    address_type:
+        type: string
+        enum:
+            - ip
+            - ipv6
+            - mac
+        description: ACL address type. IPv4 IPv6 or mac
+        required: true
+        position: 3
     acl_type:
         type: string
         enum:
@@ -28,10 +37,9 @@ parameters:
             - extended
         description: ACL type extended or standard
         required: true
-        position: 3
+        position: 4
     acl_name:
         type: string
         description: name of the ACL
         required: true
-        position: 4
-
+        position: 5

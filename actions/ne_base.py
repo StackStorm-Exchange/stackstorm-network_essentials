@@ -59,6 +59,37 @@ class NosDeviceAction(Action):
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
 
+    def get_device(self):
+        try:
+            device = self.asset(ip_addr=self.host, auth=self.auth)
+            self.logger.info('successfully connected to %s to create port channel',
+                             self.host)
+            return device
+        except AttributeError as e:
+            self.logger.error("Failed to connect to %s due to %s",
+                              self.host, e.message)
+            raise self.ConnectionError('Failed to connect to %s due to %s', self.host, e.message)
+        except ValueError as verr:
+            self.logger.error("Error while logging in to %s due to %s",
+                              self.host, verr.message)
+            raise self.ConnectionError("Error while logging in to %s due to %s",
+                                       self.host, verr.message)
+        except IndexError as ierr:
+            self.logger.error("Error while logging in to %s due to wrong Username/Password",
+                              self.host)
+            raise self.ConnectionError("Error while logging in to %s due to %s",
+                                       self.host, ierr.message)
+        except self.ConnectionError as cerr:
+            self.logger.error("Connection failed while logging in to %s due to %s",
+                              self.host, cerr.message)
+            raise self.ConnectionError("Connection failed while logging in to %s due to %s",
+                                       self.host, cerr.message)
+        except self.RestInterfaceError as rierr:
+            self.logger.error("Failed to get a REST response while logging in "
+                              "to %s due to %s", self.host, rierr.message)
+            raise self.ConnectionError("Failed to get a REST response while logging in "
+                                       "to %s due to %s", self.host, rierr.message)
+
     def check_int_description(self, intf_description):
         """
         Check for valid interface description
@@ -242,7 +273,6 @@ class NosDeviceAction(Action):
         """
         This will only validate the HHHH.HHHH.HHHH MAC format. Will need to be expanded to
         validate other formats of MAC.
-
         :param mac:
         :return:
         """
@@ -266,10 +296,8 @@ class NosDeviceAction(Action):
         """
         This method converts MAC from xxxx.xxxx.xxxx to xx:xx:xx:xx:xx:xx. This
         helps provide consistency across persisting MACs in the DB.
-
         Args:
                 old_mac: MAC in a format xxxx.xxxx.xxxx
-
             Returns:
                 dict: updated MAC in the xx:xx:xx:xx:xx:xx format
         """
@@ -281,10 +309,8 @@ class NosDeviceAction(Action):
         """
         This method fetches rbridge_id from single interface name.This
         helps user not to pass the rbridge_id as input.
-
         Args:
                 intf_name: Name of the interface
-
             Returns:
                 rbridge_id: rbridge id of the interface
         """
@@ -313,6 +339,13 @@ class NosDeviceAction(Action):
     def _validate_ip_(self, addr):
         try:
             socket.inet_aton(addr)
+            return True
+        except socket.error:
+            return False
+
+    def _validate_ipv6_(self, addr):
+        try:
+            socket.inet_pton(socket.AF_INET6, addr)
             return True
         except socket.error:
             return False
@@ -511,6 +544,28 @@ class NosDeviceAction(Action):
             port_channel_get = [port_channel_get, ]
         return port_channel_get
 
+    def _get_switchport(self, device):
+        connected = False
+        for _ in range(5):
+            get = device.get_interface_switchport_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get switchport')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'switchport' in output:
+            switchport_get = output['switchport']
+        else:
+            self.logger.info(
+                'Switchport is not configured on the device')
+            return None
+        if type(switchport_get) == dict:
+            switchport_get = [switchport_get, ]
+        return switchport_get
+
     def _interface_update(self, device, intf_type, intf_name,
                           ifindex=None, description=None, shutdown=None, mtu=None):
         if intf_type == 'ethernet':
@@ -577,6 +632,98 @@ class NosDeviceAction(Action):
             else:
                 self.logger.info("No interfaces found in host %s", self.host)
                 return admin_state
+
+    def _get_os_type(self, device):
+        os_name = None
+        try:
+            get = device.show_firmware_version_rpc()[1][0][
+                self.host]['response']['json']['output']['show-firmware-version']['os-name']
+            if 'Network' in get:
+                os_name = 'NOS'
+            elif 'SLX' in get:
+                os_name = 'SLX-OS'
+        except (TypeError, KeyError, AttributeError):
+            self.logger.error("Cannot get OS version")
+        return os_name
+
+    def _get_interface_address(self, device, intf_type, intf_name, ip_version, rbridge_id=None):
+        if ip_version == 4:
+            ip = 'ip'
+        elif ip_version == 6:
+            ip = 'ipv6'
+        method = 'rbridge_id_interface_{}_get'. \
+            format(intf_type) if rbridge_id \
+            else 'interface_{}_get'.format(intf_type)
+        get_intf = eval('device.{}'.format(method))
+        get = get_intf(rbridge_id, intf_name) if rbridge_id else get_intf(intf_name)
+        if get[0]:
+            output = get[1][0][self.host]['response']['json']['output']
+        else:
+            return None
+        if output is not None:
+            ip_intf = output.itervalues().next()[ip]
+            while True:
+                if 'address' not in ip_intf:
+                    try:
+                        ip_intf = ip_intf.pop()
+                    except:
+                        return None
+                else:
+                    ip_intf = ip_intf['address']
+                    break
+            if ip == 'ip':
+                while True:
+                    if 'address' not in ip_intf:
+                        try:
+                            ip_intf = ip_intf.pop()
+                        except:
+                            return None
+                    else:
+                        return ip_intf['address']
+            elif ip == 'ipv6':
+                while True:
+                    if 'ipv6-address' not in ip_intf:
+                        try:
+                            ip_intf = ip_intf.pop()
+                        except:
+                            return None
+                    else:
+                        ip_intf = ip_intf['ipv6-address']
+                        break
+                while True:
+                    if 'address' not in ip_intf:
+                        try:
+                            ip_intf = ip_intf.pop()
+                        except:
+                            return None
+                    else:
+                        return ip_intf['address']
+        else:
+            return None
+
+    def _get_ip_intf(self, device, intf_type=None):
+        connected = False
+        for _ in range(5):
+            get = device.get_ip_interface_rpc()
+            if get[0]:
+                output = get[1][0][self.host]['response']['json']['output']
+                connected = True
+                break
+        if not connected:
+            self.logger.error(
+                'Cannot get interface details')
+            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+        if 'interface' in output:
+            ip_intf = output['interface']
+            if type(ip_intf) == dict:
+                ip_intf = [ip_intf, ]
+        else:
+            self.logger.info("No interfaces found in host %s", self.host)
+            return None
+        if intf_type is None:
+            return [x['if-name'] for x in ip_intf]
+        else:
+            return [x['if-name'] for x in ip_intf if intf_type in x['if-name'].lower()]
 
     def vlag_pair(self, device):
         """ Fetch the RB list if VLAG is configured"""

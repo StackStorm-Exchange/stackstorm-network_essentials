@@ -29,40 +29,41 @@ class CreateSwitchPort(NosDeviceAction):
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
-
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to create switchport on Interface',
-                             self.host)
-            if intf_type != 'port_channel':
-                changes['L2_interface_check'] = self._check_requirements_L2_interface(device,
-                                                                                      intf_type,
-                                                                                      intf_name)
-            changes['switchport_doesnot_exists'] = self._check_requirements_switchport_exists(
-                device, intf_type, intf_name, vlan_id)
-            if not changes['switchport_doesnot_exists']:
-                self.logger.info("configs are pre-existing on the device")
-            if intf_type != 'port_channel' and changes['switchport_doesnot_exists']:
-                changes['disable_isl'] = self._disable_isl(device, intf_type, intf_name)
-                changes['disable_fabric_trunk'] = self._disable_fabric_trunk(device, intf_type,
-                                                                             intf_name)
-            if changes['switchport_doesnot_exists']:
-                changes['switchport_trunk_config'] = self._create_switchport(device, intf_type,
-                                                                             intf_name, vlan_id)
-            self.logger.info(
-                'closing connection to %s after configuring switch port on interface -- all done!',
-                self.host)
+        device = self.get_device()
+        self.logger.info('successfully connected to %s to create switchport on Interface',
+                         self.host)
+        if intf_type != 'port_channel':
+            changes['L2_interface_check'] = self._check_requirements_L2_interface(device,
+                                                                                  intf_type,
+                                                                                  intf_name)
+        changes['switchport_doesnot_exists'] = self._check_requirements_switchport_exists(
+            device, intf_type, intf_name, vlan_id)
+        if not changes['switchport_doesnot_exists']:
+            self.logger.info("configs are pre-existing on the device")
+        if intf_type != 'port_channel' and changes['switchport_doesnot_exists']:
+            changes['disable_isl'] = self._disable_isl(device, intf_type, intf_name)
+            changes['disable_fabric_trunk'] = self._disable_fabric_trunk(device, intf_type,
+                                                                         intf_name)
+        if changes['switchport_doesnot_exists']:
+            changes['switchport_trunk_config'] = self._create_switchport(device, intf_type,
+                                                                         intf_name, vlan_id)
+        self.logger.info(
+            'closing connection to %s after configuring switch port on interface -- all done!',
+            self.host)
         return changes
 
     def _check_requirements_L2_interface(self, device, intf_type, intf_name):
         """Fail the task if interface is an L3 interface .
         """
-        try:
-            version1 = 4
-            version2 = 6
-            get_ipv4 = device.interface.get_ip_addresses(int_type=intf_type, name=intf_name,
-                                                         version=version1)
-            get_ipv6 = device.interface.get_ip_addresses(int_type=intf_type, name=intf_name,
-                                                         version=version2)
+        version1 = 4
+        version2 = 6
+        intf_state = self._get_interface_admin_state(device, intf_type=intf_type,
+                                                     intf_name=intf_name)
+        if intf_state:
+            get_ipv4 = self._get_interface_address(device, intf_type=intf_type,
+                                                   intf_name=intf_name, ip_version=version1)
+            get_ipv6 = self._get_interface_address(device, intf_type=intf_type,
+                                                   intf_name=intf_name, ip_version=version2)
             if get_ipv4 or get_ipv6:
                 self.logger.warning("Interface %s %s specified is an L3 interface", intf_type,
                                     intf_name)
@@ -71,28 +72,29 @@ class CreateSwitchPort(NosDeviceAction):
                 self.logger.info("Interface is L2 interface.")
                 return True
 
-        except (ValueError):
+        else:
             self.logger.info("interface type or name invalid.")
-        return False
+            return False
 
     def _check_requirements_switchport_exists(self, device, intf_type, intf_name, vlan_id):
         """ Fail the task if switch port exists.
         """
 
         try:
-            return_code = device.interface.switchport(int_type=intf_type, name=intf_name,
-                                                      get='True')
-            parse_string = return_code.data.find('.//{*}switchport-basic')
-            if parse_string is not None:
-                result = device.interface.switchport_list
+            check_switchport = self._get_interface_switchport(device, intf_type, intf_name)
+            if check_switchport[0]:
+                result = self._get_switchport(device)
                 vlan_range = (list(self.expand_vlan_range(vlan_id)))
                 for intf in result:
                     if intf['interface-name'] == intf_name:
                         if intf['mode'] == 'trunk':
-                            if intf['vlan-id'] is not None:
-                                if len(intf['vlan-id']) > len(vlan_range):
+                            if intf['active-vlans'] is not None:
+                                vlanid = intf['active-vlans']['vlanid']
+                                if not isinstance(vlanid, list):
+                                    vlanid = [vlanid, ]
+                                if len(vlanid) > len(vlan_range):
                                     return False
-                                ret = self._check_list(vlan_range, intf['vlan-id'])
+                                ret = self._check_list(vlan_range, vlanid)
                                 if ret:
                                     if len(ret) == len(vlan_range):
                                         return False
@@ -102,7 +104,7 @@ class CreateSwitchPort(NosDeviceAction):
                             self.logger.info("Access mode is configured on interface,\
                                  Pls removed and re-configure")
                             return False
-        except (ValueError):
+        except (ValueError, IndexError, KeyError):
             self.logger.info("Fetching Switch port enable failed")
             return False
         return True
@@ -118,33 +120,136 @@ class CreateSwitchPort(NosDeviceAction):
     def _create_switchport(self, device, intf_type, intf_name, vlan_id):
         """ Configuring Switch port trunk allowed vlan add on the interface with the vlan."""
         try:
-            device.interface.switchport(int_type=intf_type, name=intf_name)
-            device.interface.trunk_mode(int_type=intf_type, name=intf_name, mode='trunk')
-            device.interface.trunk_allowed_vlan(int_type=intf_type, name=intf_name, action='add',
-                                                vlan=vlan_id)
+            switchport_create = \
+                eval("device.interface_{}_switchport_update".format(intf_type))
+            update_1 = switchport_create(intf_name)
+            if update_1[0]:
+                self.logger.info('Configuring interface %s %s mode to switchport'
+                                 ' is done', intf_type, intf_name)
+            else:
+                self.logger.error('Switchport creation failed'
+                                  ' due to %s',
+                                  update_1[1][0][self.host]['response']['json']['output'])
+                return False
+
+            trunk_mode_update = \
+                eval("device.interface_{}_switchport_mode_update".format(intf_type))
+            update_2 = trunk_mode_update(intf_name, vlan_mode='trunk')
+            if update_2[0]:
+                self.logger.info('Configuring switchport mode to trunk'
+                                 ' is done')
+            else:
+                self.logger.error('Switchport mode update failed'
+                                  ' due to %s',
+                                  update_2[1][0][self.host]['response']['json']['output'])
+                return False
+
+            trunk_allowed_vlan = \
+                eval("device.interface_{}_switchport_trunk_allowed_vlan_update".format(intf_type))
+            update_3 = trunk_allowed_vlan(intf_name, add_=int(vlan_id))
+            if update_3[0]:
+                self.logger.info('Adding allowed vlan to switchport'
+                                 ' is done')
+            else:
+                self.logger.error('Adding allowed to vlan tp switchport to failed'
+                                  ' due to %s',
+                                  update_3[1][0][self.host]['response']['json']['output'])
+                return False
+
             return True
-        except ValueError:
+
+        except (ValueError, AttributeError):
             self.logger.info("Configuring Switch port trunk failed")
             return False
 
     def _disable_isl(self, device, intf_type, intf_name):
+
         """Disable ISL on the interface.
-        """
-        conf = device.interface.fabric_isl(get=True, name=intf_name, int_type=intf_type)
-        conf = conf.data.find('.//{*}fabric-isl')
-        if conf is None:
+                """
+        self.logger.info('disabling fabric ISL settings on the interface ')
+        if intf_type == 'ethernet':
+            update = device.interface_ethernet_fabric_isl_update
+        elif intf_type == 'gigabitethernet':
+            update = device.interface_gigabitethernet_fabric_isl_update
+        elif intf_type == 'tengigabitethernet':
+            update = device.interface_tengigabitethernet_fabric_isl_update
+        elif intf_type == 'fortygigabitethernet':
+            update = device.interface_fortygigabitethernet_fabric_isl_update
+        elif intf_type == 'hundredgigabitethernet':
+            update = device.interface_hundredgigabitethernet_fabric_isl_update
+        else:
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
-        self.logger.info("disabling isl on %s %s", intf_type, intf_name)
-        device.interface.fabric_isl(enabled=False, name=intf_name, int_type=intf_type)
+
+        try:
+            for intf in intf_name:
+                self.logger.info("disabling fabric ISL "
+                                 "settings on %s %s", intf_type, intf)
+                conf_intf = update(intf, fabric_isl_enable=False)
+                if conf_intf[0] == 'True':
+                    self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
+
+                elif conf_intf[0] == 'False':
+                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
+                                      intf_type,
+                                      intf,
+                                      conf_intf[1][0][self.host]
+                                      ['response']['json']['output'])
+        except (KeyError, ValueError, AttributeError):
+            self.logger.error('Invalid Input values while disabling fabric trunk')
+            return False
         return True
 
     def _disable_fabric_trunk(self, device, intf_type, intf_name):
-        """Disable ISL Fabric Trunk on the interface.
-        """
-        conf = device.interface.fabric_trunk(get=True, name=intf_name, int_type=intf_type)
-        conf = conf.data.find('.//{*}fabric-trunk')
-        if conf is None:
+
+        """Disable fabric trunk on the interface."""
+
+        self.logger.info('disabling fabric trunk on the interface ')
+        if intf_type == 'ethernet':
+            update = device.interface_ethernet_fabric_trunk_update
+        elif intf_type == 'gigabitethernet':
+            update = device.interface_gigabitethernet_fabric_trunk_update
+        elif intf_type == 'tengigabitethernet':
+            update = device.interface_tengigabitethernet_fabric_trunk_update
+        elif intf_type == 'fortygigabitethernet':
+            update = device.interface_fortygigabitethernet_fabric_trunk_update
+        elif intf_type == 'hundredgigabitethernet':
+            update = device.interface_hundredgigabitethernet_fabric_trunk_update
+        else:
+            self.logger.error('intf_type %s is not supported',
+                              intf_type)
             return False
-        self.logger.info("disabling fabric trunk on %s %s", intf_type, intf_name)
-        device.interface.fabric_trunk(enabled=False, name=intf_name, int_type=intf_type)
+
+        try:
+            for intf in intf_name:
+                self.logger.info("disabling fabric trunk on %s %s", intf_type, intf)
+                conf_intf = update(intf, fabric_trunk_enable=True)
+                if conf_intf[0] == 'True':
+                    self.logger.info('disabling fabric trunk on %s %s is done', intf_type, intf)
+
+                elif conf_intf[0] == 'False':
+                    self.logger.error('disabling fabric trunk on %s %s failed due to %s',
+                                      intf_type,
+                                      intf,
+                                      conf_intf[1][0][self.host]
+                                      ['response']['json']['output'])
+        except (KeyError, ValueError, AttributeError):
+            self.logger.error('Invalid Input values while disabling fabric trunk')
+            return False
         return True
+
+    def _get_interface_switchport(self, device, intf_type, intf_name):
+        method = 'interface_{}_get'.format(intf_type)
+        get_intf = eval('device.{}'.format(method))
+        get = get_intf(intf_name)
+        if get[0]:
+            output = get[1][0][self.host]['response']['json']['output']
+        else:
+            return None
+        if output is not None:
+            intf = output.itervalues().next()
+            if 'switchport' in intf:
+                return intf['switchport']
+
+        return None

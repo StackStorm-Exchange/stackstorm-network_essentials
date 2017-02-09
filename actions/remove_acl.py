@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -11,26 +12,7 @@ class Remove_Acl(NosDeviceAction):
         changes = []
         interface_list = []
         intf_type = intf_type.lower()
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to enable interface', self.host)
-        except AttributeError as e:
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
+        device = self.get_device()
         ag_type = self._get_acl_type_(device, acl_name)['protocol']
         self.logger.info('successfully identified the access group type as %s', ag_type)
         # Check is the user input for Interface Name is correct
@@ -80,6 +62,7 @@ class Remove_Acl(NosDeviceAction):
                     self.logger.error('Cannot remove  %s on interface %s %s due to %s',
                                       acl_name, intf_type, intf,
                                       str(rmve[1][0][self.host]['response']['json']['output']))
+                    sys.exit(-1)
                 else:
                     self.logger.info('Successfully  removed  %s ACL on interface %s %s ',
                                      acl_name, intf_type, intf)

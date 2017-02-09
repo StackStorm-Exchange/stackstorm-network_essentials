@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -8,27 +9,7 @@ class DeleteAcl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, acl_name):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to delete ACL',
-                             self.host)
-        except AttributeError as e:
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
+        device = self.get_device()
         self.logger.info('getting the ACL type from device.')
         get_acl = self._get_acl_type_(device, acl_name)
         if get_acl:
@@ -39,12 +20,12 @@ class DeleteAcl(NosDeviceAction):
             changes = self._delete_acl(device, address_type, acl_type, acl_name)
         else:
             self.logger.error('Failed to identify acl_type. Check if the ACL %s exists', acl_name)
-            changes = None
+            sys.exit(-1)
         return changes
 
     def _delete_acl(self, device, address_type, acl_type, acl_name):
         delete = []
-        result = {}
+        result = None
         method = '{}_access_list_{}_delete'.format(address_type, acl_type)
         dl_acl = eval('device.{}'.format(method))
         self.logger.info('Deleting ACL %s', acl_name)
@@ -53,10 +34,11 @@ class DeleteAcl(NosDeviceAction):
             if not delete[0]:
                 self.logger.error('Cannot delete ACL %s due to %s', acl_name,
                                   str(delete[1][0][self.host]['response']['json']['output']))
+                sys.exit(-1)
             else:
                 self.logger.info('Successfully deleted ACL %s from %s', acl_name, self.host)
         except (KeyError, ValueError, AttributeError) as e:
             self.logger.error('Cannot delete ACl %s due to %s', acl_name, e.message)
             raise ValueError(e.message)
-        result['result'] = delete[0]
+        result = delete[0]
         return result
