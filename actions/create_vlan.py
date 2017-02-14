@@ -27,91 +27,73 @@ class CreateVlan(NosDeviceAction):
     def run(self, mgmt_ip, username, password, vlan_id, intf_desc):
         """Run helper methods to implement the desired state.
         """
+
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to enable interface', self.host)
-        except AttributeError as e:
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info(
+                'successfully connected to %s to validate interface vlan',
+                self.host)
+            # Check is the user input for VLANS is correct
 
-        # Check is the user input for VLANS is correct
-        vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
 
-        valid_desc = True
-        if intf_desc:
-            # if description is passed we validate that the length is good.
-            valid_desc = self.check_int_description(intf_description=intf_desc)
+            valid_desc = True
+            if intf_desc:
+                # if description is passed we validate that the length is good.
+                valid_desc = self.check_int_description(
+                    intf_description=intf_desc)
 
-        if vlan_list and valid_desc:
-            changes['vlan'] = self._create_vlan(device, vlan_id=vlan_list, intf_desc=intf_desc)
-        else:
-            raise ValueError('Input is not a valid vlan or description')
+            if vlan_list and valid_desc:
+                changes['vlan'] = self._create_vlan(
+                    device, vlan_id=vlan_list, intf_desc=intf_desc)
+            else:
+                raise ValueError('Input is not a valid vlan or description')
 
-        self.logger.info('Closing connection to %s after configuring create vlan -- all done!',
-                         self.host)
+            self.logger.info('Closing connection to %s after configuring '
+                             'create vlan -- all done!',
+                             self.host)
 
         return changes
 
     def _create_vlan(self, device, vlan_id, intf_desc):
-        result = {}
+        output = []
 
         for vlan in vlan_id:
-            check_vlan = device.vlan_get(vlan)
-            device.get_vlan_brief_rpc(vlan_id=vlan)
-            vlan_details = device.get_dict_output()
-            if str(check_vlan[0]) == 'False':
-                if vlan_details == "":
-                    cr_vlan = device.vlan_create(vlan)
-                    result['result'] = cr_vlan[0]
-                    result['output'] = cr_vlan[1][0][self.host]['response']['json']['output']
-                    if result['output'] == '':
-                        self.logger.info('Successfully created a VLAN %s', vlan)
-                else:
-                    if vlan_details['vlan']['vlan-type'] == "fcoe":
-                        self.logger.info('Vlan %s: Cannot create this VLAN.'
-                                         'This is a FCOE VLAN', vlan)
-                        result['result'] = 'False'
-                        result['output'] = 'Cannot create this VLAN. This is a FCOE VLAN'
+            check_vlan = device.interface.get_vlan_int(vlan)
+            result = {}
+            if check_vlan is False:
+                cr_vlan = device.interface.add_vlan_int(vlan)
+                self.logger.info('Successfully created a VLAN %s', vlan)
+                result['result'] = cr_vlan
+                result['output'] = 'Successfully created a VLAN %s' % vlan
             else:
-                if vlan != 1:
-                    result['result'] = 'False'
-                else:
-                    result['result'] = 'True'
-                result['output'] = 'VLAN already exists on the device'
+                result['result'] = 'False'
+                result['output'] = 'VLAN  %s already exists on' \
+                                   ' the device' % vlan
                 self.logger.info('VLAN %s already exists, not created', vlan)
 
-            if result['output'] == '' or result['output'] == 'VLAN already exists on the device':
-                if intf_desc:
-                    self.logger.info('Configuring VLAN description as %s', intf_desc)
-                    try:
-                        desc = device.vlan_update(vlan=str(vlan), description=str(intf_desc))
-                        if 'False' in str(desc[0]):
-                            self.logger.info('Cannot update vlan interface description'
-                                             ' because %s', desc[1][0][self.host]
-                                             ['response']['json']['output'])
-                        elif 'True' in str(desc[0]):
-                            self.logger.info('Successfully updated VLAN description')
-                    except (KeyError, ValueError, AttributeError) as e:
-                        self.logger.info('Configuring VLAN interface failed')
-                        raise ValueError('Configuring VLAN interface failed', e.message)
-                else:
-                    self.logger.debug('Skipping to update Interface description,'
+            if intf_desc:
+                self.logger.info(
+                    'Configuring VLAN description as %s', intf_desc)
+                try:
+                    device.interface.description(
+                        int_type='vlan', name=vlan, desc=intf_desc)
+                    result[
+                        'description'] = 'Successfully updated VLAN ' \
+                                         'description for %s' % vlan
+                    self.logger.info(
+                        'Successfully updated VLAN description for %s' %
+                        vlan)
+                except (KeyError, ValueError, AttributeError) as e:
+                    self.logger.info(
+                        'Configuring VLAN interface failed for %s' %
+                        vlan)
+                    raise ValueError(
+                        'Configuring VLAN interface failed', e.message)
+            else:
+                self.logger.debug('Skipping to update Interface description,'
                                   ' as no info provided')
-        return result
+            output.append(result)
+        return output
