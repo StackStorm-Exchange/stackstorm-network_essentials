@@ -6,7 +6,7 @@ description: add rule to l2 acl or remove rule from l2 acl
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py
 parameters:
-  to_remove:
+  delete:
     type: boolean
     description: is it a remove operation
     default: False
