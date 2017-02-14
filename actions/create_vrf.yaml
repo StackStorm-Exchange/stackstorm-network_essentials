@@ -30,5 +30,14 @@ parameters:
   rbridge_id:
     type: string
     description: Rbridge id of the device
-    required: true
+    required: false
     position: 3
+  afi:
+    type: string
+    description: IP version
+    position: 4
+    required: false
+    enum:
+      - ipv4
+      - ipv6
+    default: ipv4
