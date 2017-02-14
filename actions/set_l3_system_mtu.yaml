@@ -22,16 +22,20 @@ parameters:
     default: password
     secret: true
     position: 2
-  ip_type:
+  mtu_size:
+    type: integer
+    description: Value of MTU size in bytes <Number:1280-9100> for IPV4, <Number:1300-9100> for IPV6
+    required: true
+    position: 3
+  afi:
     type: string
-    description: IPv4 or IPv6 mtu
-    default: ipv4
+    description: IP version
+    position: 4
+    required: false
     enum:
       - ipv4
       - ipv6
-    position: 3
-  mtu_size:
-    type: integer
-    description: Value of MTU size in bytes <Number:1300-9100>
-    required: true
-    position: 4
+    default: ipv4
+
+
+

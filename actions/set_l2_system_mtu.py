@@ -1,4 +1,4 @@
-from ne_base2 import NosDeviceAction
+from ne_base import NosDeviceAction
 
 
 class set_l2_system_mtu(NosDeviceAction):
@@ -8,7 +8,7 @@ class set_l2_system_mtu(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         output = {}
         changes = []
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to set system mtu', self.host)
 
 

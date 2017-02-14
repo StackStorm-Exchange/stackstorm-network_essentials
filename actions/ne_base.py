@@ -17,6 +17,7 @@ import re
 
 import ipaddress
 import pynos.device
+import pyswitch.device
 import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
@@ -29,6 +30,7 @@ class NosDeviceAction(Action):
         super(NosDeviceAction, self).__init__(config=config, action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
         self.mgr = pynos.device.Device
+        self.pmgr = pyswitch.device.Device
         self.host = None
         self.conn = None
         self.auth = None
