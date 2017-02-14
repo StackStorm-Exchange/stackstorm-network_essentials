@@ -42,6 +42,6 @@ parameters:
     position: 4
   mtu_size:
     type: integer
-    description: Value of MTU size in bytes <Number:1522-9216>
+    description: Value of MTU size in bytes <Number:1522-9216> for NOS, Value of MTU size in bytes <Number:1548-9216> for SLX 
     required: true
     position: 5
