@@ -21,7 +21,8 @@ parameters:
     secret: true
   intf_type:
     type: string
-    enum: 
+    enum:
+      - ethernet
       - tengigabitethernet
       - gigabitethernet
       - fortygigabitethernet
