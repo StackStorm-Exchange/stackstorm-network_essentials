@@ -1,10 +1,10 @@
 ---
-name: set_l2_mtu
+name: set_l3_mtu
 pack: network_essentials
 runner_type: run-python
-description: set L2 MTU size on physical or port channel interface
+description: set L3 MTU size on physical or port channel interface
 enabled: true
-entry_point: set_l2_mtu.py
+entry_point: set_l3_mtu.py
 parameters:
   mgmt_ip:
     type: string
@@ -42,6 +42,15 @@ parameters:
     position: 4
   mtu_size:
     type: integer
-    description: Value of MTU size in bytes <Number:1522-9216>
+    description: Value of IPV4/IPV6 MTU size in bytes <Number:1300-9194> for SLX.  Value of IPV4 MTU size in bytes <Number:1300-9100> for NOS. Value of IPV6 MTU size in bytes <Number:1280-9100> for NOS.
     required: true
     position: 5
+  afi:
+    type: string
+    description: IP version
+    position: 4
+    required: false
+    enum:
+      - ipv4
+      - ipv6
+    default: ipv4

@@ -784,6 +784,24 @@ class NosDeviceAction(Action):
             raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
         return list(set(rb_list))
 
+    def extract_port_list(self, intf_type, port_list):
+        interface_list = []
+        for intf in port_list:
+            if "-" not in str(intf):
+                interface_list.append(str(intf))
+            else:
+                ex_intflist = self.extend_interface_range(intf_type=intf_type,
+                                                          intf_name=intf)
+                for ex_intf in ex_intflist:
+                    interface_list.append(str(ex_intf))
+
+        for intf in interface_list:
+            if not self.validate_interface(intf_type, intf):
+                msg = "Input is not a valid Interface"
+                self.logger.error(msg)
+                raise ValueError(msg)
+        return interface_list
+
     def validate_supports_rbridge(self, device, rbridge_id):
         if device.suports_rbridge:
             return True
