@@ -1,4 +1,5 @@
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 import re
 
 
@@ -8,6 +9,11 @@ class set_l3_system_mtu(NosDeviceAction):
         """Run helper methods to set system L3 MTU on.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        output = self.switch_operation(afi, mtu_size)
+        return output
+
+    @log_exceptions
+    def switch_operation(self, afi, mtu_size):
         output = {}
         changes = []
         ip_version = int(re.search(r'ipv([\d.]+)', afi).group(1))

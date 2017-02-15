@@ -1,4 +1,5 @@
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class set_l2_system_mtu(NosDeviceAction):
@@ -7,6 +8,11 @@ class set_l2_system_mtu(NosDeviceAction):
         """Run helper methods to set system L2 MTU on.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        output = self.switch_operation(mtu_size)
+        return output
+
+    @log_exceptions
+    def switch_operation(self, mtu_size):
         output = {}
         changes = []
         with self.pmgr(conn=self.conn, auth=self.auth) as device:

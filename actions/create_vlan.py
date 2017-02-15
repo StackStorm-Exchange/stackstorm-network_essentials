@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class CreateVlan(NosDeviceAction):
@@ -29,8 +30,13 @@ class CreateVlan(NosDeviceAction):
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = {}
+        changes = self.switch_operation(intf_desc, vlan_id)
 
+        return changes
+
+    @log_exceptions
+    def switch_operation(self, intf_desc, vlan_id):
+        changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
                 'successfully connected to %s to validate interface vlan',
@@ -54,7 +60,6 @@ class CreateVlan(NosDeviceAction):
             self.logger.info('Closing connection to %s after configuring '
                              'create vlan -- all done!',
                              self.host)
-
         return changes
 
     def _create_vlan(self, device, vlan_id, intf_desc):

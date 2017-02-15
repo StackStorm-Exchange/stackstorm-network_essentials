@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class GetOsVersion(NosDeviceAction):
@@ -26,21 +27,23 @@ class GetOsVersion(NosDeviceAction):
         """Run helper methods to implement the desired state."""
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
 
-        version = {}
-        try:
-            with self.pmgr(conn=self.conn, auth=self.auth) as device:
-                self.logger.info('successfully connected to %s to '
-                                 'get OS Version', self.host)
-                version["result"] = self._get_os(device)
-                self.logger.info('Closing connection to %s after '
-                                 'finding OS -- all done!',
-                                 mgmt_ip)
-        except Exception, e:
-            raise ValueError(e)
+        version = self.switch_operation(mgmt_ip)
 
         return version
 
-    def _get_os(self, device):
+    @log_exceptions
+    def switch_operation(self, mgmt_ip):
+        version = {}
 
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info('successfully connected to %s to '
+                             'get OS Version', self.host)
+            version["result"] = self._get_os(device)
+            self.logger.info('Closing connection to %s after '
+                             'finding OS -- all done!',
+                             mgmt_ip)
+        return version
+
+    def _get_os(self, device):
         check_os = device.asset.get_os_full_version()
         return check_os

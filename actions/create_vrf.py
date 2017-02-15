@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 from execute_cli import CliCMD
 
 
@@ -30,10 +31,18 @@ class CreateVRF(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
+        return self.switch_operation(afi, changes, rbridge_id, vrf_name)
+
+    @log_exceptions
+    def switch_operation(self, afi, changes, rbridge_id, vrf_name):
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
+
             self.logger.info('successfully connected to %s to Create VRF '
                              'for tenants',
                              self.host)
+
+            self.validate_supports_rbridge(device, rbridge_id)
+
             validation_VRF = self._check_requirements_VRF(device, rbridge_id,
                                                           vrf_name)
             if validation_VRF:
@@ -52,7 +61,6 @@ class CreateVRF(NosDeviceAction):
 
             if 'Create_VRF' in changes:
                 self._fetch_VRF_state(device, vrf_name)
-
         return changes
 
     def _check_requirements_VRF(self, device, rbridge_id, vrf_name):
