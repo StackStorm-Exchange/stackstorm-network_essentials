@@ -810,6 +810,8 @@ class NosDeviceAction(Action):
             raise ValueError('Device does not support rbridge')
 
 # log_exceptions decorator
+
+
 def log_exceptions(func):
     def wrapper(*args, **kwds):
         logger = args[0].logger
@@ -843,11 +845,13 @@ def log_exceptions(func):
             raise
 
     return wrapper
-  
+
     def check_status_code(self, operation, device_ip):
         status_code = operation[1][0][device_ip]['response']['status_code']
         self.logger.debug("Operation returned %s", status_code)
         if status_code >= 400:
             error_msg = operation[1][0][device_ip]['response']['text']
-            self.logger.debug("REST Operation failed with status code %s", status_code)
+            self.logger.debug(
+                "REST Operation failed with status code %s",
+                status_code)
             raise ValueError(error_msg)
