@@ -2,7 +2,7 @@
 name: find_host_ip
 pack: network_essentials
 runner_type: run-python
-description: Find the interfaces on which the specified MACs show up
+description: Find the interfaces on which the specified IP show up
 enabled: true
 entry_point: find_host_ip.py
 parameters:

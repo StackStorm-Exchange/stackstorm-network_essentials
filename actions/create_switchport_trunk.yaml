@@ -2,7 +2,7 @@
 name: create_switchport_trunk 
 pack: network_essentials
 runner_type: run-python
-description: Create switch port on a interface with switch port mode trunk allowed vlan 
+description: Create switch port on an interface with switch port mode trunk allowed vlan
 enabled: true
 entry_point: create_switchport_trunk.py 
 parameters:
