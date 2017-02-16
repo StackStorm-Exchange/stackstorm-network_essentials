@@ -99,7 +99,7 @@ class CreateSwitchPort(NosDeviceAction):
                 return True
 
         except (ValueError):
-            self.logger.info("interface type or name invalid.")
+            self.logger.exception('interface type or name invalid.')
         return False
 
     def _check_requirements_switchport_exists(self, device, intf_type,
@@ -158,6 +158,7 @@ class CreateSwitchPort(NosDeviceAction):
                                                 vlan=vlan_id)
             return True
         except ValueError:
+            self.logger.exception("Configuring Switch port trunk failed")
             self.logger.info("Configuring Switch port trunk failed")
             return False
 

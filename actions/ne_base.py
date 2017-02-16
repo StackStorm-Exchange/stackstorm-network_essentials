@@ -155,7 +155,7 @@ class NosDeviceAction(Action):
             reserved_vlan_list = range(4087, 4096)
 
             if not tmp_vlan_id:
-                self.logger.error("'Not a valid VLAN %s", vid)
+                self.logger.error("'Not a valid vlan %s", vid)
                 return None
             elif vid in reserved_vlan_list:
                 self.logger.error(
@@ -825,7 +825,7 @@ def log_exceptions(func):
                    e.message))
             raise
         except ValueError as verr:
-            logger.exception("Error while logging in to %s due to %s"
+            logger.exception("Error encountered on %s due to %s"
                              % (host, verr.message))
             raise
         except requests.exceptions.ConnectionError as cerr:
@@ -835,8 +835,8 @@ def log_exceptions(func):
             raise
         except pyswitchlib.asset.RestInterfaceError as rierr:
             logger.exception(
-                "Failed to get a REST response while logging in "
-                "to %s due to %s" % (host, rierr.message))
+                "Failed to get a REST response on "
+                "%s due to %s" % (host, rierr.message))
             raise
         except Exception as ex:
             logger.exception(

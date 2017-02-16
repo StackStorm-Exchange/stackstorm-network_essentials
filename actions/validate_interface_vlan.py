@@ -63,7 +63,7 @@ class ValidateInterfaceVlan(NosDeviceAction):
             for vid in out['vlan-id']:
                 if vlan_id == vid:
                     is_vlan_interface_present = True
-                    if intf_name in out[
+                    if intf_name == out[
                             'interface-name'] and intf_mode in out['mode']:
                         is_intf_name_mode_present = True
                         self.logger.info("Successfully Validated port channel/physical interface %s \
