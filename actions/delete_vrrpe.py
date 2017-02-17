@@ -38,7 +38,7 @@ class DeleteVrrpe(NosDeviceAction):
                              self.host)
             changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id)
             if changes['pre_check']:
-                changes['VRRPe_group'] = self._delete_vrrpe(device, ve_name=vlan_id, 
+                changes['VRRPe_group'] = self._delete_vrrpe(device, ve_name=vlan_id,
                                                             rbridge_id=rbridge_id,
                                                             vrrpe_group=vrrpe_group,
                                                             ip_version=ip_version)
@@ -90,7 +90,7 @@ class DeleteVrrpe(NosDeviceAction):
                                                 version=ip_version, rbridge_id=rb, vrid=user_vrrpe)
                     is_vrrpe_present = False
         else:
-            tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, name=user_ve, version=ip_version4,
+            tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, name=user_ve, version=ip_version,
                                                          int_type='ve', vrid=user_vrrpe)
             tmp_dut_vrrpe = [str(item) for item in tmp_vrrpe_name]
             if user_vrrpe in tmp_dut_vrrpe:
