@@ -10,7 +10,7 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                                 dst_mac_addr_mask, ethertype, vlan, count, log
     """
 
-    def run(self, to_remove, mgmt_ip, username, password, acl_name, seq_id,
+    def run(self, delete, mgmt_ip, username, password, acl_name, seq_id,
             action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
             ethertype, vlan, count, log):
         """Run helper methods to add an L2 ACL rule to an existing ACL
@@ -44,7 +44,7 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
         elif acl_type == 'extended':
             seq_variables = seq_variables_ext
 
-        if to_remove:
+        if delete:
             if not seq_id:
                 self.logger.error("Enter a valid seq_id to remove")
                 sys.exit(-1)
