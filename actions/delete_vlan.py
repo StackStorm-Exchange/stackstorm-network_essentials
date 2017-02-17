@@ -42,7 +42,7 @@ class DeleteVlan(NosDeviceAction):
             vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
 
             if vlan_list:
-                changes['vlan'] = self._delete_vlan(
+                changes["vlan"] = self._delete_vlan(
                     device, vlan_id=vlan_list)
                 changes['show_vlan_brief'] = self._fetch_Vlan_state(device)
             else:
@@ -54,16 +54,21 @@ class DeleteVlan(NosDeviceAction):
         return changes
 
     def _delete_vlan(self, device, vlan_id):
-
+        interfaces = device.interface.vlans
+        is_vlan_interface_present = False
         for vlan in vlan_id:
-            check_vlan = device.interface.get_vlan_int(vlan)
-            if check_vlan is False:
-                self.logger.info('VLAN %s does not exist', vlan)
-                return False
-            else:
+            for interface in interfaces:
+                if int(interface['vlan-id']) == int(vlan):
+                    is_vlan_interface_present = True
+                    break
+            if is_vlan_interface_present:
                 device.interface.del_vlan_int(vlan)
                 self.logger.info('VLAN %s is deleted', vlan)
-        return True
+                delete_flag = True
+            else:
+                self.logger.info('VLAN %s does not exist', vlan)
+                delete_flag = False
+        return delete_flag
 
     def _fetch_Vlan_state(self, device):
         """validate Vlan state.
