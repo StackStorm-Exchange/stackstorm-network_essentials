@@ -31,6 +31,8 @@ class DeleteVe(NosDeviceAction):
         changes = {}
 
         valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id)
+        if not valid_vlan:
+            raise ValueError('Invalid vlan_id', vlan_id)
 
         with Device(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to Delete Ve',
@@ -55,7 +57,7 @@ class DeleteVe(NosDeviceAction):
                 for each_ve in tmp_dut_ve:
                     if each_ve == user_ve:
                         self.logger.info('Deleting Ve %s from rbridge_id %s ', user_ve, rb)
-                        device.interface.create_ve(rbridge_id=rb, delete=True, ve_name=52)
+                        device.interface.create_ve(rbridge_id='52', delete=True, ve_name=user_ve)
                         is_ve_present = False
         else:
             tmp_ve_name = device.interface.create_ve(get=True, ve_name='100')
@@ -63,7 +65,7 @@ class DeleteVe(NosDeviceAction):
             for each_ve in tmp_dut_ve:
                 if each_ve == user_ve:
                     self.logger.info('Deleting Ve %s', user_ve)
-                    device.interface.create_ve(delete=True, ve_name=52)
+                    device.interface.create_ve(delete=True, ve_name=user_ve)
                     is_ve_present = False
 
         if not is_ve_present:
