@@ -30,6 +30,7 @@ parameters:
       - fortygigabitethernet
       - hundredgigabitethernet
       - port-channel
+      - ethernet
     default: tengigabitethernet
     description: Interface type
     required: true

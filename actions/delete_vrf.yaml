@@ -1,10 +1,10 @@
 ---
-name: create_vrf
+name: delete_vrf
 pack: network_essentials
 runner_type: run-python
-description: Create VRF for L3 tenants.
+description: Delete VRF for L3 tenants.
 enabled: true
-entry_point: create_vrf.py 
+entry_point: delete_vrf.py 
 parameters:
   mgmt_ip:
     type: string
@@ -28,16 +28,6 @@ parameters:
     required: true
     position: 4
   rbridge_id:
-    type: string
-    description: Rbridge id of the device
-    required: false
+    type: array
+    description: Rbridge id of the device. example [51] or 51,52
     position: 3
-  afi:
-    type: string
-    description: IP version
-    position: 4
-    required: false
-    enum:
-      - ipv4
-      - ipv6
-    default: ipv4
