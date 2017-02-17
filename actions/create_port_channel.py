@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynos.utilities
+import pyswitch.utilities
 from ne_base import NosDeviceAction
 
 
@@ -35,7 +35,7 @@ class CreatePortChannel(NosDeviceAction):
         if protocol == "modeon":
             protocol = "on"
 
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
                                                                  port_channel_id,
@@ -48,6 +48,7 @@ class CreatePortChannel(NosDeviceAction):
                                                                     channel_type=mode,
                                                                     mode_type=protocol,
                                                                     intf_desc=intf_desc)
+            self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
             changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
             changes['fabric_trunk_disable'] = self._disable_trunk(device, intf_type, ports)
             changes['fabric_neighbor_discovery'] = self._fabric_neighbor(device, intf_type, ports)
@@ -59,11 +60,11 @@ class CreatePortChannel(NosDeviceAction):
         """ Verify if the port channel already exists """
 
         for each in intf_name:
-            r1 = pynos.utilities.valid_interface(int_type=intf_type, name=each)
+            r1 = pyswitch.utilities.valid_interface(int_type=intf_type, name=each)
             if not r1:
                 raise ValueError('Not a valid interface type or number', intf_type, each)
 
-        r2 = pynos.utilities.valid_interface(int_type='port_channel', name=portchannel_num)
+        r2 = pyswitch.utilities.valid_interface(int_type='port_channel', name=portchannel_num)
         if not r2:
             raise ValueError('Port Channel number %s is not a valid value', portchannel_num)
 
@@ -117,9 +118,9 @@ class CreatePortChannel(NosDeviceAction):
 
             # no-shut on the interface
             conf_interface = device.interface.admin_state(get=True, int_type=intf_type, name=intf)
-            conf1 = conf_interface.data.find('.//{*}shutdown')
-
-            if conf1 is not None:
+            #conf1 = conf_interface.data.find('.//{*}shutdown')
+            conf1 = conf_interface
+            if not conf1:
                 device.interface.admin_state(enabled=True, name=intf, int_type=intf_type)
                 self.logger.info('Admin state setting on %s is successfull', intf)
 
@@ -131,8 +132,9 @@ class CreatePortChannel(NosDeviceAction):
         conf_port_chan = device.interface.admin_state(get=True,
                                                       int_type='port_channel',
                                                       name=portchannel_num)
-        conf_port = conf_port_chan.data.find('.//{*}shutdown')
-        if conf_port is not None:
+        #conf_port = conf_port_chan.data.find('.//{*}shutdown')
+        conf_port = conf_port_chan 
+        if not conf_port:
             device.interface.admin_state(enabled=True, name=portchannel_num,
                                          int_type='port_channel')
             self.logger.info('Admin state setting on port-channel %s is successfull',
@@ -143,35 +145,29 @@ class CreatePortChannel(NosDeviceAction):
     def _disable_isl(self, device, intf_type, intf_name):
         """Disable ISL on the interface.
         """
-
         try:
-            for intf in intf_name:
+            for intf in intf_name: 
                 conf = device.interface.fabric_isl(get=True, name=intf, int_type=intf_type)
-                conf = conf.data.find('.//{*}fabric-isl')
                 if conf is None:
                     return False
-                self.logger.info("disabling fabric isl on %s %s", intf_type, intf)
+                self.logger.info("disabling isl on %s %s", intf_type, intf)
                 device.interface.fabric_isl(enabled=False, name=intf, int_type=intf_type)
         except (KeyError, ValueError):
-            self.logger.info('Invalid Input values while disabling fabric ISL')
-
+            self.logger.info('Invalid Input values while disabling fabric ISL') 
         return True
 
     def _disable_trunk(self, device, intf_type, intf_name):
-        """Disable fabric trunk on the interface."""
-
+        """Disable ISL Fabric Trunk on the interface.
+        """
         try:
-            for intf in intf_name:
-                conf_trunk = device.interface.fabric_trunk(get=True, name=intf,
-                                                           int_type=intf_type)
-                conf_trunk = conf_trunk.data.find('.//{*}fabric-trunk')
-                if conf_trunk is None:
+            for intf in intf_name: 
+                conf = device.interface.fabric_trunk(get=True, name=intf, int_type=intf_type)
+                if conf is None:
                     return False
-                self.logger.info("disabling fabric trunk on %s %s", intf_type, intf)
+                self.logger.info("disabling fabric trunk on  %s %s", intf_type, intf)
                 device.interface.fabric_trunk(enabled=False, name=intf, int_type=intf_type)
         except (KeyError, ValueError):
-            self.logger.info('Invalid Input values while disabling fabric trunk')
-
+            self.logger.info('Invalid Input values while disabling fabric Trunk') 
         return True
 
     def _fabric_neighbor(self, device, intf_type, intf_name):
@@ -180,7 +176,6 @@ class CreatePortChannel(NosDeviceAction):
         try:
             for intf in intf_name:
                 conf = device.interface.fabric_neighbor(get=True, name=intf, int_type=intf_type)
-                conf = conf.data.find('.//{*}neighbor-discovery')
                 if conf is None:
                     return False
                 self.logger.info("No fabric neighbor-discovery disable on %s %s", intf_type, intf)

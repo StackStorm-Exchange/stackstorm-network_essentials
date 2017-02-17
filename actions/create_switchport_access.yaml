@@ -2,7 +2,7 @@
 name: create_switchport_access
 pack: network_essentials
 runner_type: run-python
-description: Create switch port on an interface
+description: Create switch port on a interface 
 enabled: true
 entry_point: create_switchport_access.py
 parameters:
@@ -10,18 +10,15 @@ parameters:
     type: string
     description: Device to get the version
     required: true
-    position: 0
   username:
     type: string
     description: login username
     default: admin
-    position: 1
   password:
     type: string
     description: login password
     default: password
     secret: true
-    position: 2
   intf_type:
     type: string
     enum: 
@@ -29,17 +26,15 @@ parameters:
       - gigabitethernet
       - fortygigabitethernet
       - hundredgigabitethernet
+      - ethernet
     default: tengigabitethernet
     description: Interface type tengigabitethernet,gigabitethernet,fortygigabitethernet and hundredgigabitethernet 
     required: true
-    position: 3
   intf_name:
     type: string
     description: Interface name in 3-tuple format(example :2/0/96) 
     required: true
-    position: 4
   vlan_id:
     type: string
     description: Vlan id to be configure on the switchport mode access,range not supported 
     required: true
-    position: 5
