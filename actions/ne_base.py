@@ -453,7 +453,7 @@ class NosDeviceAction(Action):
                 return None
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
-                if type(seq_list) == list:
+                if isinstance(seq_list, list):
                     last_seq_id = int(seq_list[len(seq_list) - 1]['seq-id'])
                 else:
                     last_seq_id = int(seq_list['seq-id'])
@@ -467,17 +467,23 @@ class NosDeviceAction(Action):
         except KeyError:
             return None
 
-    def _get_seq_(self, device, acl_name, acl_type, seq_id):
-
-        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
-            device.ip_access_list_standard_get
+    def _get_seq_(self, device, acl_name, acl_type, seq_id, address_type=None):
+        if address_type == 'ipv6':
+            get = device.ipv6_access_list_extended_get if acl_type == 'extended' else \
+                device.ipv6_access_list_standard_get
+        elif address_type == 'mac':
+            get = device.mac_access_list_extended_get if acl_type == 'extended' else \
+                device.mac_access_list_standard_get
+        else:
+            get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+                device.ip_access_list_standard_get
 
         try:
             get_output = get(acl_name, resource_depth=3)
             acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
-                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                seq_list = seq_list if isinstance(seq_list, list) else [seq_list, ]
                 for seq in seq_list:
                     if seq['seq-id'] == str(seq_id):
                         return seq
@@ -512,7 +518,7 @@ class NosDeviceAction(Action):
                              str(portchannel_num))
             return results
 
-        if type(members) == dict:
+        if isinstance(members, dict):
             members = [members, ]
         for member in members:
             result = {}
@@ -540,7 +546,7 @@ class NosDeviceAction(Action):
             self.logger.info(
                 'Port Channel is not configured on the device')
             return None
-        if type(port_channel_get) == dict:
+        if isinstance(port_channel_get, dict):
             port_channel_get = [port_channel_get, ]
         return port_channel_get
 
@@ -562,7 +568,7 @@ class NosDeviceAction(Action):
             self.logger.info(
                 'Switchport is not configured on the device')
             return None
-        if type(switchport_get) == dict:
+        if isinstance(switchport_get, dict):
             switchport_get = [switchport_get, ]
         return switchport_get
 
@@ -620,7 +626,7 @@ class NosDeviceAction(Action):
                 raise self.ConnectionError()
             if 'interface' in output:
                 intf_dict = output['interface']
-                if type(intf_dict) == dict:
+                if isinstance(intf_dict, dict):
                     intf_dict = [intf_dict, ]
                 for out in intf_dict:
                     if intf_name in out['if-name'] and intf_type == out['interface-type']:
@@ -736,11 +742,3 @@ class NosDeviceAction(Action):
         if len(rb_list) >= 3:
             raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
         return list(set(rb_list))
-
-    def check_status_code(self, operation, device_ip):
-        status_code = operation[1][0][device_ip]['response']['status_code']
-        self.logger.debug("Operation returned %s", status_code)
-        if status_code >= 400:
-            error_msg = operation[1][0][device_ip]['response']['text']
-            self.logger.debug("REST Operation failed with status code %s", status_code)
-            raise ValueError(error_msg)
