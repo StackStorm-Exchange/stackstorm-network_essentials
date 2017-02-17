@@ -29,6 +29,7 @@ parameters:
       - gigabitethernet
       - fortygigabitethernet
       - hundredgigabitethernet
+      - ethernet
     default: tengigabitethernet
     description: Interface type tengigabitethernet,gigabitethernet,fortygigabitethernet and hundredgigabitethernet 
     required: true
