@@ -44,13 +44,17 @@ class DeletePortChannel(NosDeviceAction):
         """ Deleting the port channel configuration from all the member ports"""
 
         is_po_present = True
-        poChannel = device.interface.port_channels
-        for po in poChannel:
-            poNo = po['aggregator_id']
-            if poNo == str(portchannel_num):
-                self.logger.info('Deleting port cahnnel %s ', portchannel_num)
-                device.interface.remove_port_channel(port_int=str(portchannel_num))
-                is_po_present = False
+        try:
+            poChannel = device.interface.port_channels
+            for po in poChannel:
+                poNo = po['aggregator_id']
+                if poNo == str(portchannel_num):
+                    self.logger.info('Deleting port cahnnel %s ', portchannel_num)
+                    device.interface.remove_port_channel(port_int=str(portchannel_num))
+                    is_po_present = False
+        except Exception:
+            self.logger.info('Failed to get/delete port-channel %s', portchannel_num)
+            return False
 
         if not is_po_present:
             return True
