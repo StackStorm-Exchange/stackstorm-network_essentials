@@ -375,8 +375,8 @@ class NosDeviceAction(Action):
         msg = None
         # int_list = intf_name
         re_pattern1 = r"^(\d+)$"
-        re_pattern2 = r"^(\d+)\/(\d+)\/(\d+)$"
-        re_pattern3 = r"^(\d+)\/(\d+)$"
+        re_pattern2 = r"^(\d+)\/(\d+)\/(\d+)(:(\d+))?$"
+        re_pattern3 = r"^(\d+)\/(\d+)(:(\d+))?$"
         intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet",
                     "fortygigabitethernet", "hundredgigabitethernet", "ethernet"]
         NosIntTypes = [
