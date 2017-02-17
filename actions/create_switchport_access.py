@@ -143,4 +143,3 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.error(error)
             return False
         return True
-

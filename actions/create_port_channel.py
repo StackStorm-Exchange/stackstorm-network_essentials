@@ -118,7 +118,7 @@ class CreatePortChannel(NosDeviceAction):
 
             # no-shut on the interface
             conf_interface = device.interface.admin_state(get=True, int_type=intf_type, name=intf)
-            #conf1 = conf_interface.data.find('.//{*}shutdown')
+            # conf1 = conf_interface.data.find('.//{*}shutdown')
             conf1 = conf_interface
             if not conf1:
                 device.interface.admin_state(enabled=True, name=intf, int_type=intf_type)
@@ -132,12 +132,12 @@ class CreatePortChannel(NosDeviceAction):
         conf_port_chan = device.interface.admin_state(get=True,
                                                       int_type='port_channel',
                                                       name=portchannel_num)
-        #conf_port = conf_port_chan.data.find('.//{*}shutdown')
-        conf_port = conf_port_chan 
+        # conf_port = conf_port_chan.data.find('.//{*}shutdown')
+        conf_port = conf_port_chan
         if not conf_port:
             device.interface.admin_state(enabled=True, name=portchannel_num,
                                          int_type='port_channel')
-            self.logger.info('Admin state setting on port-channel %s is successfull',
+            self.logger.info('Admin state setting on port-channel %s is successful',
                              portchannel_num)
 
         return True
@@ -146,28 +146,28 @@ class CreatePortChannel(NosDeviceAction):
         """Disable ISL on the interface.
         """
         try:
-            for intf in intf_name: 
+            for intf in intf_name:
                 conf = device.interface.fabric_isl(get=True, name=intf, int_type=intf_type)
                 if conf is None:
                     return False
                 self.logger.info("disabling isl on %s %s", intf_type, intf)
                 device.interface.fabric_isl(enabled=False, name=intf, int_type=intf_type)
         except (KeyError, ValueError):
-            self.logger.info('Invalid Input values while disabling fabric ISL') 
+            self.logger.info('Invalid Input values while disabling fabric ISL')
         return True
 
     def _disable_trunk(self, device, intf_type, intf_name):
         """Disable ISL Fabric Trunk on the interface.
         """
         try:
-            for intf in intf_name: 
+            for intf in intf_name:
                 conf = device.interface.fabric_trunk(get=True, name=intf, int_type=intf_type)
                 if conf is None:
                     return False
                 self.logger.info("disabling fabric trunk on  %s %s", intf_type, intf)
                 device.interface.fabric_trunk(enabled=False, name=intf, int_type=intf_type)
         except (KeyError, ValueError):
-            self.logger.info('Invalid Input values while disabling fabric Trunk') 
+            self.logger.info('Invalid Input values while disabling fabric Trunk')
         return True
 
     def _fabric_neighbor(self, device, intf_type, intf_name):
