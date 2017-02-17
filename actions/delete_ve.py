@@ -63,7 +63,7 @@ class DeleteVe(NosDeviceAction):
                     device.interface.create_ve(rbridge_id=rb, delete=True, ve_name=user_ve)
                     is_ve_present = False
         else:
-            tmp_ve_name = device.interface.create_ve(get=True, ve_name='100')
+            tmp_ve_name = device.interface.create_ve(get=True, ve_name=user_ve)
             tmp_dut_ve = [str(item) for item in tmp_ve_name]
             if user_ve in tmp_dut_ve:
                 self.logger.info('Deleting Ve %s', user_ve)
