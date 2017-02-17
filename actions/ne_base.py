@@ -17,6 +17,7 @@ import re
 
 import ipaddress
 import pynos.device
+import pyswitch.device
 import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
@@ -25,10 +26,16 @@ from st2actions.runners.pythonrunner import Action
 
 
 class NosDeviceAction(Action):
+
     def __init__(self, config=None, action_service=None):
-        super(NosDeviceAction, self).__init__(config=config, action_service=action_service)
+        super(
+            NosDeviceAction,
+            self).__init__(
+            config=config,
+            action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
         self.mgr = pynos.device.Device
+        self.pmgr = pyswitch.device.Device
         self.host = None
         self.conn = None
         self.auth = None
@@ -44,13 +51,15 @@ class NosDeviceAction(Action):
     def _get_auth(self, host, user, passwd):
         if not user:
             lookup_key = self._get_lookup_key(host=self.host, lookup='user')
-            user_kv = self.action_service.get_value(name=lookup_key, local=False)
+            user_kv = self.action_service.get_value(
+                name=lookup_key, local=False)
             if not user_kv:
                 raise Exception('username for %s not found.' % host)
             user = user_kv
         if not passwd:
             lookup_key = self._get_lookup_key(host=self.host, lookup='passwd')
-            passwd_kv = self.action_service.get_value(name=lookup_key, local=False, decrypt=True)
+            passwd_kv = self.action_service.get_value(
+                name=lookup_key, local=False, decrypt=True)
             if not passwd_kv:
                 raise Exception('password for %s not found.' % host)
             passwd = passwd_kv
@@ -68,7 +77,8 @@ class NosDeviceAction(Action):
         except AttributeError as e:
             self.logger.error("Failed to connect to %s due to %s",
                               self.host, e.message)
-            raise self.ConnectionError('Failed to connect to %s due to %s', self.host, e.message)
+            raise self.ConnectionError(
+                'Failed to connect to %s due to %s', self.host, e.message)
         except ValueError as verr:
             self.logger.error("Error while logging in to %s due to %s",
                               self.host, verr.message)
@@ -101,7 +111,8 @@ class NosDeviceAction(Action):
         elif err_code <= 63:
             return True
         else:
-            self.logger.info('Length of the description is more than the allowed size')
+            self.logger.info(
+                'Length of the description is more than the allowed size')
             return False
 
     def expand_vlan_range(self, vlan_id):
@@ -126,7 +137,8 @@ class NosDeviceAction(Action):
 
             if int(vlan_id.groups()[0]) == int(vlan_id.groups()[1]):
                 self.logger.warning("Use range command only for diff vlans")
-            vlan_id = range(int(vlan_id.groups()[0]), int(vlan_id.groups()[1]) + 1)
+            vlan_id = range(int(vlan_id.groups()[0]), int(
+                vlan_id.groups()[1]) + 1)
 
         else:
             self.logger.info("Invalid vlan format")
@@ -143,10 +155,11 @@ class NosDeviceAction(Action):
             reserved_vlan_list = range(4087, 4096)
 
             if not tmp_vlan_id:
-                self.logger.error("'Not a valid VLAN %s", vid)
+                self.logger.error("'Not a valid vlan %s", vid)
                 return None
             elif vid in reserved_vlan_list:
-                self.logger.error("Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                self.logger.error(
+                    "Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
                 return None
 
         return vlan_id
@@ -178,7 +191,8 @@ class NosDeviceAction(Action):
 
             if int(int_list.groups()[0]) == int(int_list.groups()[1]):
                 self.logger.info("Use range command only for unique values")
-            int_list = range(int(int_list.groups()[0]), int(int_list.groups()[1]) + 1)
+            int_list = range(int(int_list.groups()[0]), int(
+                int_list.groups()[1]) + 1)
         elif re.search(re_pattern3, int_list):
             int_list = ((int_list),)
         elif re.search(re_pattern4, int_list):
@@ -189,7 +203,8 @@ class NosDeviceAction(Action):
 
             if int(temp_list.groups()[0]) == int(temp_list.groups()[1]):
                 self.logger.info("Use range command only for unique values")
-            intList = range(int(temp_list.groups()[2]), int(temp_list.groups()[3]) + 1)
+            intList = range(int(temp_list.groups()[2]), int(
+                temp_list.groups()[3]) + 1)
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
@@ -205,10 +220,12 @@ class NosDeviceAction(Action):
         for intf in int_list:
             intTypes = ["ve", "loopback"]
             if intf_type not in intTypes:
-                tmp_vlan_id = pynos.utilities.valid_interface(intf_type, name=str(intf))
+                tmp_vlan_id = pynos.utilities.valid_interface(
+                    intf_type, name=str(intf))
 
                 if not tmp_vlan_id:
-                    self.logger.info("Not a valid interface type %s or name %s", intf_type, intf)
+                    self.logger.info(
+                        "Not a valid interface type %s or name %s", intf_type, intf)
                     return None
 
         return int_list
@@ -229,7 +246,8 @@ class NosDeviceAction(Action):
 
             if int(int_list.groups()[0]) == int(int_list.groups()[1]):
                 self.logger.info("Use range command only for unique values")
-            int_list = range(int(int_list.groups()[0]), int(int_list.groups()[1]) + 1)
+            int_list = range(int(int_list.groups()[0]), int(
+                int_list.groups()[1]) + 1)
 
         elif re.search(re_pattern2, int_list):
             try:
@@ -239,7 +257,8 @@ class NosDeviceAction(Action):
 
             if int(temp_list.groups()[1]) == int(temp_list.groups()[2]):
                 self.logger.info("Use range command only for unique values")
-            intList = range(int(temp_list.groups()[1]), int(temp_list.groups()[2]) + 1)
+            intList = range(int(temp_list.groups()[1]), int(
+                temp_list.groups()[2]) + 1)
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + str(intf))
@@ -253,7 +272,8 @@ class NosDeviceAction(Action):
 
             if int(temp_list.groups()[2]) == int(temp_list.groups()[3]):
                 self.logger.info("Use range command only for unique values")
-            intList = range(int(temp_list.groups()[2]), int(temp_list.groups()[3]) + 1)
+            intList = range(int(temp_list.groups()[2]), int(
+                temp_list.groups()[3]) + 1)
             int_list = []
             for intf in intList:
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
@@ -302,7 +322,8 @@ class NosDeviceAction(Action):
                 dict: updated MAC in the xx:xx:xx:xx:xx:xx format
         """
         new_mac = old_mac.replace('.', '')
-        newer_mac = ':'.join([new_mac[i:i + 2] for i in range(0, len(new_mac), 2)])
+        newer_mac = ':'.join([new_mac[i:i + 2]
+                              for i in range(0, len(new_mac), 2)])
         return newer_mac
 
     def get_rbridge_id(self, intf_name):
@@ -358,7 +379,10 @@ class NosDeviceAction(Action):
         re_pattern3 = r"^(\d+)\/(\d+)$"
         intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet",
                     "fortygigabitethernet", "hundredgigabitethernet", "ethernet"]
-        NosIntTypes = ["gigabitethernet", "tengigabitethernet", "fortygigabitethernet"]
+        NosIntTypes = [
+            "gigabitethernet",
+            "tengigabitethernet",
+            "fortygigabitethernet"]
         if rbridge_id is None and 'loopback' in intf_type:
             msg = 'Must specify `rbridge_id` when specifying a `loopback`'
         elif rbridge_id is None and 've' in intf_type:
@@ -380,10 +404,12 @@ class NosDeviceAction(Action):
 
         intTypes = ["ve", "loopback", "ethernet"]
         if intf_type not in intTypes:
-            tmp_vlan_id = pynos.utilities.valid_interface(intf_type, name=str(intf))
+            tmp_vlan_id = pynos.utilities.valid_interface(
+                intf_type, name=str(intf))
 
             if not tmp_vlan_id:
-                self.logger.error("Not a valid interface type %s or name %s", intf_type, intf)
+                self.logger.error(
+                    "Not a valid interface type %s or name %s", intf_type, intf)
                 return False
 
         return True
@@ -392,42 +418,48 @@ class NosDeviceAction(Action):
         acl_type = {}
         try:
             get = device.ip_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
         except:
             pass
         try:
             get = device.ip_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
         except:
             pass
         try:
             get = device.mac_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
         except:
             pass
         try:
             get = device.mac_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
         except:
             pass
         try:
             get = device.ipv6_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except:
             pass
         try:
             get = device.ipv6_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response'][
+                                   'json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except:
@@ -445,22 +477,25 @@ class NosDeviceAction(Action):
             get = device.mac_access_list_extended_get if acl_type == 'extended' else \
                 device.mac_access_list_standard_get
         try:
-            get_output = get(acl_name)[1][0][self.host]['response']['json']['output']
+            get_output = get(acl_name)[1][0][
+                self.host]['response']['json']['output']
             if acl_type in get_output:
                 acl_dict = get_output[acl_type]
             else:
-                self.logger.error('%s access list %s does not exist', acl_type, acl_name)
+                self.logger.error(
+                    '%s access list %s does not exist', acl_type, acl_name)
                 return None
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
-                if type(seq_list) == list:
+                if isinstance(seq_list, list):
                     last_seq_id = int(seq_list[len(seq_list) - 1]['seq-id'])
                 else:
                     last_seq_id = int(seq_list['seq-id'])
                 if last_seq_id % 10 == 0:  # divisible by 10
                     seq_id = last_seq_id + 10
                 else:
-                    seq_id = (last_seq_id + 9) // 10 * 10  # rounding up to the nearest 10
+                    # rounding up to the nearest 10
+                    seq_id = (last_seq_id + 9) // 10 * 10
             else:
                 seq_id = 10
             return seq_id
@@ -474,10 +509,12 @@ class NosDeviceAction(Action):
 
         try:
             get_output = get(acl_name, resource_depth=3)
-            acl_dict = get_output[1][0][self.host]['response']['json']['output'][acl_type]
+            acl_dict = get_output[1][0][self.host][
+                'response']['json']['output'][acl_type]
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
-                seq_list = seq_list if type(seq_list) == list else [seq_list, ]
+                seq_list = seq_list if isinstance(
+                    seq_list, list) else [seq_list, ]
                 for seq in seq_list:
                     if seq['seq-id'] == str(seq_id):
                         return seq
@@ -512,7 +549,7 @@ class NosDeviceAction(Action):
                              str(portchannel_num))
             return results
 
-        if type(members) == dict:
+        if isinstance(members, dict):
             members = [members, ]
         for member in members:
             result = {}
@@ -533,14 +570,15 @@ class NosDeviceAction(Action):
         if not connected:
             self.logger.error(
                 'Cannot get Port Channels')
-            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+            raise self.ConnectionError(
+                get[1][0][self.host]['response']['json']['output'])
         if 'lacp' in output:
             port_channel_get = output['lacp']
         else:
             self.logger.info(
                 'Port Channel is not configured on the device')
             return None
-        if type(port_channel_get) == dict:
+        if isinstance(port_channel_get, dict):
             port_channel_get = [port_channel_get, ]
         return port_channel_get
 
@@ -555,14 +593,15 @@ class NosDeviceAction(Action):
         if not connected:
             self.logger.error(
                 'Cannot get switchport')
-            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+            raise self.ConnectionError(
+                get[1][0][self.host]['response']['json']['output'])
         if 'switchport' in output:
             switchport_get = output['switchport']
         else:
             self.logger.info(
                 'Switchport is not configured on the device')
             return None
-        if type(switchport_get) == dict:
+        if isinstance(switchport_get, dict):
             switchport_get = [switchport_get, ]
         return switchport_get
 
@@ -609,7 +648,8 @@ class NosDeviceAction(Action):
             admin_state = None
             connected = False
             for _ in range(5):
-                get = device.get_interface_detail_rpc(last_rcvd_interface=last_rcvd_interface)
+                get = device.get_interface_detail_rpc(
+                    last_rcvd_interface=last_rcvd_interface)
                 if get[0]:
                     output = get[1][0][self.host]['response']['json']['output']
                     connected = True
@@ -620,13 +660,15 @@ class NosDeviceAction(Action):
                 raise self.ConnectionError()
             if 'interface' in output:
                 intf_dict = output['interface']
-                if type(intf_dict) == dict:
+                if isinstance(intf_dict, dict):
                     intf_dict = [intf_dict, ]
                 for out in intf_dict:
-                    if intf_name in out['if-name'] and intf_type == out['interface-type']:
+                    if intf_name in out[
+                            'if-name'] and intf_type == out['interface-type']:
                         admin_state = out['line-protocol-state']
                         return admin_state
-                last_rcvd_interface = (out['interface-type'], out['interface-name'])
+                last_rcvd_interface = (
+                    out['interface-type'], out['interface-name'])
                 if output['has-more']:
                     continue
             else:
@@ -646,7 +688,8 @@ class NosDeviceAction(Action):
             self.logger.error("Cannot get OS version")
         return os_name
 
-    def _get_interface_address(self, device, intf_type, intf_name, ip_version, rbridge_id=None):
+    def _get_interface_address(
+            self, device, intf_type, intf_name, ip_version, rbridge_id=None):
         if ip_version == 4:
             ip = 'ip'
         elif ip_version == 6:
@@ -655,7 +698,9 @@ class NosDeviceAction(Action):
             format(intf_type) if rbridge_id \
             else 'interface_{}_get'.format(intf_type)
         get_intf = eval('device.{}'.format(method))
-        get = get_intf(rbridge_id, intf_name) if rbridge_id else get_intf(intf_name)
+        get = get_intf(
+            rbridge_id,
+            intf_name) if rbridge_id else get_intf(intf_name)
         if get[0]:
             output = get[1][0][self.host]['response']['json']['output']
         else:
@@ -712,10 +757,11 @@ class NosDeviceAction(Action):
         if not connected:
             self.logger.error(
                 'Cannot get interface details')
-            raise self.ConnectionError(get[1][0][self.host]['response']['json']['output'])
+            raise self.ConnectionError(
+                get[1][0][self.host]['response']['json']['output'])
         if 'interface' in output:
             ip_intf = output['interface']
-            if type(ip_intf) == dict:
+            if isinstance(ip_intf, dict):
                 ip_intf = [ip_intf, ]
         else:
             self.logger.info("No interfaces found in host %s", self.host)
@@ -723,7 +769,8 @@ class NosDeviceAction(Action):
         if intf_type is None:
             return [x['if-name'] for x in ip_intf]
         else:
-            return [x['if-name'] for x in ip_intf if intf_type in x['if-name'].lower()]
+            return [x['if-name']
+                    for x in ip_intf if intf_type in x['if-name'].lower()]
 
     def vlag_pair(self, device):
         """ Fetch the RB list if VLAG is configured"""
@@ -737,10 +784,74 @@ class NosDeviceAction(Action):
             raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
         return list(set(rb_list))
 
+    def extract_port_list(self, intf_type, port_list):
+        interface_list = []
+        for intf in port_list:
+            if "-" not in str(intf):
+                interface_list.append(str(intf))
+            else:
+                ex_intflist = self.extend_interface_range(intf_type=intf_type,
+                                                          intf_name=intf)
+                for ex_intf in ex_intflist:
+                    interface_list.append(str(ex_intf))
+
+        for intf in interface_list:
+            if not self.validate_interface(intf_type, intf):
+                msg = "Input is not a valid Interface"
+                self.logger.error(msg)
+                raise ValueError(msg)
+        return interface_list
+
+    def validate_supports_rbridge(self, device, rbridge_id):
+        if device.suports_rbridge:
+            return True
+        if rbridge_id is not None:
+            self.logger.info('Device does not support rbridge')
+            raise ValueError('Device does not support rbridge')
+
+# log_exceptions decorator
+
+
+def log_exceptions(func):
+    def wrapper(*args, **kwds):
+        logger = args[0].logger
+        host = args[0].host
+        try:
+            return func(*args, **kwds)
+        except AttributeError as e:
+            logger.exception(
+                'Failed to connect to %s due to %s'
+                % (host,
+                   e.message))
+            raise
+        except ValueError as verr:
+            logger.exception("Error encountered on %s due to %s"
+                             % (host, verr.message))
+            raise
+        except requests.exceptions.ConnectionError as cerr:
+            logger.exception("Connection failed while logging in to %s "
+                             "due to %s"
+                             % (host, cerr.message.reason))
+            raise
+        except pyswitchlib.asset.RestInterfaceError as rierr:
+            logger.exception(
+                "Failed to get a REST response on "
+                "%s due to %s" % (host, rierr.message))
+            raise
+        except Exception as ex:
+            logger.exception(
+                "Error while logging in to %s due to %s"
+                % (host, ex.message))
+            raise
+
+    return wrapper
+
     def check_status_code(self, operation, device_ip):
         status_code = operation[1][0][device_ip]['response']['status_code']
         self.logger.debug("Operation returned %s", status_code)
         if status_code >= 400:
             error_msg = operation[1][0][device_ip]['response']['text']
-            self.logger.debug("REST Operation failed with status code %s", status_code)
+            self.logger.debug(
+                "REST Operation failed with status code %s",
+                status_code)
             raise ValueError(error_msg)

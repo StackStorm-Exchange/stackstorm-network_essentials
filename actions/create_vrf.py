@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 from execute_cli import CliCMD
 
 
@@ -24,24 +25,42 @@ class CreateVRF(NosDeviceAction):
            1. Create VRF
     """
 
-    def run(self, mgmt_ip, username, password, vrf_name, rbridge_id):
+    def run(self, mgmt_ip, username, password, vrf_name, rbridge_id, afi):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to Create VRF for tenants',
+        return self.switch_operation(afi, changes, rbridge_id, vrf_name)
+
+    @log_exceptions
+    def switch_operation(self, afi, changes, rbridge_id, vrf_name):
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+
+            self.logger.info('successfully connected to %s to Create VRF '
+                             'for tenants',
                              self.host)
+
+            self.validate_supports_rbridge(device, rbridge_id)
+
             validation_VRF = self._check_requirements_VRF(device, rbridge_id,
                                                           vrf_name)
             if validation_VRF:
-                changes['validation_Create_VRF'] = self._create_VRF(device, rbridge_id,
-                                                                    vrf_name)
-                if changes['validation_Create_VRF']:
-                    self._fetch_VRF_state(device, vrf_name)
-            self.logger.info('closing connection to %s after Create VRF - all done!',
+                changes['Create_VRF'] = self._create_VRF(device, rbridge_id,
+                                                         vrf_name)
+
+            validate_vrf_afi = self._validate_vrf_afi(device, rbridge_id,
+                                                      vrf_name, afi)
+            if validate_vrf_afi:
+                changes['Create_address_family'] = self._create_vrf_afi(
+                    device, rbridge_id,
+                    vrf_name, afi)
+            self.logger.info('closing connection to %s after Create VRF '
+                             '- all done!',
                              self.host)
+
+            if 'Create_VRF' in changes:
+                self._fetch_VRF_state(device, vrf_name)
         return changes
 
     def _check_requirements_VRF(self, device, rbridge_id, vrf_name):
@@ -51,20 +70,46 @@ class CreateVRF(NosDeviceAction):
         if vrf_output is not None:
             for each_vrf in vrf_output:
                 if each_vrf['vrf_name'] == vrf_name:
-                    self.logger.info('VRF %s  already exists on rbridge_id %s',
-                                 vrf_name, rbridge_id)
+                    self.logger.info('VRF %s  already exists',
+                                     vrf_name)
                     return False
+        return True
+
+    def _validate_vrf_afi(self, device, rbridge_id, vrf_name, afi):
+        """ Pre-checks to identify VRF address family configurations"""
+        afi_status = device.interface.vrf_afi(
+            get=True, rbridge_id=rbridge_id, vrf_name=vrf_name)
+        if afi_status[afi]:
+            self.logger.info('VRF %s address family already configured for %s',
+                             afi, vrf_name)
+            return False
+        return True
+
+    def _create_vrf_afi(self, device, rbridge_id, vrf_name, afi):
+        """ Create Address Family """
+        try:
+            self.logger.info(
+                'Creating %s address family for VRF %s ',
+                afi,
+                vrf_name)
+            device.interface.vrf_afi(
+                vrf_name=vrf_name, rbridge_id=rbridge_id, afi=afi)
+        except (ValueError, KeyError):
+            self.logger.info('Invalid Input types while creating %s address '
+                             'family on VRF %s',
+                             afi, vrf_name)
+            return False
         return True
 
     def _create_VRF(self, device, rbridge_id, vrf_name):
         """ create VRF """
 
         try:
-            self.logger.info('Creating VRF %s on rbridge_id %s', vrf_name, rbridge_id)
+            self.logger.info('Creating VRF %s ', vrf_name)
             device.interface.vrf(vrf_name=vrf_name, rbridge_id=rbridge_id)
         except (ValueError, KeyError):
-            self.logger.info('Invalid Input types while creating VRF %s on rbridge_id %s',
-                             vrf_name, rbridge_id)
+            self.logger.info('Invalid Input types while creating VRF %s',
+                             vrf_name)
             return False
         return True
 
@@ -79,7 +124,9 @@ class CreateVRF(NosDeviceAction):
         cli_arr = []
         cli_cmd = 'show vrf ' + vrf_name
         cli_arr.append(cli_cmd)
-        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
+
+        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip,
+                                                      username=host_username,
                                                       password=host_password,
                                                       cli_cmd=cli_arr)
         output = str(raw_cli_output)

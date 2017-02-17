@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class GetOsVersion(NosDeviceAction):
@@ -25,37 +26,24 @@ class GetOsVersion(NosDeviceAction):
     def run(self, mgmt_ip, username, password):
         """Run helper methods to implement the desired state."""
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        version = {}
 
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to enable interface', self.host)
-        except AttributeError as e:
-            self.logger.info('Failed to connect to %s due to %s', self.host, e.message)
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
-
-        version["result"] = self._get_os(device)
-        self.logger.info('Closing connection to %s after finding OS -- all done!',
-                         mgmt_ip)
+        version = self.switch_operation(mgmt_ip)
 
         return version
 
-    def _get_os(self, device):
+    @log_exceptions
+    def switch_operation(self, mgmt_ip):
+        version = {}
 
-        check_os = device.get_os_full_version()
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info('successfully connected to %s to '
+                             'get OS Version', self.host)
+            version["result"] = self._get_os(device)
+            self.logger.info('Closing connection to %s after '
+                             'finding OS -- all done!',
+                             mgmt_ip)
+        return version
+
+    def _get_os(self, device):
+        check_os = device.asset.get_os_full_version()
         return check_os
