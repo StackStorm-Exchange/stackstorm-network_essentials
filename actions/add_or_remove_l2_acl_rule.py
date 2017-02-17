@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -9,269 +10,219 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                                 dst_mac_addr_mask, ethertype, vlan, count, log
     """
 
-    def run(self, delete, device_ip, username, password, l2_acl_name, seq_id,
+    def run(self, delete, mgmt_ip, username, password, acl_name, seq_id,
             action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
             ethertype, vlan, count, log):
+        """Run helper methods to add an L2 ACL rule to an existing ACL
+        """
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        device = self.get_device()
+        seq = []
+        output = {}
+        seq_variables_std = ('seq_id', 'action', 'source', 'srchost',
+                             'src_mac_addr_mask', 'count', 'log')
+        seq_variables_ext = ('seq_id', 'action', 'source', 'srchost',
+                             'src_mac_addr_mask', 'dst', 'dsthost',
+                             'dst_mac_addr_mask', 'ethertype', 'vlan',
+                             'count', 'log')
+        try:
+            acl = self._get_acl_type_(device, acl_name)
+            self.logger.info('successfully identified the acl_type as %s', acl)
+        except:
+            self.logger.error('Failed to get access list. Check if ACL %s exists', acl_name)
+            raise ValueError('Failed to get access list. Check if ACL exists')
 
-        self.validate_input_parameters(delete, seq_id, source, src_mac_addr_mask,
-                                       dst, dst_mac_addr_mask, ethertype, vlan)
+        acl_type = acl['type']
+        address_type = acl['protocol']
+        if address_type is not 'mac':
+            self.logger.error('%s is an %s ACL. Enter the mac ACL for adding rule',
+                              acl_name, address_type)
+            raise ValueError('ACL not compatible for adding L2 acl rule')
 
-        device = self.device_login(device_ip, username, password)
-
-        l2_acl_type = self.find_acl_type(device_ip, device, l2_acl_name)
-
-        seq_id = self.find_seq_id(delete, seq_id, device_ip, device,
-                                  l2_acl_name, l2_acl_type)
+        if acl_type == 'standard':
+            seq_variables = seq_variables_std
+        elif acl_type == 'extended':
+            seq_variables = seq_variables_ext
 
         if delete:
-            self.remove_rule(device_ip, device, l2_acl_name, l2_acl_type, seq_id)
+            if not seq_id:
+                self.logger.error("Enter a valid seq_id to remove")
+                sys.exit(-1)
+            seq_dict = self._get_seq_(device,
+                                      acl_name=acl_name,
+                                      acl_type=acl_type,
+                                      seq_id=seq_id,
+                                      address_type='mac')
+            if not seq_dict:
+                self.logger.error("%s has no rule in seq_id %s", acl_name, seq_id)
+                sys.exit(-1)
+
+            # replacing the '-' in seq_variables with '_'
+            for key, _ in seq_dict.iteritems():
+                seq_dict[key.replace('-', '_')] = seq_dict.pop(key)
+            for v in seq_variables:
+                try:
+                    seq.append(seq_dict[v])
+                except:
+                    seq.append(None)
+
+            try:
+                changes = self._delete_mac_acl_(device,
+                                                acl_name=acl_name,
+                                                acl_type=acl_type,
+                                                seq=tuple(seq))
+            except Exception as msg:
+                self.logger.error(msg)
+                raise ValueError(msg)
+
         else:
-            self.add_rule(device_ip, device, l2_acl_name, l2_acl_type, seq_id, action,
-                          source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
-                          ethertype, vlan, count, log)
+            if acl_type == 'extended' and not any([dst, dsthost, dst_mac_addr_mask]):
+                self.logger.error('Destination required in extended access list')
+                sys.exit(-1)
+            elif acl_type == 'standard' and any([dst, dsthost, dst_mac_addr_mask]):
+                self.logger.error('Destination cannot be given for standard access list')
+                sys.exit(-1)
 
-    def device_login(self, device_ip, username, password):
-        self.logger.debug("Trying to login to device %s", device_ip)
-        self.setup_connection(host=device_ip, user=username, passwd=password)
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.debug("Login to device %s is okay", device_ip)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              device_ip, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             device_ip, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              device_ip, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             device_ip, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", device_ip, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", device_ip, rierr.message)
-        return device
+            try:
+                seq_dict = {key: None for key in seq_variables}
+            except:
+                self.logger.error('Cannot get seq_variables')
+                raise ValueError('Cannot get seq_variables')
 
-    def validate_input_parameters(self, delete, seq_id, source, src_mac_addr_mask,
-                                  dst, dst_mac_addr_mask, ethertype, vlan):
+            if seq_id is None:
+                self.logger.info('seq_id not provided, getting the seq_id')
+                seq_id = self._get_seq_id_(device, acl_name, acl_type, address_type)
+                if seq_id is None:
+                    self.logger.error('Cannot get seq_id')
+                    raise ValueError('Cannot get seq_id')
+            self.logger.info('seq_id for the rule is %s', seq_id)
 
-        self.logger.debug("Doing validations")
-        # validations only for remove operation
-        if delete and seq_id is None:
-            raise ValueError("Sequence id is not input, it is required for remove operation")
+            valid_src = self.validate_src_dst(source, srchost, src_mac_addr_mask, key='src')
+            if not valid_src:
+                raise ValueError("Invalid source parameters")
 
-        # validations only for add operation, for remove operation these parameters are ignored
-        if not delete:
-            if source != "any" and source != "host":
-                self.logger.debug("source is a MAC address")
-                if not self.is_valid_mac(source):
-                    raise ValueError("The format of source MAC address %s is invalid. "
-                                     "Valid format is HHHH.HHHH.HHHH", source)
+            valid_dst = self.validate_src_dst(dst, dsthost, dst_mac_addr_mask, key='dst')
+            if not valid_dst:
+                raise ValueError("Invalid dst parameters")
 
-                if src_mac_addr_mask is None:
-                    raise ValueError("The src_mac_addr_mask is required when source "
-                                     "is a MAC address value")
-                else:
-                    if not self.is_valid_mac(src_mac_addr_mask):
-                        raise ValueError("The format of src_mac_addr_mask %s is invalid. "
-                                         "Valid format is HHHH.HHHH.HHHH", src_mac_addr_mask)
-
-            if dst != "any" and dst != "host":
-                self.logger.debug("dst is a MAC address")
-                if not self.is_valid_mac(dst):
-                    raise ValueError("The format of dst MAC address %s is invalid. "
-                                     "Valid format is HHHH.HHHH.HHHH", dst)
-
-                if dst_mac_addr_mask is None:
-                    raise ValueError("The dst_mac_addr_mask is required when dst "
-                                     "is a MAC address value")
-                else:
-                    if not self.is_valid_mac(dst_mac_addr_mask):
-                        raise ValueError("The format of dst_mac_addr_mask %s is invalid. "
-                                         "Valid format is HHHH.HHHH.HHHH", dst_mac_addr_mask)
-
-            if ethertype != "arp" and ethertype != "fcoe" and ethertype != "ipv4":
+            if ethertype not in ["arp", "fcoe", "ipv4"]:
                 try:
                     ethertype_id = (int(ethertype))
                 except ValueError as verr:
-                    raise ValueError("The ethertype value %s is invalid, could not convert to "
-                                     "integer due to %s", ethertype, verr.message)
-
+                    self.logger.error("The ethertype value %s is invalid, could not convert to "
+                                      "integer due to %s", ethertype, verr.message)
+                    sys.exit(-1)
                 if ethertype_id < 1536 or ethertype_id > 65535:
-                    raise ValueError("The ethertype value %s is invalid, "
-                                     "valid value is 1536-65535", ethertype)
+                    self.logger.error("The ethertype value %s is invalid, "
+                                      "valid value is 1536-65535", ethertype)
+                    sys.exit(-1)
 
             if vlan is not None:
                 try:
                     vlan_id = (int(vlan))
                 except ValueError as verr:
-                    raise ValueError("The vlan value %s is invalid, could not convert to "
-                                     "integer due to %s", vlan, verr.message)
-
+                    self.logger.error("The vlan value %s is invalid, could not convert to "
+                                      "integer due to %s", vlan, verr.message)
+                    sys.exit(-1)
                 if vlan_id < 1 or vlan_id > 4090:
-                    raise ValueError("The vlan %s is invalid, valid value is 1-4090", vlan)
+                    self.logger.error("The vlan %s is invalid, valid value is 1-4090", vlan)
+                    sys.exit(-1)
 
-    def find_acl_type(self, device_ip, device, l2_acl_name):
-        self.logger.debug("Trying to figure out if acl is standard or extended")
-        if self.is_standard_l2_acl(device_ip, device, l2_acl_name):
-            l2_acl_type = "standard"
-            self.logger.debug("The L2 acl %s is standard", l2_acl_name)
-        elif self.is_extended_l2_acl(device_ip, device, l2_acl_name):
-            l2_acl_type = "extended"
-            self.logger.debug("The L2 acl %s is extended", l2_acl_name)
-        else:
-            self.logger.error("The L2 acl %s does not exist", l2_acl_name)
-            raise ValueError("The L2 acl %s does not exist", l2_acl_name)
-        return l2_acl_type
+            for variable in seq_dict:
+                try:
+                    seq_dict[variable] = eval(variable)
+                except NameError:
+                    pass
 
-    def find_seq_id(self, delete, seq_id, device_ip, device, l2_acl_name, l2_acl_type):
-        self.logger.debug("Trying to figure out the sequence id")
+            for v in seq_variables:
+                seq.append(seq_dict[v])
+            try:
+                changes = self._add_l2_acl_(device,
+                                            acl_name=acl_name,
+                                            acl_type=acl_type,
+                                            seq=tuple(seq))
+            except Exception as msg:
+                self.logger.error(msg)
+                raise ValueError(msg)
 
-        if not delete and seq_id is None:
-            self.logger.debug("Sequence id is not input so generating a new sequence id")
-            seq_id = self.get_next_seq_id(device_ip, device, l2_acl_name, l2_acl_type)
-            if seq_id is None:
-                self.logger.error("Failed to get the next seq_id")
-                raise ValueError("Failed to get the next seq_id")
+        output['result'] = changes
+        self.logger.info('closing connection to %s --all done!',
+                         self.host)
+        return output
 
-        self.logger.debug("Sequence id for the rule is %s", seq_id)
-        return seq_id
-
-    def remove_rule(self, device_ip, device, l2_acl_name, l2_acl_type, seq_id):
-        self.logger.debug("Trying to remove rule with sequence id %s", seq_id)
-
-        try:
-            if l2_acl_type == "standard":
-                self.logger.debug("Removing rule from standard acl %s", l2_acl_name)
-                post = device.mac_access_list_standard_seq_delete(standard=l2_acl_name,
-                                                                  seq=(seq_id, None, None, None,
-                                                                       None, None, None))
-            elif l2_acl_type == "extended":
-                self.logger.debug("Removing rule from extended acl %s", l2_acl_name)
-                post = device.mac_access_list_extended_seq_delete(extended=l2_acl_name,
-                                                                  seq=(seq_id, None, None, None,
-                                                                       None, None, None, None, None,
-                                                                       None, None, None))
-        except ValueError as verr:
-            self.logger.error("Error while removing rule from %s due to %s",
-                              l2_acl_name, verr.message)
-            raise ValueError("Error while removing rule from %s due to %s",
-                             l2_acl_name, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while removing rule from %s due to %s",
-                              l2_acl_name, cerr.message)
-            raise ValueError("Connection failed while removing rule from %s due to %s",
-                             l2_acl_name, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while removing "
-                              "rule from %s due to %s", l2_acl_name, rierr.message)
-            raise ValueError("Failed to get a REST response while removing "
-                             "rule from %s due to %s", l2_acl_name, rierr.message)
-
-        self.check_status_code(post, device_ip)
-
-    def add_rule(self, device_ip, device, l2_acl_name, l2_acl_type, seq_id, action,
-                 source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask, ethertype,
-                 vlan, count, log):
-        self.logger.debug("Trying to add rule")
-
-        try:
-            if l2_acl_type == "standard":
-                self.logger.debug("Removing rule from standard acl %s", l2_acl_name)
-                post = device.mac_access_list_standard_seq_create(standard=l2_acl_name,
-                                                                  seq=(seq_id, action, source,
-                                                                       srchost, src_mac_addr_mask,
-                                                                       count, log))
-            elif l2_acl_type == "extended":
-                self.logger.debug("Removing rule from extended acl %s", l2_acl_name)
-                post = device.mac_access_list_extended_seq_create(extended=l2_acl_name,
-                                                                  seq=(seq_id, action, source,
-                                                                       srchost, src_mac_addr_mask,
-                                                                       dst, dsthost,
-                                                                       dst_mac_addr_mask,
-                                                                       ethertype, vlan, count,
-                                                                       log))
-        except ValueError as verr:
-            self.logger.error("Error while adding rule to %s due to %s",
-                              l2_acl_name, verr.message)
-            raise ValueError("Error while adding rule to %s due to %s",
-                             l2_acl_name, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while adding rule to %s due to %s",
-                              l2_acl_name, cerr.message)
-            raise ValueError("Connection failed while adding rule to %s due to %s",
-                             l2_acl_name, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while adding "
-                              "rule to %s due to %s", l2_acl_name, rierr.message)
-            raise ValueError("Failed to get a REST response while adding "
-                             "rule to %s due to %s", l2_acl_name, rierr.message)
-
-        self.check_status_code(post, device_ip)
-
-    def is_standard_l2_acl(self, device_ip, device, l2_acl_name):
-        try:
-            get = device.mac_access_list_standard_get(standard=l2_acl_name)
-            acltype = str(get[1][0][device_ip]["response"]["json"]["output"].keys()[0])
-            if acltype == "standard":
-                self.logger.debug("is_standard_l2_acl - returning True for %s", l2_acl_name)
-                return True
-            else:
-                self.logger.debug("is_standard_l2_acl - returning False for %s", l2_acl_name)
+    def validate_src_dst(self, src_dst, src_dst_host, mac_addr_mask, key):
+        if src_dst != "any" and src_dst != "host":
+            self.logger.debug("%s is a MAC address", key)
+            if not self.is_valid_mac(src_dst):
+                self.logger.error("The format of %s MAC address %s is invalid. "
+                                  "Valid format is HHHH.HHHH.HHHH", key, src_dst)
                 return False
-        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
-            self.logger.debug("Failed to get standard ACL %s due to %s - returning False",
-                              l2_acl_name, err.message)
-            raise
-        except AttributeError as aerr:
-            self.logger.info("Get this error because the ACL %s is not standard, "
-                             "error is %s - returning False", l2_acl_name, aerr.message)
-            return False
 
-    def is_extended_l2_acl(self, device_ip, device, l2_acl_name):
-        try:
-            get = device.mac_access_list_extended_get(extended=l2_acl_name)
-            acltype = str(get[1][0][device_ip]["response"]["json"]["output"].keys()[0])
-            if acltype == "extended":
-                self.logger.debug("is_extended_l2_acl - returning True for %s", l2_acl_name)
-                return True
-            else:
-                self.logger.debug("is_extended_l2_acl - returning False for %s", l2_acl_name)
+            if mac_addr_mask is None:
+                self.logger.error("The %s_mac_addr_mask is required when %s "
+                                  "is a MAC address value", key, key)
                 return False
-        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
-            self.logger.debug("Failed to get extended ACL %s due to %s - returning False",
-                              l2_acl_name, err.message)
-            raise
-        except AttributeError as aerr:
-            self.logger.info("Get this error because the ACL %s is not extended, "
-                             "error is %s - returning False", l2_acl_name, aerr.message)
-            return False
+            elif src_dst_host:
+                self.logger.error("The %shost can't be entered when %s "
+                                  "is a MAC address value", key, key)
+                return False
+            elif not self.is_valid_mac(mac_addr_mask):
+                self.logger.error("The format of %s_mac_addr_mask %s is invalid. "
+                                  "Valid format is HHHH.HHHH.HHHH", key, mac_addr_mask)
+                return False
+        elif src_dst == "host":
+            if mac_addr_mask:
+                self.logger.error("Can't enter %s_mac_addr_mask when %s is host",
+                                  key, key)
+                return False
+            elif not src_dst_host:
+                self.logger.error("Need a valid mac address in %shost when %s is host",
+                                  key, key)
+                return False
+        return True
 
-    def get_next_seq_id(self, device_ip, device, l2_acl_name, l2_acl_type):
+    def _add_l2_acl_(self, device, acl_name, acl_type, seq):
+        self.logger.info('Adding rule on access list- %s',
+                         acl_name)
+        result = 'False'
         try:
-            if l2_acl_type == "standard":
-                get = device.mac_access_list_standard_get(standard=l2_acl_name)
-            elif l2_acl_type == "extended":
-                get = device.mac_access_list_extended_get(extended=l2_acl_name)
-
-            rules_list = get[1][0][device_ip]["response"]["json"]["output"][l2_acl_type]
-
-            if "seq" in rules_list:
-                seq_list = rules_list["seq"]
-                if type(seq_list) == list:
-                    last_seq_id = int(seq_list[len(seq_list) - 1]["seq-id"])
-                else:
-                    last_seq_id = int(seq_list["seq-id"])
-
-                if last_seq_id % 10 == 0:  # divisible by 10
-                    seq_id = last_seq_id + 10
-                else:
-                    seq_id = (last_seq_id + 9) // 10 * 10  # rounding up to the nearest 10
+            if acl_type == 'standard':
+                add_acl = device.mac_access_list_standard_seq_create
+            elif acl_type == 'extended':
+                add_acl = device.mac_access_list_extended_seq_create
             else:
-                seq_id = 10
+                self.logger.error('Invalid access list type %s', acl_type)
+                raise ValueError('Invalid access list type %s', acl_type)
+            aply = list(add_acl(acl_name, seq))
+            result = str(aply[0])
+            if not aply[0]:
+                self.logger.error('Cannot add rule on %s due to %s', acl_name,
+                                  str(aply[1][0][self.host]['response']['json']['output']))
+                sys.exit(-1)
+            else:
+                self.logger.info('Successfully added rule on %s', acl_name)
+        except (KeyError, AttributeError, ValueError) as e:
+            self.logger.error('Cannot add rule on %s due to %s', acl_name, e.message)
+            raise ValueError(e.message)
+        return result
 
-            return seq_id
-        except (ValueError, self.ConnectionError, self.RestInterfaceError) as err:
-            self.logger.debug("exception in get_next_seq_id - %s, returning None", err.message)
-            return None
+    def _delete_mac_acl_(self, device, acl_name, acl_type, seq):
+        self.logger.info('Deleting rule on access list- %s at seq_id %s',
+                         acl_name, seq[0])
+        result = 'False'
+        try:
+            if acl_type == 'standard':
+                delete_acl = device.mac_access_list_standard_seq_delete
+            elif acl_type == 'extended':
+                delete_acl = device.mac_access_list_extended_seq_delete
+            aply = list(delete_acl(acl_name, seq))
+            result = aply[0]
+            if not aply[0]:
+                self.logger.error('Cannot delete rule on %s due to %s', acl_name,
+                                  str(aply[1][0][self.host]['response']['json']['output']))
+            else:
+                self.logger.info('Successfully deleted rule on %s on seq_id %s', acl_name, seq[0])
+        except (AttributeError, ValueError) as e:
+            self.logger.error('Cannot delete rule on %s due to %s', acl_name, e.message)
+            raise ValueError(e.message)
+        return result

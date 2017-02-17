@@ -11,7 +11,7 @@ parameters:
     description: is it a remove operation
     default: False
     position: 0
-  device_ip:
+  mgmt_ip:
     type: string
     description: device ip address
     required: true
@@ -27,7 +27,7 @@ parameters:
     default: password
     secret: true
     position: 3
-  l2_acl_name:
+  acl_name:
     type: string
     description: access list name (max 63 characters)
     required: true

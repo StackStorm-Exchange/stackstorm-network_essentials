@@ -502,10 +502,16 @@ class NosDeviceAction(Action):
         except KeyError:
             return None
 
-    def _get_seq_(self, device, acl_name, acl_type, seq_id):
-
-        get = device.ip_access_list_extended_get if acl_type == 'extended' else \
-            device.ip_access_list_standard_get
+    def _get_seq_(self, device, acl_name, acl_type, seq_id, address_type=None):
+        if address_type == 'ipv6':
+            get = device.ipv6_access_list_extended_get if acl_type == 'extended' else \
+                device.ipv6_access_list_standard_get
+        elif address_type == 'mac':
+            get = device.mac_access_list_extended_get if acl_type == 'extended' else \
+                device.mac_access_list_standard_get
+        else:
+            get = device.ip_access_list_extended_get if acl_type == 'extended' else \
+                device.ip_access_list_standard_get
 
         try:
             get_output = get(acl_name, resource_depth=3)
