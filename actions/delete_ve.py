@@ -35,9 +35,12 @@ class DeleteVe(NosDeviceAction):
             raise ValueError('Invalid vlan_id', vlan_id)
 
         with Device(conn=self.conn, auth=self.auth) as device:
+            if device.os_type == 'nos' and rbridge_id is None:
+                raise ValueError('rbridge_id cannot be None for VDX devices')
+
             self.logger.info('successfully connected to %s to Delete Ve',
                              self.host)
-            changes['vrf'] = self._delete_ve(device, ve_name=vlan_id, rbridge_id=rbridge_id)
+            changes['Ve'] = self._delete_ve(device, ve_name=vlan_id, rbridge_id=rbridge_id)
 
             self.logger.info('closing connection to %s after'
                          ' Deleting Ve -- all done!', self.host)
@@ -48,25 +51,24 @@ class DeleteVe(NosDeviceAction):
 
         is_ve_present = True
         user_ve = str(ve_name)
+
         if rbridge_id:
             for rbid in rbridge_id:
                 rb = str(rbid)
                 tmp_ve_name = device.interface.create_ve(get=True, ve_name=user_ve,
                                                          rbridge_id=rb)
                 tmp_dut_ve = [str(item) for item in tmp_ve_name]
-                for each_ve in tmp_dut_ve:
-                    if each_ve == user_ve:
-                        self.logger.info('Deleting Ve %s from rbridge_id %s ', user_ve, rb)
-                        device.interface.create_ve(rbridge_id='52', delete=True, ve_name=user_ve)
-                        is_ve_present = False
+                if user_ve in tmp_dut_ve:
+                    self.logger.info('Deleting Ve %s from rbridge_id %s ', user_ve, rb)
+                    device.interface.create_ve(rbridge_id=rb, delete=True, ve_name=user_ve)
+                    is_ve_present = False
         else:
             tmp_ve_name = device.interface.create_ve(get=True, ve_name='100')
             tmp_dut_ve = [str(item) for item in tmp_ve_name]
-            for each_ve in tmp_dut_ve:
-                if each_ve == user_ve:
-                    self.logger.info('Deleting Ve %s', user_ve)
-                    device.interface.create_ve(delete=True, ve_name=user_ve)
-                    is_ve_present = False
+            if user_ve in tmp_dut_ve:
+                self.logger.info('Deleting Ve %s', user_ve)
+                device.interface.create_ve(delete=True, ve_name=user_ve)
+                is_ve_present = False
 
         if not is_ve_present:
             return True
