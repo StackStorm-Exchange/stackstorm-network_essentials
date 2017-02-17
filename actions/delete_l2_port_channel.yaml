@@ -1,0 +1,29 @@
+---
+name: delete_l2_port_channel
+pack: network_essentials
+runner_type: run-python
+description: Delete port channel configuration from all the member port
+enabled: true
+entry_point: delete_l2_port_channel.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management Virtual Ip address of the VDX device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  port_channel_id:
+    type: integer
+    description: Portchannel interface number.<NUMBER:1-6144>
+    required: true
+    position: 3
