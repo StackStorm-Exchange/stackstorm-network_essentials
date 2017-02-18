@@ -1,0 +1,29 @@
+---
+name: delete_vlan
+pack: network_essentials
+runner_type: run-python
+description: Delete interface VLANs on VDX or SLX device
+enabled: true
+entry_point: delete_vlan.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Device to create VLANs
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  vlan_id:
+    type: string
+    description: single vlan or range of vlans
+    required: true
+    position: 3
