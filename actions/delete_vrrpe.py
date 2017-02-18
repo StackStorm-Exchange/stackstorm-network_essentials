@@ -43,7 +43,7 @@ class DeleteVrrpe(NosDeviceAction):
                                                             vrrpe_group=vrrpe_group,
                                                             ip_version=ip_version)
             else:
-                raise ValueError('Ve doesnt exist on the switch', vlan_id)
+                raise ValueError('VRRPe group doesnt exist on the switch', vlan_id)
             self.logger.info('closing connection to %s after'
                              ' Deleting VRRPe group -- all done!', self.host)
         return changes
@@ -76,14 +76,13 @@ class DeleteVrrpe(NosDeviceAction):
         else:
             ip_version = 6
 
-        if rbridge_id:
+        if rbridge_id and device.os_type == 'nos':
             for rbid in rbridge_id:
                 rb = str(rbid)
                 tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, int_type='ve', name=user_ve,
                                                              version=ip_version, rbridge_id=rb,
                                                              vrid=user_vrrpe)
-                tmp_dut_vrrpe = [str(item) for item in tmp_vrrpe_name]
-                if user_vrrpe in tmp_dut_vrrpe:
+                if user_vrrpe in tmp_vrrpe_name:
                     self.logger.info('Deleting VRRPe group %s on Ve %s from rbridge_id %s ',
                                      user_vrrpe, user_ve, rb)
                     device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
@@ -92,8 +91,7 @@ class DeleteVrrpe(NosDeviceAction):
         else:
             tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, name=user_ve, version=ip_version,
                                                          int_type='ve', vrid=user_vrrpe)
-            tmp_dut_vrrpe = [str(item) for item in tmp_vrrpe_name]
-            if user_vrrpe in tmp_dut_vrrpe:
+            if user_vrrpe in tmp_vrrpe_name:
                 self.logger.info('Deleting VRRPe group %s on Ve %s ', user_vrrpe, rb)
                 device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
                                             vrid=user_vrrpe, version=ip_version)
