@@ -71,7 +71,7 @@ class NosDeviceAction(Action):
     def get_device(self):
         try:
             device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to create port channel',
+            self.logger.info('successfully connected to %s',
                              self.host)
             return device
         except AttributeError as e:
