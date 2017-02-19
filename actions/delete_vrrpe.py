@@ -34,7 +34,7 @@ class DeleteVrrpe(NosDeviceAction):
             self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
             self.logger.info('successfully connected to %s to Delete VRRPe group',
                              self.host)
-            changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id)
+            changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id, vrrpe_group)
             if changes['pre_check']:
                 changes['VRRPe_group'] = self._delete_vrrpe(device, ve_name=vlan_id,
                                                             rbridge_id=rbridge_id,
@@ -46,9 +46,13 @@ class DeleteVrrpe(NosDeviceAction):
                              ' Deleting VRRPe group -- all done!', self.host)
         return changes
 
-    def _validate_if_ve_exists(self, device, vlan_id):
+    def _validate_if_ve_exists(self, device, vlan_id, vrrpe_group):
         """validate vlan_id and ve
         """
+        
+        if vrrpe_group < 1 or vrrpe_group > 255 or vrrpe_group is None:
+            raise ValueError('VRRPe group has to be in range of 1-255', vrrpe_group)
+       
         if device.os_type == 'nos':
             valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
         else:
