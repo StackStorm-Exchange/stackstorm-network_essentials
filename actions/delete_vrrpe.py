@@ -50,7 +50,9 @@ class DeleteVrrpe(NosDeviceAction):
         """validate vlan_id and ve
         """
 
-        if vrrpe_group < 1 or vrrpe_group > 255 or vrrpe_group is None:
+        if vrrpe_group is None:
+            raise ValueError('VRRPe group cannot be None')
+        elif int(vrrpe_group) < 1 or int(vrrpe_group) > 255:
             raise ValueError('VRRPe group has to be in range of 1-255', vrrpe_group)
         if device.os_type == 'nos':
             valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
@@ -60,11 +62,8 @@ class DeleteVrrpe(NosDeviceAction):
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
 
-        interfaces = device.interface.vlans
-        tmp_vlan_list = []
-        for interface in interfaces:
-            tmp_vlan_list.append((interface['vlan-id']))
-        if vlan_id not in tmp_vlan_list:
+        vlan_id_exists = device.interface.get_vlan_int(vlan_id)
+        if not vlan_id_exists:
             raise ValueError('vlan_id doesnt exist', vlan_id)
 
         is_exists = False
