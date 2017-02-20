@@ -4,7 +4,7 @@ pack: network_essentials
 runner_type: run-python
 description: Validating a port channel state.
 enabled: true
-entry_point: validate_L2_port_channel_state.py
+entry_point: validate_l2_port_channel_state.py
 parameters:
   mgmt_ip:
     type: string

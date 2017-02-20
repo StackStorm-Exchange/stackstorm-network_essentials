@@ -30,39 +30,27 @@ class ValidateL2PortChannelState(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+
         validation = {}
 
-        try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
-            self.logger.info('successfully connected to %s to validate l2 port channel', self.host)
-        except AttributeError as e:
-            self.logger.error('Failed to connect to %s due to %s', self.host, e.message)
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
-        validation = self._validate_l2_port_channel_state_(device, port_channel_id)
-        self.logger.info('closing connection to %s after '
-                         'validation of port channel -- all done!', self.host)
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info('successfully connected to %s to validate'
+                             ' l2 port channel', self.host)
+
+            validation = self._validate_l2_port_channel_state_(
+                device, port_channel_id)
+            self.logger.info('closing connection to %s after validation '
+                             'of port channel -- all done!', self.host)
 
         return validation
 
     def _validate_l2_port_channel_state_(self, device, port_channel_id):
         """ Verify if the port channel already exists """
-        port_channel_num = int(port_channel_id)
-        members = self._get_port_channel_members(device, port_channel_num)
+        port_channels = device.interface.port_channels
+
+        members = next((pc['interfaces'] for pc in port_channels
+                       if pc['aggregator_id'] == port_channel_id), None)
+
         # Verify if the port channel to interface mapping is already existing
         output = {}
         output['member-ports'] = []
@@ -78,7 +66,8 @@ class ValidateL2PortChannelState(NosDeviceAction):
                     member['interface-type'] + ' ' + member['interface-name'])
                 if member['sync'] == '0':
                     self.logger.info('{} {} is out of sync'
-                                     .format(member['interface-type'], member['interface-name']))
+                                     .format(member['interface-type'],
+                                             member['interface-name']))
                     in_sync = False
                 output['state'] = 'out_of_sync' if not in_sync else 'in_sync'
             return output
