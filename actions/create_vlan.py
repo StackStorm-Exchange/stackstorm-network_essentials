@@ -64,11 +64,16 @@ class CreateVlan(NosDeviceAction):
 
     def _create_vlan(self, device, vlan_id, intf_desc):
         output = []
-
+        vlans = device.interface.vlans
+        vlan_dict = {}
+        for vlan in vlans:
+            vlan_dict[vlan['vlan-id']] = vlan
         for vlan in vlan_id:
-            check_vlan = device.interface.get_vlan_int(vlan)
+            vlan_exists = False;
+            if vlan in vlan_dict:
+                vlan_exists = True
             result = {}
-            if check_vlan is False:
+            if not vlan_exists:
                 cr_vlan = device.interface.add_vlan_int(vlan)
                 self.logger.info('Successfully created a VLAN %s', vlan)
                 result['result'] = cr_vlan
