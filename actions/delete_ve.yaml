@@ -1,0 +1,33 @@
+---
+name: delete_ve
+pack: network_essentials
+runner_type: run-python
+description: Delete VE for VLAN.
+enabled: true
+entry_point: delete_ve.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Ip address of the device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  rbridge_id:
+    type: array
+    description: Rbridge id of the device. example [51] or 51,52
+    position: 3
+  vlan_id:
+    type: string
+    description: Vlan id number.SLX -> '<NUMBER:1-4090>', VDX -> '<NUMBER:1-4090/8191 when VFAB disabled/enabled>'
+    required: true
+    position: 4
