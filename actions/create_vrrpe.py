@@ -17,6 +17,7 @@ from ipaddress import ip_interface
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
+
 class CreateVrrpe(NosDeviceAction):
     """
        Implements the logic to Enable VRRPE and Configure VIP and VMAC the on VDX Switches .
@@ -33,13 +34,12 @@ class CreateVrrpe(NosDeviceAction):
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
 
-
         changes = self.switch_operation(rbridge_id, ve_name, virtual_ip, vrid)
 
         return changes
 
     @log_exceptions
-    def switch_operation(self,rbridge_id, ve_name, virtual_ip,
+    def switch_operation(self, rbridge_id, ve_name, virtual_ip,
                          vrid):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
@@ -102,10 +102,12 @@ class CreateVrrpe(NosDeviceAction):
             ip_version = tmp_ip.version
         except ValueError:
             self.logger.error('Invalid Virtual IP Address %s' % virtual_ip)
-            raise ValueError('Invalid Virtual IP Address %s'% virtual_ip)
+            raise ValueError('Invalid Virtual IP Address %s' % virtual_ip)
 
         if len(unicode(virtual_ip).split("/")) != 1:
-            raise ValueError('Pass VIP address without netmask %s' % virtual_ip)
+            raise ValueError(
+                'Pass VIP address without netmask %s' %
+                virtual_ip)
 
         # Check if the VRRP-E/VRRPV3 is pre-existing
 
@@ -146,7 +148,7 @@ class CreateVrrpe(NosDeviceAction):
                                 and each_entry['vrid'] != vrid:
                             self.logger.error(
                                 'VIP %s is associated to a different '
-                                'VRRPE group %s in VE %s'%
+                                'VRRPE group %s in VE %s' %
                                 (virtual_ip, each_entry['vrid'], ve_name))
                             ip_version = ''
                         elif each_entry['vip'] != virtual_ip \
@@ -170,15 +172,13 @@ class CreateVrrpe(NosDeviceAction):
                         elif each_entry['vip'] == virtual_ip \
                                 and each_entry['vrid'] != vrid:
                             self.logger.error('VIP %s is already part of'
-                                             ' a different VE %s' %
+                                              ' a different VE %s' %
                                               (virtual_ip,
-                                              each_ve['if-name'].split()[1]))
+                                               each_ve['if-name'].split()[1]))
                             ip_version = ''
         if not ve_present:
-            self.logger.error('Ve %s is not available' %ve_name)
+            self.logger.error('Ve %s is not available' % ve_name)
             ip_version = ''
-
-
 
         return str(ip_version)
 
@@ -187,10 +187,10 @@ class CreateVrrpe(NosDeviceAction):
 
         self.logger.info('Start the VRRPE v-%s service globally', ip_version)
 
-        device.services.vrrpe(rbridge_id=rbridge_id, ip_version=str(ip_version))
+        device.services.vrrpe(
+            rbridge_id=rbridge_id,
+            ip_version=str(ip_version))
         return True
-
-
 
     def _create_vrrpe_vip(self, device, rbridge_id, ve_name, virtual_ip,
                           vrid, ip_version):
@@ -201,11 +201,11 @@ class CreateVrrpe(NosDeviceAction):
                              ' and associate the VIP service %s',
                              vrid, virtual_ip)
 
-            device.interface.vrrpe_vrid( int_type='ve',
-                name=ve_name,
-                vrid=vrid,
-                version=ip_version,
-                rbridge_id=rbridge_id)
+            device.interface.vrrpe_vrid(int_type='ve',
+                                        name=ve_name,
+                                        vrid=vrid,
+                                        version=ip_version,
+                                        rbridge_id=rbridge_id)
 
             device.interface.vrrpe_vip(name=ve_name, int_type='ve',
                                        vip=virtual_ip,
@@ -213,11 +213,11 @@ class CreateVrrpe(NosDeviceAction):
                                        version=int(ip_version))
         except (ValueError, KeyError):
             self.logger.exception('Invalid Input types while '
-                             'creating VRRPE group %s %s %s'%
+                                  'creating VRRPE group %s %s %s' %
                                   (vrid, virtual_ip, ve_name))
             raise ValueError('Invalid Input types while '
-                             'creating VRRPE group %s %s %s'%
-                              (vrid, virtual_ip, ve_name))
+                             'creating VRRPE group %s %s %s' %
+                             (vrid, virtual_ip, ve_name))
         return True
 
     def _create_vrrpe_vmac(self, device, ve_name, vrid,
@@ -230,11 +230,10 @@ class CreateVrrpe(NosDeviceAction):
                              'group %s', vrid)
             device.interface.vrrpe_vmac(int_type='ve', vrid=vrid,
                                         rbridge_id=rbridge_id,
-                                        name=ve_name
-                                        , version=int(ip_version))
+                                        name=ve_name, version=int(ip_version))
         except (ValueError, KeyError):
             self.logger.exception('Unable to set VRRPe VMAC  %s',
-                             vrid)
+                                  vrid)
 
             raise ValueError('Unable to set VRRPe VMAC  %s',
                              vrid)
@@ -248,10 +247,10 @@ class CreateVrrpe(NosDeviceAction):
             self.logger.info('Enable SPF on the extender group %s', vrid)
             device.interface.vrrpe_spf_basic(int_type='ve', vrid=vrid,
                                              name=ve_name,
-                                             rbridge_id=rbridge_id,version=ip_version)
+                                             rbridge_id=rbridge_id, version=ip_version)
         except (ValueError, KeyError):
             self.logger.exception('Invalid input values vrid,ve_name '
-                             '%s %s' % (vrid, ve_name))
+                                  '%s %s' % (vrid, ve_name))
 
             raise ValueError('Invalid input values vrid,ve_name '
                              '%s %s' % (vrid, ve_name))
