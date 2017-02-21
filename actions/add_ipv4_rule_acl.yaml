@@ -29,7 +29,7 @@ parameters:
     position: 3
   seq_id:
     type: integer
-    description: Sequence number to the rule.If not specified the rule is added at the end of the list.Range is 0 to 18446744073709551615
+    description: Sequence number to the rule.If not specified the rule is added at the end of the list.Range is 0 to 4294967290
     required: false
     position: 4
   action:
