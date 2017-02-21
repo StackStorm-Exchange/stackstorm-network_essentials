@@ -25,7 +25,7 @@ parameters:
   rbridge_id:
     type: string
     description: Rbridge id of the device 
-    required: true
+    required: false
     position: 3
   ve_name:
     type: string
@@ -41,9 +41,7 @@ parameters:
     type: string
     description: Vrrpe Virtual IP Address, pass ip only without netmask
     position: 6
-  virtual_mac:
-    type: string
-    description: Vrrpe Virtual MAC with 02e0.5200.00XX, 2nd byte from right can be replace with user defined values. 
-    position: 7
+    required: true
+
 
 
