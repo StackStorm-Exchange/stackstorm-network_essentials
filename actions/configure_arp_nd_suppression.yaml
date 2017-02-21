@@ -33,6 +33,6 @@ parameters:
       - ARP 
       - ND 
       - Both 
-    description: Ipv4/Ipv6 address with subnet/prefix length. 
+    description: ARP,ND or Both. 
     required: true
     position: 4
