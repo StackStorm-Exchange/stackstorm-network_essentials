@@ -69,7 +69,7 @@ class CreateVlan(NosDeviceAction):
         for vlan in vlans:
             vlan_dict[vlan['vlan-id']] = vlan
         for vlan in vlan_id:
-            vlan_exists = False;
+            vlan_exists = False
             if vlan in vlan_dict:
                 vlan_exists = True
             result = {}
