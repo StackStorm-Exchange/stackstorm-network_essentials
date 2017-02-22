@@ -2,43 +2,43 @@
 name: add_or_remove_l2_acl_rule
 pack: network_essentials
 runner_type: run-python
-description: add rule to l2 acl or remove rule from l2 acl
+description: Add or remove an ACL rule to or from an L2 ACL
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py
 parameters:
   delete:
     type: boolean
-    description: is it a remove operation
+    description: Indicates add or delete operation. TRUE indicates a remove operation.
     default: False
     position: 0
   mgmt_ip:
     type: string
-    description: device ip address
+    description: Management IP address of the target device
     required: true
     position: 1
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 2
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 3
   acl_name:
     type: string
-    description: access list name (max 63 characters)
+    description: Name of the access list
     required: true
     position: 4
   seq_id:
     type: integer
-    description: the sequence id
+    description: Sequence number of the rule.  For add operation, if not specified, the rule is added at the end of the list. 
     position: 5
   action:
     type: string
-    description: the action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+    description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
     enum:
        - deny
        - permit
@@ -47,46 +47,46 @@ parameters:
     position: 6
   source:
     type: string
-    description: the source - 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format.
+    description: Source filter, can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format.
     default: any
     position: 7
   srchost:
     type: string
-    description: the srchost - the source MAC in HHHH.HHHH.HHHH format. The value is required only when the source is 'host'
+    description: The source MAC in HHHH.HHHH.HHHH format. The value is required only when the source is 'host'.
     position: 8
   src_mac_addr_mask:
     type: string
-    description: the src_mac_addr_mask - the mask for source MAC in HHHH.HHHH.HHHH format.
+    description: Mask for the source MAC in HHHH.HHHH.HHHH format.
     position: 9
   dst:
     type: string
-    description: the dst - 'any' or 'host', or the actual MAC of the destination in HHHH.HHHH.HHHH format.
+    description: Destination filter, can be 'any' or 'host', or the actual MAC of the destination in HHHH.HHHH.HHHH format.
     default: any
     position: 10
   dsthost:
     type: string
-    description: the dsthost - the destination MAC of the destination in HHHH.HHHH.HHHH format. The value is required only when the dst is 'host'
+    description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only when the dst is 'host'
     position: 11
   dst_mac_addr_mask:
     type: string
-    description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH format.
+    description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
     position: 12
   ethertype:
     type: string
-    description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+    description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
     default: arp
     position: 13
   vlan:
     type: integer
-    description: the VLAN id - custom value between 1 and 4096.
+    description: VLAN ID - custom value between 1 and 4096.
     position: 14
   count:
     type: string
-    description: enables the packet count
+    description: Enables the packet count
     default: 'False'
     position: 15
   log:
     type: string
-    description: enables the logging
+    description: Enables the logging
     default: 'False'
     position: 16
