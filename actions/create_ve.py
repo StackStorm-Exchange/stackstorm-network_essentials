@@ -43,6 +43,9 @@ class CreateVe(NosDeviceAction):
                               "rbridge id not applicable for SLX OS")
             raise ValueError("Should not Enter rbridge id for SLX OS, "
                              "rbridge id not applicable for SLX OS")
+        elif os_type == 'NOS' and rbridge_id is None:
+            self.logger.error('rbridge_id cannot be None of NOS platform')
+            raise ValueError('rbridge_id cannot be None of NOS platform')
 
         if ip_address is None:
             if os_type == 'NOS':
