@@ -132,9 +132,8 @@ class CreatePortChannel(NosDeviceAction):
         conf_port_chan = device.interface.admin_state(get=True,
                                                       int_type='port_channel',
                                                       name=portchannel_num)
-        # conf_port = conf_port_chan.data.find('.//{*}shutdown')
         conf_port = conf_port_chan
-        if not conf_port:
+        if conf_port:
             device.interface.admin_state(enabled=True, name=portchannel_num,
                                          int_type='port_channel')
             self.logger.info('Admin state setting on port-channel %s is successful',
