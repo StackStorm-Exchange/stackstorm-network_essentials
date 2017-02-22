@@ -14,7 +14,7 @@
 
 
 from ne_base import NosDeviceAction
-
+from ne_base import log_exceptions
 
 class ValidateL2PortChannelState(NosDeviceAction):
     """
@@ -30,7 +30,12 @@ class ValidateL2PortChannelState(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-
+        return self.switch_operation(port_channel_id)
+        
+        
+    @log_exceptions
+    def switch_operation(self, port_channel_id):
+        """connect to switch and perform desired action"""
         validation = {}
 
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
@@ -43,6 +48,7 @@ class ValidateL2PortChannelState(NosDeviceAction):
                              'of port channel -- all done!', self.host)
 
         return validation
+
 
     def _validate_l2_port_channel_state_(self, device, port_channel_id):
         """ Verify if the port channel already exists """
