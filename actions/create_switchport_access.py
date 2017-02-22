@@ -88,9 +88,8 @@ class CreateSwitchPort(NosDeviceAction):
                             self.logger.info("Switchport trunk already on Interface,\
                               Pls removed and re - configure")
                             return False
-        except (ValueError, IndexError, KeyError):
-            self.logger.info("Fetching Switch port enable failed")
-            return False
+        except (ValueError, IndexError, KeyError), e:
+            raise ValueError('Fetching switch port mode failed %s', str(e))
         return True
 
     def _check_list(self, input_list, switch_list):
@@ -107,8 +106,8 @@ class CreateSwitchPort(NosDeviceAction):
             device.interface.switchport(int_type=intf_type, name=intf_name)
             device.interface.access_vlan(inter_type=intf_type, inter=intf_name, vlan_id=vlan_id)
             return True
-        except (ValueError):
-            self.logger.info("Configuring Switch port access failed")
+        except ValueError, e:
+            raise ValueError('Configuring Switch port access failed due to %s', str(e))
 
     def _disable_isl(self, device, intf_type, intf_name):
         """Disable ISL on the interface.
@@ -117,10 +116,10 @@ class CreateSwitchPort(NosDeviceAction):
             conf = device.interface.fabric_isl(get=True, name=intf_name, int_type=intf_type)
             if conf is None:
                 return False
-            self.logger.info("disabling isl on %s %s", intf_type, intf_name)
+            self.logger.info("disabling ISL on %s %s", intf_type, intf_name)
             device.interface.fabric_isl(enabled=False, name=intf_name, int_type=intf_type)
         except ValueError:
-            self.logger.debug('Not supported on this platform')
+            self.logger.info('Disabling ISL is not supported on this platform')
             return False
         except Exception as error:
             self.logger.error(error)
@@ -137,9 +136,9 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.info("disabling fabric trunk on %s %s", intf_type, intf_name)
             device.interface.fabric_trunk(enabled=False, name=intf_name, int_type=intf_type)
         except ValueError:
-            self.logger.debug('Not supported on this platform')
+            self.logger.debug('Disabling Fabric Trunk is not supported on this platform')
             return False
         except Exception as error:
             self.logger.error(error)
-            return False
+            raise ValueError('Fetching switch port mode failed %s', str(error))
         return True
