@@ -50,6 +50,9 @@ class CreateSwitchPort(NosDeviceAction):
                     device,
                     intf_type,
                     intf_name)
+            else:
+                changes['L2_interface_check'] = True
+
             if changes['L2_interface_check']:
                 changes[
                     'switchport_doesnot_exists'] =\
@@ -90,16 +93,19 @@ class CreateSwitchPort(NosDeviceAction):
                                                          name=intf_name,
                                                          version=version2)
             if get_ipv4 or get_ipv6:
-                self.logger.warning("Interface %s %s specified i"
-                                    "s an L3 interface", intf_type,
-                                    intf_name)
-                return False
+                self.logger.error("Interface %s %s specified i"
+                                  "s an L3 interface", intf_type,
+                                  intf_name)
+                raise ValueError("Interface %s %s specified i"
+                                 "s an L3 interface", intf_type,
+                                 intf_name)
             else:
                 self.logger.info("Interface is L2 interface.")
                 return True
 
         except (ValueError):
-            self.logger.exception('interface type or name invalid.')
+            self.logger.exception('Interface type or name invalid.')
+            raise ValueError('Interface type or name invalid.')
         return False
 
     def _check_requirements_switchport_exists(self, device, intf_type,
@@ -129,13 +135,16 @@ class CreateSwitchPort(NosDeviceAction):
                             else:
                                 return True
                         else:
-                            self.logger.info("Access mode is "
-                                             "configured on interface,\
+                            self.logger.error("Access mode is "
+                                              "configured on interface,\
                                  Pls removed and re-configure")
-                            return False
+                            raise ValueError(
+                                "Access mode is "
+                                "configured on interface,\
+                                 Pls removed and re-configure")
         except (ValueError):
-            self.logger.info("Fetching Switch port enable failed")
-            return False
+            self.logger.error("Fetching Switch port enable failed")
+            raise ValueError("Fetching Switch port enable failed")
         return True
 
     def _check_list(self, input_list, switch_list):
@@ -156,35 +165,44 @@ class CreateSwitchPort(NosDeviceAction):
             device.interface.trunk_allowed_vlan(int_type=intf_type,
                                                 name=intf_name, action='add',
                                                 vlan=vlan_id)
-            return True
+
         except ValueError:
             self.logger.exception("Configuring Switch port trunk failed")
-            self.logger.info("Configuring Switch port trunk failed")
-            return False
+            raise ValueError("Configuring Switch port trunk failed")
+        return True
 
     def _disable_isl(self, device, intf_type, intf_name):
         """Disable ISL on the interface.
         """
-        if device.os_type == 'nos':
-            conf = device.interface.fabric_isl(get=True, name=intf_name,
-                                               int_type=intf_type)
-            if conf is None:
-                return False
-            self.logger.info("disabling isl on %s %s", intf_type, intf_name)
-            device.interface.fabric_isl(enabled=False, name=intf_name,
-                                        int_type=intf_type)
+        try:
+            if device.os_type == 'nos':
+                conf = device.interface.fabric_isl(get=True, name=intf_name,
+                                                   int_type=intf_type)
+                if conf is None:
+                    return False
+                self.logger.info(
+                    "disabling isl on %s %s", intf_type, intf_name)
+                device.interface.fabric_isl(enabled=False, name=intf_name,
+                                            int_type=intf_type)
+        except ValueError:
+            self.logger.exception("disable ISL failed")
+            raise ValueError("disable ISL failed")
         return True
 
     def _disable_fabric_trunk(self, device, intf_type, intf_name):
         """Disable ISL Fabric Trunk on the interface.
         """
-        if device.os_type == 'nos':
-            conf = device.interface.fabric_trunk(get=True, name=intf_name,
-                                                 int_type=intf_type)
-            if conf is None:
-                return False
-            self.logger.info("disabling fabric trunk on %s %s", intf_type,
-                             intf_name)
-            device.interface.fabric_trunk(enabled=False, name=intf_name,
-                                          int_type=intf_type)
-        return True
+        try:
+            if device.os_type == 'nos':
+                conf = device.interface.fabric_trunk(get=True, name=intf_name,
+                                                     int_type=intf_type)
+                if conf is None:
+                    return False
+                self.logger.info("disabling fabric trunk on %s %s", intf_type,
+                                 intf_name)
+                device.interface.fabric_trunk(enabled=False, name=intf_name,
+                                              int_type=intf_type)
+            return True
+        except ValueError:
+            self.logger.exception("disable fabric trunk failed")
+            raise ValueError("disable fabric trunk  failed")

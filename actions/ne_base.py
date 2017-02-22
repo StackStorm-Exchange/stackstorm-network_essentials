@@ -810,6 +810,9 @@ class NosDeviceAction(Action):
 
     def validate_supports_rbridge(self, device, rbridge_id):
         if device.suports_rbridge:
+            if rbridge_id is None:
+                self.logger.info('Device requires rbridge-id')
+                raise ValueError('Device requires rbridge-id')
             return True
         if rbridge_id is not None:
             self.logger.info('Device does not support rbridge')
