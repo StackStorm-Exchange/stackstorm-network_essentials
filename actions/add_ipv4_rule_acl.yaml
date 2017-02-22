@@ -2,34 +2,34 @@
 name: add_ipv4_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Add a L3 IPV4 ACL rule to an existing ACL
+description: Add an L3 IPv4 ACL rule to an existing ACL
 enabled: true
 entry_point: add_ipv4_rule_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to add the acl rule
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   acl_name:
     type: string
-    description: Name of the access list to be created or rule to
+    description: Name of the access list
     required: true
     position: 3
   seq_id:
     type: integer
-    description: Sequence number to the rule.If not specified the rule is added at the end of the list.Range is 0 to 4294967290
+    description: Sequence number to the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
     required: false
     position: 4
   action:
@@ -43,23 +43,23 @@ parameters:
     default: permit
   protocol_type:
     type: string
-    description: IP packet ACL rule is filtering.<0-255> or tcp, udp, icmp or ip
+    description: Type of IP packets to be filtered based on protocol. Valid values are <0-255> or key words tcp, udp, icmp or ip
     required: false
     position: 6
   source:
     type: string
-    description: Definition of source being filtered, including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    description: Source address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: true
     position: 7
     default: any
   destination:
     type: string
-    description: Definition of destination being filtered, including tcp and udp port numbers. { any | D_IPaddress mask | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
+    description: Destination address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: false
     position: 8
   dscp:
     type: string
-    description: DSCP value to match against. Can be either a numerical value or DSCP name
+    description: Matches the specified value against the DSCP value of the packet to filter.  Allowed values are 0 through 63.
     required: false
     position: 9
   vlan_id:
