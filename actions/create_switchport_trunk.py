@@ -94,11 +94,11 @@ class CreateSwitchPort(NosDeviceAction):
                                                          version=version2)
             if get_ipv4 or get_ipv6:
                 self.logger.error("Interface %s %s specified i"
-                                    "s an L3 interface", intf_type,
-                                    intf_name)
+                                  "s an L3 interface", intf_type,
+                                  intf_name)
                 raise ValueError("Interface %s %s specified i"
-                                    "s an L3 interface", intf_type,
-                                    intf_name)
+                                 "s an L3 interface", intf_type,
+                                 intf_name)
             else:
                 self.logger.info("Interface is L2 interface.")
                 return True
@@ -136,11 +136,11 @@ class CreateSwitchPort(NosDeviceAction):
                                 return True
                         else:
                             self.logger.error("Access mode is "
-                                             "configured on interface,\
+                                              "configured on interface,\
                                  Pls removed and re-configure")
                             raise ValueError(
                                 "Access mode is "
-                                             "configured on interface,\
+                                "configured on interface,\
                                  Pls removed and re-configure")
         except (ValueError):
             self.logger.error("Fetching Switch port enable failed")
@@ -180,7 +180,8 @@ class CreateSwitchPort(NosDeviceAction):
                                                    int_type=intf_type)
                 if conf is None:
                     return False
-                self.logger.info("disabling isl on %s %s", intf_type, intf_name)
+                self.logger.info(
+                    "disabling isl on %s %s", intf_type, intf_name)
                 device.interface.fabric_isl(enabled=False, name=intf_name,
                                             int_type=intf_type)
         except ValueError:
