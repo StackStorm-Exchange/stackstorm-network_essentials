@@ -2,29 +2,29 @@
 name: configure_mac_move_detection
 pack: network_essentials
 runner_type: run-python
-description: configure mac address table mac move detect enable and limit
+description: Configures the switch to enable MAC move detection and set the threshold for number of MAC moves to trigger the detection.
 enabled: true
 entry_point: configure_mac_move_detection.py
 parameters:
   mgmt_ip:
     type: string
-    description: mgmt_ip of the Device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   move_threshold:
     type: integer
-    description: mac move threshold <NUMBER:5-500>
+    description: MAC move threshold <NUMBER:5-500>
     default: 5
     required: true
     position: 3
