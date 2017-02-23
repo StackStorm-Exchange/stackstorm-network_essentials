@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ne_base import NosDeviceAction
 from ipaddress import ip_interface
+
+from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class ConfigVcsVirtualIp(NosDeviceAction):
@@ -21,26 +23,33 @@ class ConfigVcsVirtualIp(NosDeviceAction):
        Implements the logic to configure Managemnt virtual IP on VDX switches.
        This action acheives the below functionality
            1.IPv4 and IPv6 address as can be configured
-           2.Check for the management virtual IP on the Device,if not present configure it
+           2.Check for the management virtual IP on the Device,if not present
+           configure it
     """
 
     def run(self, mgmt_ip, username, password, mgmt_vip):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        changes = self.switch_operation(mgmt_vip)
+
+        return changes
+
+    @log_exceptions
+    def switch_operation(self, mgmt_vip):
         changes = {}
-
-
-
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to configure VCS virtual IP', self.host)
+            self.logger.info(
+                'successfully connected to %s to configure VCS virtual IP',
+                self.host)
             if not device.suports_rbridge:
                 self.logger.error('This operation is supported only on NOS.')
                 raise ValueError('This operation is supported only on NOS.')
             changes['vip'] = self._configure_vip(device, vip=mgmt_vip)
-            self.logger.info('closing connection to %s after configuring virtual IP -- all done!',
-                             self.host)
-
+            self.logger.info(
+                'closing connection to %s after configuring '
+                'virtual IP -- all done!',
+                self.host)
         return changes
 
     def _configure_vip(self, device, vip):
@@ -57,11 +66,13 @@ class ConfigVcsVirtualIp(NosDeviceAction):
             conf = vips['ipv6_vip']
 
         if conf is not None:
-            self.logger.info("Managemnt virtual IPv%s address is already configured",
-                             ipaddress.version)
+            self.logger.info(
+                "Management virtual IPv%s address is already configured",
+                ipaddress.version)
         else:
-            self.logger.info("Configuring Managemnt virtual IPv%s address %s on %s",
-                             ipaddress.version, vip, self.host)
+            self.logger.info(
+                "Configuring Management virtual IPv%s address %s on %s",
+                ipaddress.version, vip, self.host)
             device.vcs.vcs_vip(vip=vip)
 
         return True
