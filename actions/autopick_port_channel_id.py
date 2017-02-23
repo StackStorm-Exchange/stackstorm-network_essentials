@@ -22,7 +22,7 @@ class AutoPickPortChannel(NosDeviceAction):
            1.Provides a port_channel number if port_channel id is not passed
     """
 
-    def run(self, mgmt_ip, username, password, port_channel_id):
+    def run(self, mgmt_ip, username, password):
         """Run helper methods to implement the desired state.
         """
 
@@ -30,8 +30,7 @@ class AutoPickPortChannel(NosDeviceAction):
         changes = {}
         with self.mgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
-            if not port_channel_id:
-                changes['port_channel_id'] = str(self._no_port_channel_number(device))
+            changes['port_channel_id'] = str(self._no_port_channel_number(device))
             self.logger.info('closing connection to %s after'
                              ' configuring port channel -- all done!', self.host)
         return changes
