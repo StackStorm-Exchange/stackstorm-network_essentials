@@ -16,13 +16,14 @@ network_essentials.find_my_host_vcs:
                 password: <% $.password %>
                 ip_address: <% $.ip_address %>
             publish:
-                pub: <% task(find_host_ip).result.result[0]%>
+                pub: <% task(find_host_ip).result.result%>
             on-success:
                 - find_physical_interface
         find_physical_interface:
+            with-items: item in <% $.pub %>
             action: network_essentials.find_mac
             input:
                 mgmt_ip: <% $.mgmt_ip %>
                 username: <% $.username %>
                 password: <% $.password %>
-                macs: <% [$.pub.get('mac-address', null)] %>
+                macs: <% [$.item.get('mac-address', null)] %>
