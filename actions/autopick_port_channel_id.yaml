@@ -22,7 +22,3 @@ parameters:
     default: password
     secret: true
     position: 2
-  port_channel_id:
-    type: string
-    description: Portchannel interface number.<NUMBER:1-6144> 
-    position: 3
