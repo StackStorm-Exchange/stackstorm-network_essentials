@@ -24,6 +24,6 @@ parameters:
     position: 1
   mgmt_vip:
     type: string
-    description: Virtual management IP and mask of the VCS Fabric, examples for IPv4, IPv6: 10.1.1.1/22, 2620:100:0:fa48:34::50/64.
+    description: "Virtual management IP and mask of the VCS Fabric, examples for IPv4, IPv6: 10.1.1.1/22, 2620:100:0:fa48:34::50/64."
     required: true
     position: 3
