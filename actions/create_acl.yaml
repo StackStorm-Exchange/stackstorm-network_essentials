@@ -2,23 +2,23 @@
 name: create_acl
 pack: network_essentials
 runner_type: run-python
-description: Creating an ACL
+description: Create an Access Control List
 enabled: true
 entry_point: create_acl.py
 parameters:
     mgmt_ip:
         type: string
-        description: Device to create ACL
+        description: Management IP address of the target device
         required: true
         position: 0
     username:
         type: string
-        description: login username
+        description: Login user name to connect to the device
         default: admin
         position: 1
     password:
         type: string
-        description: login password
+        description: Login password to connect to the device
         default: password
         position: 2
     address_type:
@@ -27,7 +27,7 @@ parameters:
             - ip
             - ipv6
             - mac
-        description: ACL address type. IPv4 IPv6 or mac
+        description: ACL address type, IPv4 or IPv6 or MAC
         required: true
         position: 3
     acl_type:
@@ -35,11 +35,11 @@ parameters:
         enum:
             - standard
             - extended
-        description: ACL type extended or standard
+        description: ACL type, extended or standard
         required: true
         position: 4
     acl_name:
         type: string
-        description: name of the ACL
+        description: Unique name for ACL, can be up to 63 characters long, and must begin with a–z, A–Z or 0–9. You can also use underscore (_) or hyphen (-) in an ACL name, but not as the first character.
         required: true
         position: 5
