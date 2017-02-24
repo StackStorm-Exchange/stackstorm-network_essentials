@@ -15,9 +15,11 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
+
 class AutoPickPortChannel(NosDeviceAction):
     """
-       Implements the logic to create port-channel on an interface on VDX Switches .
+       Implements the logic to create port-channel on an interface on
+        VDX/SLX Switches .
        This action acheives the below functionality
            1.Provides a port_channel number if port_channel id is not passed
     """
@@ -51,7 +53,7 @@ class AutoPickPortChannel(NosDeviceAction):
         po_array = []
         try:
             result = device.interface.port_channels
-        except Exception, e:
+        except Exception as e:
             raise ValueError(e)
         for res in result:
             port_channel_name = res['interface-name']
