@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class FindHostIP(NosDeviceAction):
@@ -24,14 +25,21 @@ class FindHostIP(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        results = {}
+        results = self.switch_operation(ip_address)
+        return results
 
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to find IP on a VCS', self.host)
+    @log_exceptions
+    def switch_operation(self, ip_address):
+        results = {}
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info(
+                'successfully connected to %s to find IP on a VCS', self.host)
             self._check_requirements(ip_address)
             results = self._find_ip_addresses(device, ip_address)
-            self.logger.info('closing connection to %s after searching for IP address -- all done!',
-                             self.host)
+            self.logger.info(
+                'closing connection to %s after searching f'
+                'or IP address -- all done!',
+                self.host)
         return results
 
     def _check_requirements(self, ip_address):
@@ -41,7 +49,9 @@ class FindHostIP(NosDeviceAction):
 
     def _find_ip_addresses(self, device, ip):
         """ Find IPs found on interfaces in a VCS."""
-        # For now its ony IPv4 address and hence this check. Eventually it will also be IPv6 and VRF
+        # For now its ony IPv4 address and hence this check.
+        #  Eventually it will also be IPv6 and VRF
         arp_table = device.services.arp
-        results = [x for x in arp_table if x['ip-address'] == ip]
+        results = [x for x in arp_table if
+                   x['ip-address'] == ip and x['interface-type'] != 'unknown']
         return results
