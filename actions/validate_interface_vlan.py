@@ -38,9 +38,8 @@ class ValidateInterfaceVlan(NosDeviceAction):
                 'successfully connected to %s to validate interface vlan',
                 self.host)
             # Check is the user input for VLANS is correct
-            print vlan_id, type(vlan_id)
+
             vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
-            print vlan_list
 
             if vlan_list:
                 changes['vlan'] = self._validate_interface_vlan(device,
@@ -58,7 +57,7 @@ class ValidateInterfaceVlan(NosDeviceAction):
                                  intf_mode):
         """validate interface vlan .
         """
-
+        all_true = True
         output = device.interface.switchport_list
         for vlan_id in vlan_list:
             is_vlan_interface_present = False
@@ -68,33 +67,36 @@ class ValidateInterfaceVlan(NosDeviceAction):
                     if vlan_id == int(vid):
                         is_vlan_interface_present = True
                         if intf_name == out[
-                                'interface-name']:
+                            'interface-name']:
                             is_intf_name_present = True
                             if intf_mode in out['mode']:
                                 self.logger.info(
                                     "Successfully Validated port channel/physical interface %s"
-                                    " and mode %s belongs to a VLAN %s",
+                                    " and mode %s belongs to  VLAN %s",
                                     intf_name,
                                     intf_mode, vlan_id)
                             else:
-                                self.logger.info(
+                                self.logger.error(
                                     "Port channel/physical interface %s "
                                     " and mode %s does not belong to VLAN %s",
                                     intf_name,
                                     intf_mode, vlan_id)
+                                all_true = False
                         else:
                             continue
             if not is_vlan_interface_present:
                 self.logger.error(
                     'Vlan %s does not exist on the interface %s' % (
                         vlan_id, intf_name))
+                all_true = False
             if is_vlan_interface_present and not is_intf_name_present:
                 self.logger.error(
-                    'Invalid port channel/physical interface %s or '
-                    'mode %s belongs to a VLAN %s' % (intf_name,
-                                                      intf_mode, vlan_id))
+                    'Invalid port channel/physical interface %s '
+                    % (intf_name))
 
-        return True
+                all_true = False
+
+        return all_true
 
 
 0
