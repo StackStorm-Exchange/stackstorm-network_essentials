@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -43,6 +44,10 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
                                   acl_name=acl_name,
                                   acl_type=acl_type,
                                   seq_id=seq_id)
+        if seq_dict is None:
+            self.logger.error('There is no rule present in seq no %s. '
+                              'Please check the seq_id.', seq_id)
+            sys.exit(-1)
         for v in seq_variables:
             try:
                 seq.append(seq_dict[v])
