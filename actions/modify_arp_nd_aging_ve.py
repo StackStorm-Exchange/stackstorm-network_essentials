@@ -40,18 +40,20 @@ class ModifyARPNDAgingVe(NosDeviceAction):
                 rb_list = rbridge_id
             for rbid in rb_list:
                 rbridge_id = str(rbid)
-                vlan_arp_nd_check_pass = self._check_requirements_arp_nd_check(device,
-                                                                               vlan_id,
-                                                                               arp_aging_type,
-                                                                               rbridge_id)
+                if arp_aging_type == "nd_cache_expiry":
+                    self.logger.info('configuring ND is not allowed currently on %s', rbridge_id)
+                    vlan_arp_nd_check_pass = False
+                    changes['create_arp_nd_check'] = "Not supported"
+                else:
+                    vlan_arp_nd_check_pass = self._check_requirements_arp_nd_check(device,
+                                                                                   vlan_id,
+                                                                                   arp_aging_type,
+                                                                                   rbridge_id)
                 if vlan_arp_nd_check_pass:
                     if arp_aging_type == 'arp_aging':
                         changes['create_arp_nd_check'] = self._create_arp_nd(device, vlan_id,
                                                                              arp_aging_timeout,
                                                                              rbridge_id)
-                    else:
-                        changes['create_arp_nd_check'] = "Not supported"
-                        self.logger.info('configuring ND cache expire time isnot allowed currently')
             self.logger.info(
                 'closing connection to %s after configuring'
                 'IP ARP/ND aging timeout on Ve -- all done!', self.host)
