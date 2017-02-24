@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class GetSwitchDetails(NosDeviceAction):
@@ -26,16 +27,22 @@ class GetSwitchDetails(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
 
         changes = {}
-        try:
-            with self.mgr(conn=self.conn, auth=self.auth) as device:
-                self.logger.info('successfully connected to %s to get switch details', self.host)
-                changes['switch_details'] = self._get_switch_details(device, mgmt_ip)
-                self.logger.info('closing connection to %s after getting switch details - \
-                                 all done!', self.host)
-        except Exception, e:
-            raise ValueError(e)
+
+        self.switch_operation(changes, mgmt_ip)
 
         return changes
+
+    @log_exceptions
+    def switch_operation(self, changes, mgmt_ip):
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info(
+                'successfully connected to %s to get switch details',
+                self.host)
+            changes['switch_details'] = self._get_switch_details(device,
+                                                                 mgmt_ip)
+            self.logger.info('closing connection to %s after '
+                             'getting switch details - \
+                             all done!', self.host)
 
     def _get_switch_details(self, device, host):
         """get the switch details.
@@ -43,6 +50,10 @@ class GetSwitchDetails(NosDeviceAction):
         sw_info = {}
         rb_list = []
         sw_list = []
+        if not device.suports_rbridge:
+            self.logger.error('This operation is supported only on NOS')
+            raise ValueError('This operation is supported only on NOS')
+
         vcs_info = device.vcs.vcs_nodes
 
         for vcs in vcs_info:
