@@ -24,13 +24,13 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: A comma separated list of VLANs 
-    #TODO(asandela): change vland_id to vlan_list
+    description: single vlan or range of vlans (e.g 2 or 3-9)
     required: true
     position: 3
   intf_name:
     type: string
     description: Interface name(example x/y/z for physical interface or integer for port-channels)
+    required: true
     position: 4
   intf_mode:
     type: string
