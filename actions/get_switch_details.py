@@ -50,6 +50,10 @@ class GetSwitchDetails(NosDeviceAction):
         sw_info = {}
         rb_list = []
         sw_list = []
+        if not device.suports_rbridge:
+            self.logger.error('This operation is supported only on NOS')
+            raise ValueError('This operation is supported only on NOS')
+
         vcs_info = device.vcs.vcs_nodes
 
         for vcs in vcs_info:
