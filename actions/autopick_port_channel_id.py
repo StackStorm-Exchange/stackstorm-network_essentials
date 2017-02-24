@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
-
+from ne_base import log_exceptions
 
 class AutoPickPortChannel(NosDeviceAction):
     """
@@ -27,12 +27,21 @@ class AutoPickPortChannel(NosDeviceAction):
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        changes = self.switch_operation()
+        return changes
+
+    @log_exceptions
+    def switch_operation(self):
         changes = {}
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
-            self.logger.info('successfully connected to %s to create port channel', self.host)
-            changes['port_channel_id'] = str(self._no_port_channel_number(device))
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            self.logger.info(
+                'successfully connected to %s to create port channel',
+                self.host)
+            changes['port_channel_id'] = str(
+                self._no_port_channel_number(device))
             self.logger.info('closing connection to %s after'
-                             ' configuring port channel -- all done!', self.host)
+                             ' configuring port channel -- all done!',
+                             self.host)
         return changes
 
     def _no_port_channel_number(self, device):
