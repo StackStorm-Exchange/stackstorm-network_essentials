@@ -67,7 +67,7 @@ class ValidateInterfaceVlan(NosDeviceAction):
                     if vlan_id == int(vid):
                         is_vlan_interface_present = True
                         if intf_name == out[
-                            'interface-name']:
+                                'interface-name']:
                             is_intf_name_present = True
                             if intf_mode in out['mode']:
                                 self.logger.info(
