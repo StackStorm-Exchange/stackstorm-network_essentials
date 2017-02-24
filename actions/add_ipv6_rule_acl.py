@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -176,6 +177,7 @@ class Add_Ipv6_Rule_Acl(NosDeviceAction):
             if not aply[0]:
                 self.logger.error('Cannot add rule on %s due to %s', acl_name,
                                   str(aply[1][0][self.host]['response']['json']['output']))
+                sys.exit(-1)
             else:
                 self.logger.info('Successfully added rule on %s', acl_name)
         except Exception as e:

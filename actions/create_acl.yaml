@@ -28,7 +28,7 @@ parameters:
             - ipv6
             - mac
         description: ACL address type, IPv4 or IPv6 or MAC
-        required: true
+        default: ip
         position: 3
     acl_type:
         type: string
