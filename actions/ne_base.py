@@ -172,6 +172,7 @@ class NosDeviceAction(Action):
         re_pattern2 = r"^(\d+)\-?(\d+)$"
         re_pattern3 = r"^(\d+)\/(\d+)\/(\d+)$"
         re_pattern4 = r"^(\d+)\/(\d+)\/(\d+)\-?(\d+)$"
+        re_pattern5 = r"^(\d+)\/(\d+)\/(\d+)(:(\d+))?$"
 
         intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet", "fortygigabitethernet",
                     "hundredgigabitethernet"]
@@ -210,6 +211,8 @@ class NosDeviceAction(Action):
                 int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
                                 str(intf))
             int_list = int_list
+        elif re.search(re_pattern5, int_list):
+            int_list = ((int_list),)
         else:
             msg = 'Invalid interface format'
 
