@@ -2,23 +2,23 @@
 name: get_switch_details
 pack: network_essentials
 runner_type: run-python
-description: get switch details from VCS
+description: Get switch details from a device
 enabled: true
 entry_point: get_switch_details.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to get the NOS version
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
