@@ -2,28 +2,28 @@
 name: find_mac
 pack: network_essentials
 runner_type: run-python
-description: Find the interfaces on which the specified MACs show up
+description: Find which switch port a host is connected to using host MAC address
 enabled: true
 entry_point: find_mac.py
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the VDX or SLX device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   macs:
     type: array
-    description: Single MAC or comma separated list of MACs to be found on interfaces
+    description: Single MAC or comma separated list of MACs to be found
     required: true
     position: 3
