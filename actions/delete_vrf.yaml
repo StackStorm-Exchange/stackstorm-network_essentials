@@ -2,32 +2,32 @@
 name: delete_vrf
 pack: network_essentials
 runner_type: run-python
-description: Delete VRF for L3 tenants.
+description: Delete a VRF
 enabled: true
 entry_point: delete_vrf.py 
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   vrf_name:
     type: string
-    description: vrf name.Example:- 'vrf32 or 32'
+    description: VRF name. Example: vrf32 or 32
     required: true
     position: 4
   rbridge_id:
     type: array
-    description: Rbridge id of the device. example [51] or 51,52
+    description: RBridge IDs of the VDX switches, example: 51 or 51,52. This parameter is only applicable for VDX switches.
     position: 3
