@@ -48,7 +48,7 @@ parameters:
   afi:
     type: string
     description: IP version
-    position: 4
+    position: 6
     required: false
     enum:
       - ipv4

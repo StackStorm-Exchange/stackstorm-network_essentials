@@ -43,14 +43,17 @@ parameters:
     description: Timeout parameter for ping command. Specifies the time(in seconds) to wait for a response
     required: false
     default: 1
+    position: 6
   count:
     type: integer
     description: Count parameter for ping command. Specifies the number of transmission(pings).
     required: false
     default: 4
+    position: 7
   size:
     type: integer
     description: datagram-size
     required: false
     default: 56
+    position: 8
 
