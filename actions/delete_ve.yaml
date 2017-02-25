@@ -2,32 +2,32 @@
 name: delete_ve
 pack: network_essentials
 runner_type: run-python
-description: Delete VE for VLAN.
+description: Delete a VE on multiple switches
 enabled: true
 entry_point: delete_ve.py 
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   rbridge_id:
     type: array
-    description: Rbridge id of the device. example [51] or 51,52
+    description: RBridge IDs of the VDX switch, example: 51 or 51,52. This parameter is only applicable for VDX switches.
     position: 3
   vlan_id:
     type: string
-    description: Vlan id number.SLX -> '<NUMBER:1-4090>', VDX -> '<NUMBER:1-4090/8191 when VFAB disabled/enabled>'
+    description: VLAN ID. Allowed range for SLX devices: <NUMBER:1-4090>, for VDX: <NUMBER:1-4090/8191> greater than 4090 only if VF is enabled
     required: true
     position: 4
