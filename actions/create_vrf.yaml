@@ -26,16 +26,16 @@ parameters:
     type: string
     description: vrf name.Example:- 'vrf32 or 32'
     required: true
-    position: 4
+    position: 3
   rbridge_id:
     type: string
     description: Rbridge id of the device
     required: false
-    position: 3
+    position: 4
   afi:
     type: string
     description: IP version
-    position: 4
+    position: 5
     required: false
     enum:
       - ipv4

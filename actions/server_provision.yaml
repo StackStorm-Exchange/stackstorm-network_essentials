@@ -43,6 +43,7 @@ parameters:
         position: 5
     enabled:
         type: boolean
+        description: Set to true to enable port, false to disable port
         default: true
         position: 6
     vlan_id:
