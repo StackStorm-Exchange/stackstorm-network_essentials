@@ -2,44 +2,44 @@
 name: create_vrrpe
 pack: network_essentials
 runner_type: run-python
-description: Create VRRPe group and assign virtual IP
+description: Create a VRRPe session on multiple switches by creating VRRPe group and assigning virtual IP
 enabled: true
 entry_point: create_vrrpe.py 
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the VDX device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   rbridge_id:
     type: string
-    description: Rbridge id of the device 
+    description: RBridge ID of the VDX switch.  This parameter is only applicable for VDX switches. 
     required: false
     position: 3
   ve_name:
     type: string
-    description: Interface ve name
+    description: Interface VE name
     required: true
     position: 4
   vrid:
     type: string
-    description: virtual extender group id 
+    description: Virtual group ID 
     required: true
     position: 5
   virtual_ip:
     type: string
-    description: Vrrpe Virtual IP Address, pass ip only without netmask
+    description: VRRPe virtual IP address without the netmask
     position: 6
     required: true
 
