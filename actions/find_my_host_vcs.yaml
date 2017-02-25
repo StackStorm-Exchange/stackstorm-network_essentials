@@ -1,30 +1,30 @@
 ---
 name: find_my_host_vcs
 pack: network_essentials
-description: Find where the VM/Server is logged in through its IP or MAC.
+description: Find the switch interface to which a virtual or physical host is connected using host IP or MAC address
 enabled: true
 runner_type: mistral-v2
 entry_point: workflows/find_my_host_vcs.yaml
 parameters:
     mgmt_ip:
         type: string
-        description: Host to configure
+        description: Management IP address of the target device
         required: true
         position: 2
     username:
         type: string
-        description: User name to ssh into host
+        description: Login user name to connect to the device
         default: admin
         position: 0
     password:
         type: string
-        description: Password to ssh into host
+        description: Login password to connect to the device
         default: password
         secret: true
         position: 1
     ip_address:
         type: string
-        description: IP address to search.
+        description: Host IP address
         required: true
         position: 3
     
