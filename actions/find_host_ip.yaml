@@ -2,28 +2,28 @@
 name: find_host_ip
 pack: network_essentials
 runner_type: run-python
-description: Find the interfaces on which the specified IP show up
+description: Find which switch port a host is connected to using host IP address
 enabled: true
 entry_point: find_host_ip.py
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the VDX device
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   ip_address:
     type: string
-    description: IPv4 or IPv6 address of the VM/Host to be found
+    description: IPv4 or IPv6 address of the VM or physical host to be found
     required: true
     position: 3
