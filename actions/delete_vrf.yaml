@@ -24,7 +24,7 @@ parameters:
     position: 2
   vrf_name:
     type: string
-    description: VRF name. Example: vrf32 or 32
+    description: VRF name, for example vrf32 or 32
     required: true
     position: 4
   rbridge_id:
