@@ -2,28 +2,28 @@
 name: set_l2_system_mtu
 pack: network_essentials
 runner_type: run-python
-description: Set L2 MTU to the whole fabric
+description: Set L2 system MTU on the VCS fabric or vLag pairs.  Only supported on VDX devices.
 enabled: true
 entry_point: set_l2_system_mtu.py
 parameters:
   mgmt_ip:
     type: string
-    description: Virtual IP of VCS Fabric or management IP of a switch.
+    description: Virtual IP of VCS Fabric or management IP of the switch.
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   mtu_size:
     type: integer
-    description: Value of MTU size in bytes <Number:1522-9216>
+    description: MTU size in bytes <Number:1522-9216>
     required: true
     position: 3
