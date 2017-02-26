@@ -29,5 +29,5 @@ parameters:
     position: 4
   rbridge_id:
     type: array
-    description: RBridge IDs of the VDX switches, example: 51 or 51,52. This parameter is only applicable for VDX switches.
+    description: RBridge IDs of the VDX switches, for example 51 or 51,52. This parameter is only applicable for VDX switches.
     position: 3
