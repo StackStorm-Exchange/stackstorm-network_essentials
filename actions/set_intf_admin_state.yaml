@@ -2,23 +2,23 @@
 name: set_intf_admin_state
 pack: network_essentials
 runner_type: run-python
-description: Enable a single/range of physical interface,port-channel,loopback,ve on a device
+description: Enable or disable a single or list of physical port, port-channel, loopback or VE interfacces on a device
 enabled: true
 entry_point: set_intf_admin_state.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to get the NOS version
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
@@ -33,25 +33,25 @@ parameters:
       - ve
       - loopback
     default: tengigabitethernet
-    description: Interface type gigabitethernet or tengigabitethernet or port_channel
+    description: Interface type
     required: true
     position: 3
   intf_name:
     type: string
-    description: Single interface name/range of interface name physical interface/port-channel
+    description: Interface names, can be comma separated physical ports, port channel numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: rbridge id under which ve/loopback will be configured
+    description: RBridge ID of the VDX switch.  This parameter is only applicable for VDX switches.
     position: 7
   enabled:
     type: boolean
-    description: Admin setting on the interface
+    description: Admin setting of the interface(s)
     default: true
     position: 5
   intf_desc:
     type: string
-    description: Interface description name
+    description: Interface description
     position: 6
 
