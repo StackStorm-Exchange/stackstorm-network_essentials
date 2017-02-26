@@ -2,23 +2,23 @@
 name: remove_acl
 pack: network_essentials
 runner_type: run-python
-description: Remove acl on interface
+description: Remove an ACL from physical port, port channel, VE or mgmt interface.  
 enabled: true
 entry_point: remove_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Device to apply the access-list
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
@@ -34,27 +34,27 @@ parameters:
       - loopback
       - ethernet
     default: tengigabitethernet
-    description: Interface type gigabitethernet or tengigabitethernet or port_channel
+    description: Interface type
     required: true
     position: 3
   intf_name:
     type: array
-    description: List of name/range of physical interface/port-channel
+    description: Interface names, can be comma separated physical ports, port channel numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: rbridge id under which ve will be configured only needed for NOS device
+    description: RBridge ID of the VDX switch.  This parameter is only applicable to VDX switches
     required: false
     position: 5
   acl_name:
     type: string
-    description: Single interface name/range of interface name physical interface/port-channel
+    description: ACL name
     required: true
     position: 6
   acl_direction:
     type: string
-    description: Direction of ACL to be applied on interface
+    description: ACL direction
     required: true
     position: 7
     enum:
@@ -63,7 +63,7 @@ parameters:
     default: in
   traffic_type:
     type: string
-    description: Traffic type for ACL being applied
+    description: Traffic type for the ACL being removed
     required: false
     position: 8
     enum:
