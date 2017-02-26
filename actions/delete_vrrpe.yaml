@@ -28,7 +28,7 @@ parameters:
     position: 3
   vlan_id:
     type: string
-    description: VLAN ID. Allowed range for SLX devices: <NUMBER:1-4090>, for VDX: <NUMBER:1-4090/8191> greater than 4090 only if VF is enabled
+    description: VLAN ID. Allowed range for SLX devices <NUMBER:1-4090>, for VDX <NUMBER:1-4090/8191> greater than 4090 only if VF is enabled
     required: true
     position: 4
   vrrpe_group:
