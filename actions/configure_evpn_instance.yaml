@@ -24,7 +24,7 @@ parameters:
     position: 2
   evi_name:
     type: string
-    description: vrf name.Example:- 'evpn1 or 32'
+    description: vrf name. For example 'evpn1 or 32'
     required: true
     position: 4
   rbridge_id:
