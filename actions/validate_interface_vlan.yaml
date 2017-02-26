@@ -24,7 +24,7 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: Single VLAN or range of VLANs, for example: 2 or 3-9
+    description: Single VLAN or range of VLANs, for example 2 or 3-9
     required: true
     position: 3
   intf_name:
