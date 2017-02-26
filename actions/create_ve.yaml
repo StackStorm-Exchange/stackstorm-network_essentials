@@ -38,7 +38,7 @@ parameters:
     position: 5
   vrf_name:
     type: string
-    description: VRF name. Example: vrf32 or 32 
+    description: VRF name. For example vrf32 or 32 
     position: 6
   ipv6_use_link_local_only:
     type: boolean
