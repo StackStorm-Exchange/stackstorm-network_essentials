@@ -24,7 +24,7 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: Single VLAN or range of VLANs. Example: 21 or 21-26
+    description: Single VLAN or range of VLANs. For example 21 or 21-26
     required: true
     position: 3
   intf_desc:
