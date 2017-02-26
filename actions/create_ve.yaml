@@ -34,7 +34,7 @@ parameters:
     position: 4
   ip_address:
     type: array 
-    description: Single or list of IPv4/IPv6 addresses to be configured on the VE. IPv4/subnet-length or IPv6/prefix-length, example: 10.0.0.10/22, 30.0.0.10/22.
+    description: Single or list of IPv4/IPv6 addresses to be configured on the VE. IPv4/subnet-length or IPv6/prefix-length, for example 10.0.0.10/22, 30.0.0.10/22.
     position: 5
   vrf_name:
     type: string
