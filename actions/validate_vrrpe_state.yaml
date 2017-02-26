@@ -2,33 +2,33 @@
 name: validate_vrrpe_state
 pack: network_essentials
 runner_type: run-python
-description: Validate the Admin State of the VRRP-E group for every RBridge on each Mgmt IP.
+description: Validate VRRPe state on multiple switches to ensure one VRRPe master is elected and other switches are in backup mode. 
 enabled: true
 entry_point: validate_vrrpe_state.py
 parameters:
   mgmt_ip:
     type: array 
-    description: Single or list of IPs of the devices separated by comma
+    description: Management IP address of the target device
     required: true
     position: 0
   username:
     type: array
-    description: Single or list of login username separated by comma
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: array
-    description: Single or list of login password separated by comma
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
   vlan_id:
     type: string
-    description: Vlan id number.'<NUMBER:1-4090/8191 when VFAB disabled/enabled>'
+    description: VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF is enabled.
     required: true
     position: 3
   vrrpe_group:
     type: string
-    description: virtual extender group id. '<Virtual router identifier, Range-1-255>'
+    description: Virtual extender group ID. <NUMBER:1-255>  
     required: true
     position: 4
