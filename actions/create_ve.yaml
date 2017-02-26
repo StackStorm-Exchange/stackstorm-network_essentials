@@ -24,7 +24,7 @@ parameters:
     position: 2
   rbridge_id:
     type: array
-    description: Single or list of RBridge IDs separated by comma, examples: 1 or 1,2, 4.  This parameter is only applicable for VDX switches.
+    description: Single or list of RBridge IDs separated by comma, for example, 1 or 1,2, 4.  This parameter is only applicable for VDX switches.
     required: false
     position: 3
   vlan_id:
