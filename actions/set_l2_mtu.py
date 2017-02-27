@@ -3,17 +3,17 @@ from ne_base import log_exceptions
 
 
 class set_l2_mtu(NosDeviceAction):
-    def run(self, mgmt_ip, username, password, intf_type, port_list,
+    def run(self, mgmt_ip, username, password, intf_type, intf_name,
             mtu_size):
         """Run helper methods to set L2 MTU on desired interface.
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        output = self.switch_operation(intf_type, mtu_size, port_list)
+        output = self.switch_operation(intf_type, mtu_size, intf_name)
         return output
 
     @log_exceptions
-    def switch_operation(self, intf_type, mtu_size, port_list):
+    def switch_operation(self, intf_type, mtu_size, intf_name):
         output = {}
         changes = []
         intf_type = intf_type.lower()
@@ -21,7 +21,7 @@ class set_l2_mtu(NosDeviceAction):
             self.logger.info('successfully connected to %s to set mtu',
                              self.host)
 
-            interface_list = self.extract_port_list(intf_type, port_list)
+            interface_list = self.extract_port_list(intf_type, intf_name)
 
             changes = self._set_l2_mtu(device, intf_type=intf_type,
                                        intf_name=interface_list,
