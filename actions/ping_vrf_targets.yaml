@@ -33,27 +33,22 @@ parameters:
     required: false
     default: 'default-vrf'
     position: 4
-  intf_type:
-    type: string
-    description: Interface type
-    required: false
-    position: 5 
   timeout_value:
     type: integer
     description: Timeout parameter for the ping command. Specifies the time (in seconds) to wait for a response.
     required: false
     default: 1
-    position: 6
+    position: 5
   count:
     type: integer
     description: Count parameter for the ping command. Specifies the number of transmissions (pings).
     required: false
     default: 4
-    position: 7
+    position: 6
   size:
     type: integer
     description: Datagram size
     required: false
     default: 56
-    position: 8
+    position: 7
 
