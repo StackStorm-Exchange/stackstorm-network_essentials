@@ -108,6 +108,8 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.error('Vlan %s not present on the Device' % (vlan_id))
             raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
+        return True
+
     def _check_requirements_L2_interface(self, device, intf_type, intf_name):
         """Fail the task if interface is an L3 interface .
         """
