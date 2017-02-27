@@ -29,7 +29,7 @@ parameters:
       - tengigabitethernet
       - fortygigabitethernet
       - hundredgigabitethernet
-      - port-channel
+      - port_channel
       - ethernet
     default: tengigabitethernet
     description: Interface type
@@ -48,8 +48,3 @@ parameters:
     description: Interface state (up or down)
     required: true
     position: 5
-  rbridge_id:
-    type: string
-    description: RBridge ID of the VDX switch.  This parameter is only applicable for VDX switches.
-    required: false
-    position: 6
