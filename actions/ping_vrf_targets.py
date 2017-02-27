@@ -26,7 +26,7 @@ class CheckPing(Action):
     """
     Implements the logic to check if ping is passing or failing for an ip or list of ips
     """
-    def create_ping_cmd(self, targets, vrf, count, timeout_value, size, intf_type=None):
+    def create_ping_cmd(self, targets, vrf, count, timeout_value, size):
         cli_cmd = []
         try:
             for numips in targets:
@@ -40,8 +40,7 @@ class CheckPing(Action):
                 elif valid_address.version == 6:
                     cli = "ping ipv6 {} vrf {} count {} datagram-size {} timeout {}".format(
                         numips, vrf, count, size, timeout_value)
-                if intf_type:
-                    cli = cli + (" interface {}".format(intf_type))
+
                 cli_cmd.append(cli)
             return cli_cmd
         except ValueError:
@@ -77,7 +76,7 @@ class CheckPing(Action):
                 net_connect.disconnect()
         return cli_output
 
-    def run(self, mgmt_ip, username, password, targets, count, timeout_value, vrf, size, intf_type):
+    def run(self, mgmt_ip, username, password, targets, count, timeout_value, vrf, size):
         ipv4_address = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
         ipv6_address = re.compile('(?:(?:[0-9A-Fa-f]{1,4}:){6}(?:[0-9A-Fa-f]{1,4}:'
                                   '[0-9A-Fa-f]{1,4}|(?:(?:[0-9]|[1-9][0-9]|1[0-9]'
@@ -114,7 +113,7 @@ class CheckPing(Action):
         config = self.config['create_ping_cmd_action']
         count = count if count else config['count']
         timeout_value = timeout_value if timeout_value else config['timeout_value']
-        cli_list = self.create_ping_cmd(targets, vrf, count, timeout_value, size, intf_type)
+        cli_list = self.create_ping_cmd(targets, vrf, count, timeout_value, size)
         opt = {'device_type': 'brocade_vdx'}
         opt['ip'] = mgmt_ip
         opt['username'] = username
