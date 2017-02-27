@@ -102,6 +102,16 @@ class CreatePortChannel(NosDeviceAction):
                              channel_type, mode_type, intf_desc):
         """ Configuring the port channel and channel-group,
             Admin state up on interface and port-channel."""
+        if intf_type == "ethernet":
+            po_speed = "10000"
+        if intf_type == "gigabitethernet":
+            po_speed = "1000"
+        if intf_type == "tengigabitethernet":
+            po_speed = "10000"
+        if intf_type == "fortygigabitethernet":
+            po_speed = "40000"
+        if intf_type == "hundredgigabitethernet":
+            po_speed = "100000"
 
         for intf in intf_name:
             try:
@@ -128,12 +138,42 @@ class CreatePortChannel(NosDeviceAction):
         if intf_desc:
             device.interface.description(int_type='port_channel', name=portchannel_num,
                                          desc=intf_desc)
+
+        speed = device.interface.port_channel_speed(name=portchannel_num, get=True)
+        if speed is not None:
+            if speed == po_speed:
+                self.logger.info('Speed %s is already configured under port-channel %s',
+                             speed, portchannel_num)
+                return False
+            else:
+                self.logger.info('Shut the port-channel before setting the speed')
+                device.interface.admin_state(enabled=False, name=portchannel_num,
+                                             int_type='port_channel')
+
+                device.interface.port_channel_speed(name=portchannel_num, delete=True)
+
+                if intf_type != "tengigabitethernet":
+                    self.logger.info('Configure port speed %s under port-channel %s',
+                                     po_speed, portchannel_num)
+                    device.interface.port_channel_speed(name=portchannel_num, po_speed=po_speed)
+        elif speed is None and (intf_type == "tengigabitethernet" or intf_type == "ethernet"):
+            self.logger.info('port-channel %s is already configured with default speed %s',
+                             portchannel_num, po_speed)
+        else:
+            self.logger.info('Shut the port-channel before setting the speed')
+            device.interface.admin_state(enabled=False, name=portchannel_num,
+                                         int_type='port_channel')
+
+            self.logger.info('Configure port speed %s under port-channel %s',
+                             po_speed, portchannel_num)
+            device.interface.port_channel_speed(name=portchannel_num, po_speed=po_speed)
+
         # no-shut on the port-channel
         conf_port_chan = device.interface.admin_state(get=True,
                                                       int_type='port_channel',
                                                       name=portchannel_num)
         conf_port = conf_port_chan
-        if conf_port:
+        if not conf_port:
             device.interface.admin_state(enabled=True, name=portchannel_num,
                                          int_type='port_channel')
             self.logger.info('Admin state setting on port-channel %s is successful',
@@ -177,8 +217,8 @@ class CreatePortChannel(NosDeviceAction):
                 conf = device.interface.fabric_neighbor(get=True, name=intf, int_type=intf_type)
                 if conf is None:
                     return False
-                self.logger.info("No fabric neighbor-discovery disable on %s %s", intf_type, intf)
-                device.interface.fabric_neighbor(enabled=False, name=intf, int_type=intf_type)
+                self.logger.info("fabric neighbor-discovery disable on %s %s", intf_type, intf)
+                device.interface.fabric_neighbor(enabled=True, name=intf, int_type=intf_type)
         except (KeyError, ValueError):
             self.logger.info('Invalid Input values while configuring fabric neighbor discovery')
 
