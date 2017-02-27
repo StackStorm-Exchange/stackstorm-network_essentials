@@ -1,7 +1,7 @@
 ---
 name: find_my_host_vcs
 pack: network_essentials
-description: Find the switch interface to which a virtual or physical host is connected using host IP or MAC address
+description: Find the switch port in a VCS fabric to which a virtual or physical host is connected using host IP
 enabled: true
 runner_type: mistral-v2
 entry_point: workflows/find_my_host_vcs.yaml
