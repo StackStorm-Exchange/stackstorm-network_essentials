@@ -45,8 +45,7 @@ class CreateSwitchPort(NosDeviceAction):
                 self.host)
 
             changes['Interface_Present'] = self._check_interface_presence(
-                device,intf_type,intf_name, vlan_id)
-
+                device, intf_type, intf_name, vlan_id)
 
             if intf_type != 'port_channel':
                 changes[
@@ -85,9 +84,10 @@ class CreateSwitchPort(NosDeviceAction):
                     self.host)
         return changes
 
-    def _check_interface_presence(self,device,intf_type, intf_name,vlan_id):
+    def _check_interface_presence(self, device, intf_type, intf_name,
+                                  vlan_id):
         if not self.validate_interface(intf_type, intf_name):
-            raise ValueError('Interface %s is not valid' %(intf_name))
+            raise ValueError('Interface %s is not valid' % (intf_name))
 
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
@@ -98,16 +98,15 @@ class CreateSwitchPort(NosDeviceAction):
                              % device.interface.valid_int_types)
 
         if not device.interface.interface_exists(int_type=intf_type,
-                                                name=intf_name):
+                                                 name=intf_name):
             self.logger.error('Interface %s %s not present on the Device'
-                              %(intf_type,intf_name))
+                              % (intf_type, intf_name))
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
 
         if not device.interface.get_vlan_int(vlan_id=vlan_id):
-            self.logger.error('Vlan %s not present on the Device' %(vlan_id))
-            raise ValueError('Vlan %s not present on the Device' %(vlan_id))
-
+            self.logger.error('Vlan %s not present on the Device' % (vlan_id))
+            raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
     def _check_requirements_L2_interface(self, device, intf_type, intf_name):
         """Fail the task if interface is an L3 interface .
