@@ -30,21 +30,30 @@ class DeleteVe(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id)
-        if not valid_vlan:
-            raise ValueError('Invalid vlan_id', vlan_id)
-
         with Device(conn=self.conn, auth=self.auth) as device:
-            if device.os_type == 'nos' and rbridge_id is None:
-                raise ValueError('rbridge_id cannot be None for VDX devices')
-
+            self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
             self.logger.info('successfully connected to %s to Delete Ve',
                              self.host)
-            changes['Ve'] = self._delete_ve(device, ve_name=vlan_id, rbridge_id=rbridge_id)
-
+            changes['pre_check'] = self._check_req(device, rbridge_id=rbridge_id,
+                                                   vlan_id=vlan_id)
+            if changes['pre_check']:
+                changes['Ve'] = self._delete_ve(device, ve_name=vlan_id, rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after'
                          ' Deleting Ve -- all done!', self.host)
         return changes
+
+    def _check_req(self, device, rbridge_id, vlan_id):
+
+        if device.os_type == 'nos':
+            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
+        else:
+            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=False)
+
+        if not valid_vlan:
+            raise ValueError('Invalid vlan_id', vlan_id)
+            return False
+
+        return True
 
     def _delete_ve(self, device, ve_name, rbridge_id):
         """ Deleting Ve"""

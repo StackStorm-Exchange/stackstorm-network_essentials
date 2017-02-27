@@ -31,30 +31,41 @@ class DeleteVrrpe(NosDeviceAction):
         changes = {}
 
         with Device(conn=self.conn, auth=self.auth) as device:
-            if device.os_type == 'nos' and rbridge_id is None:
-                raise ValueError('rbridge_id cannot be None for VDX devices')
-
+            self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
             self.logger.info('successfully connected to %s to Delete VRRPe group',
                              self.host)
-            changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id)
+            changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id, vrrpe_group)
             if changes['pre_check']:
                 changes['VRRPe_group'] = self._delete_vrrpe(device, ve_name=vlan_id,
                                                             rbridge_id=rbridge_id,
                                                             vrrpe_group=vrrpe_group,
                                                             ip_version=ip_version)
             else:
-                raise ValueError('VRRPe group doesnt exist on the switch', vlan_id)
+                raise ValueError('Ve doesnt exist on the switch', vlan_id)
             self.logger.info('closing connection to %s after'
                              ' Deleting VRRPe group -- all done!', self.host)
         return changes
 
-    def _validate_if_ve_exists(self, device, vlan_id):
+    def _validate_if_ve_exists(self, device, vlan_id, vrrpe_group):
         """validate vlan_id and ve
         """
 
-        valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
+        if vrrpe_group is None:
+            raise ValueError('VRRPe group cannot be None')
+        elif int(vrrpe_group) < 1 or int(vrrpe_group) > 255:
+            raise ValueError('VRRPe group has to be in range of 1-255', vrrpe_group)
+        if device.os_type == 'nos':
+            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
+        else:
+            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=False)
+
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
+
+        vlan_id_exists = device.interface.get_vlan_int(vlan_id)
+        if not vlan_id_exists:
+            raise ValueError('vlan_id doesnt exist', vlan_id)
+
         is_exists = False
         vlan_list = device.interface.ve_interfaces()
 
@@ -82,7 +93,9 @@ class DeleteVrrpe(NosDeviceAction):
                 tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, int_type='ve', name=user_ve,
                                                              version=ip_version, rbridge_id=rb,
                                                              vrid=user_vrrpe)
-                if user_vrrpe in tmp_vrrpe_name:
+                if tmp_vrrpe_name is None:
+                    is_vrrpe_present = True
+                elif user_vrrpe in tmp_vrrpe_name:
                     self.logger.info('Deleting VRRPe group %s on Ve %s from rbridge_id %s ',
                                      user_vrrpe, user_ve, rb)
                     device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
@@ -91,8 +104,10 @@ class DeleteVrrpe(NosDeviceAction):
         else:
             tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, name=user_ve, version=ip_version,
                                                          int_type='ve', vrid=user_vrrpe)
-            if user_vrrpe in tmp_vrrpe_name:
-                self.logger.info('Deleting VRRPe group %s on Ve %s ', user_vrrpe, rb)
+            if tmp_vrrpe_name is None:
+                is_vrrpe_present = True
+            elif user_vrrpe in tmp_vrrpe_name:
+                self.logger.info('Deleting VRRPe group on Ve %s ', user_vrrpe)
                 device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
                                             vrid=user_vrrpe, version=ip_version)
                 is_vrrpe_present = False
