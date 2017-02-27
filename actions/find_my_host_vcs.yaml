@@ -8,7 +8,7 @@ entry_point: workflows/find_my_host_vcs.yaml
 parameters:
     mgmt_ip:
         type: string
-        description: Management IP address of the target device
+        description: Virtual management IP address of the VCS fabric
         required: true
         position: 2
     username:
