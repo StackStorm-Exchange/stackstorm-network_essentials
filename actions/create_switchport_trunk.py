@@ -43,7 +43,7 @@ class CreateSwitchPort(NosDeviceAction):
                 'successfully connected to %s to create '
                 'switchport on Interface',
                 self.host)
-            if not self.validate_interface(intf_type,intf_name):
+            if not self.validate_interface(intf_type, intf_name):
                 raise ValueError('Interface is not valid')
 
             if intf_type not in device.interface.valid_int_types:
@@ -51,24 +51,24 @@ class CreateSwitchPort(NosDeviceAction):
                                   'Interface type must be one of %s'
                                   % device.interface.valid_int_types)
                 raise ValueError('Iterface type is not valid. '
-                                  'Interface type must be one of %s'
-                                  % device.interface.valid_int_types)
+                                 'Interface type must be one of %s'
+                                 % device.interface.valid_int_types)
 
             if intf_type != 'port_channel':
                 changes[
-                    'L2_interface_check'] =\
+                    'L2_interface_check'] = \
                     self._check_requirements_L2_interface(
-                    device,
-                    intf_type,
-                    intf_name)
+                        device,
+                        intf_type,
+                        intf_name)
             else:
                 changes['L2_interface_check'] = True
 
             if changes['L2_interface_check']:
                 changes[
-                    'switchport_doesnot_exists'] =\
+                    'switchport_doesnot_exists'] = \
                     self._check_requirements_switchport_exists(
-                    device, intf_type, intf_name, vlan_id)
+                        device, intf_type, intf_name, vlan_id)
                 if not changes['switchport_doesnot_exists']:
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
@@ -116,7 +116,7 @@ class CreateSwitchPort(NosDeviceAction):
 
         except ValueError as e:
             self.logger.exception('Interface type or name invalid.%s'
-                             % (e.message))
+                                  % (e.message))
             raise ValueError('Interface type or name invalid.')
         return False
 
@@ -149,14 +149,14 @@ class CreateSwitchPort(NosDeviceAction):
                         else:
                             self.logger.error("Access mode is "
                                               "configured on interface,"
-                                 "Pls remove and re-configure")
+                                              "Pls remove and re-configure")
                             raise ValueError(
                                 "Access mode is "
                                 "configured on interface,"
-                                 "Pls remove and re-configure")
+                                "Pls remove and re-configure")
         except ValueError as e:
             self.logger.error("Fetching Switch port enable failed %s"
-                             % (e.message))
+                              % (e.message))
             raise ValueError("Fetching Switch port enable failed")
         return True
 
@@ -181,7 +181,7 @@ class CreateSwitchPort(NosDeviceAction):
 
         except ValueError as e:
             self.logger.exception("Configuring Switch port trunk failed %s"
-                             % (e.message))
+                                  % (e.message))
             raise ValueError("Configuring Switch port trunk failed")
         return True
 
