@@ -86,8 +86,6 @@ class CreateSwitchPort(NosDeviceAction):
 
     def _check_interface_presence(self, device, intf_type, intf_name,
                                   vlan_id):
-        if not self.validate_interface(intf_type, intf_name):
-            raise ValueError('Interface %s is not valid' % (intf_name))
 
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
@@ -96,6 +94,9 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Iterface type is not valid. '
                              'Interface type must be one of %s'
                              % device.interface.valid_int_types)
+
+        if not self.validate_interface(intf_type, intf_name):
+            raise ValueError('Interface %s is not valid' % (intf_name))
 
         if not device.interface.interface_exists(int_type=intf_type,
                                                  name=intf_name):
