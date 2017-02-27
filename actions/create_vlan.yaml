@@ -1,0 +1,33 @@
+---
+name: create_vlan
+pack: network_essentials
+runner_type: run-python
+description: Create a VLANs and provide VLAN descriptions
+enabled: true
+entry_point: create_vlan.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  vlan_id:
+    type: string
+    description: Single VLAN or range of VLANs. For example 21 or 21-26
+    required: true
+    position: 3
+  intf_desc:
+    type: string
+    description: VLAN description.  Same description is used when creating multiple VLANs
+    position: 4

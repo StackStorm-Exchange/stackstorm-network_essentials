@@ -1,0 +1,29 @@
+---
+name: execute_cli
+pack: network_essentials
+runner_type: run-python
+description: Execute CLI command and return the result
+enabled: true
+entry_point: execute_cli.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Ip address of the VDX device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  cli_cmd:
+    type: array
+    description: CLI commands to execute on the specified VDX device
+    required: true
+    position: 3

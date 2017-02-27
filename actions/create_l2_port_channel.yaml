@@ -1,0 +1,67 @@
+---
+name: create_l2_port_channel 
+pack: network_essentials
+runner_type: run-python
+description: Create a port channel and map it to the interface and enable channel-group mode 
+enabled: true
+entry_point: create_l2_port_channel.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum: 
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - ethernet
+    default: tengigabitethernet
+    description: Interface type ethernet/gigabitethernet/tengigabitethernet/fortygigabitethernet/hundredgigabitethernet
+    required: true
+    position: 3
+  ports:
+    type: array
+    description: Single or list of ports that are members of the port channel. Examples for VDX, SLX are  24/0/1, 24/0/2 or 1/13, 1/14
+    required: true
+    position: 4
+  port_channel_id:
+    type: string
+    description: Port channel interface number.<NUMBER:1-6144> 
+    required: true
+    position: 5
+  mode:
+    type: string
+    description: Port channel type
+    enum:
+      - standard
+      - brocade
+    default: standard
+    position: 6
+  protocol:
+    type: string
+    description: port channel mode type
+    enum:
+      - active
+      - passive
+      - modeon
+    default: active
+    position: 7
+  intf_desc:
+    type: string
+    description: Port channel Interface description name
+    position: 8

@@ -1,0 +1,34 @@
+---
+name: validate_vrrpe_state
+pack: network_essentials
+runner_type: run-python
+description: Validate VRRPe state on multiple switches to ensure one VRRPe master is elected and other switches are in backup mode. 
+enabled: true
+entry_point: validate_vrrpe_state.py
+parameters:
+  mgmt_ip:
+    type: array 
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: array
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: array
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  vlan_id:
+    type: string
+    description: VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF is enabled.
+    required: true
+    position: 3
+  vrrpe_group:
+    type: string
+    description: Virtual extender group ID. <NUMBER:1-255>  
+    required: true
+    position: 4

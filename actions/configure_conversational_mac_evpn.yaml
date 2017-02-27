@@ -1,0 +1,24 @@
+---
+name: configure_conversational_mac_evpn
+pack: network_essentials
+runner_type: run-python
+description: configure conversational mac on VDX switches
+enabled: true
+entry_point: configure_conversational_mac_evpn.py
+parameters:
+  host:
+    type: string
+    description: Device to get the NOS version
+    required: true
+    position: 0
+  user:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  passwd:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
