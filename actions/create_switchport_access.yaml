@@ -24,12 +24,13 @@ parameters:
     position: 2
   intf_type:
     type: string
-    enum: 
+    enum:
+      - ethernet
       - tengigabitethernet
       - gigabitethernet
       - fortygigabitethernet
       - hundredgigabitethernet
-      - ethernet
+      - port_channel
     default: tengigabitethernet
     description: Interface type 
     required: true
