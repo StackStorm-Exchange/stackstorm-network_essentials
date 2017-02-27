@@ -29,6 +29,7 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+=======
 
 # Installer logs
 pip-log.txt
@@ -59,6 +60,10 @@ instance/
 
 # Scrapy stuff:
 .scrapy
+=======
+
+# pycharm structure
+.idea/
 
 # Sphinx documentation
 docs/_build/
@@ -87,3 +92,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+=======
+#Ipython Notebook
+.ipynb_checkpoints
+
+# Virtualenv
+virtualenv
+

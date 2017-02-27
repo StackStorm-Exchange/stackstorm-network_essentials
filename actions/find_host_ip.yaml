@@ -1,0 +1,29 @@
+---
+name: find_host_ip
+pack: network_essentials
+runner_type: run-python
+description: Find which switch port a host is connected to using host IP address
+enabled: true
+entry_point: find_host_ip.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  ip_address:
+    type: string
+    description: IPv4 or IPv6 address of the VM or physical host to be found
+    required: true
+    position: 3

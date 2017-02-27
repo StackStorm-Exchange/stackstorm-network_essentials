@@ -1,0 +1,81 @@
+---
+name: add_ipv6_rule_acl
+pack: network_essentials
+runner_type: run-python
+description: Add an L3 IPv6 ACL rule to an existing ACL
+enabled: true
+entry_point: add_ipv6_rule_acl.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: Name of the access list
+    required: true
+    position: 3
+  seq_id:
+    type: integer
+    description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+    required: false
+    position: 4
+  action:
+    type: string
+    description: Action performed by ACL rule
+    position: 5
+    enum:
+      - permit
+      - deny
+      - hard-drop
+    default: permit
+  protocol_type:
+    type: string
+    description: Type of IP packets to be filtered based on protocol. Valid values are 0 through 255 or key words tcp, udp, icmp or ip
+    required: false
+    position: 6
+  source:
+    type: string
+    description: Source address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    required: true
+    position: 7
+    default: any
+  destination:
+    type: string
+    description: Destination address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    required: false
+    position: 8
+  dscp:
+    type: string
+    description: Matches the specified value against the DSCP value of the packet to filter.  Can be either a numerical value or DSCP name
+    required: false
+    position: 9
+  vlan_id:
+    type: integer
+    description: VLAN interface to which the ACL is bound
+    required: false
+    position: 10
+  count:
+    type: string
+    description: Enables statistics for the rule
+    default: 'False'
+    required: false
+    position: 11
+  log:
+    type: string
+    description: Enables logging for the rule (Available for permit or deny only)
+    default: 'False'
+    required: false
+    position: 12

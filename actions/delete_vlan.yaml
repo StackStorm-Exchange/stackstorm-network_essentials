@@ -1,0 +1,29 @@
+---
+name: delete_vlan
+pack: network_essentials
+runner_type: run-python
+description: Delete one or more VLANs on a switch
+enabled: true
+entry_point: delete_vlan.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  vlan_id:
+    type: string
+    description: VLAN ID, can be single or range of VLANs. For example 5 or 5-9
+    required: true
+    position: 3

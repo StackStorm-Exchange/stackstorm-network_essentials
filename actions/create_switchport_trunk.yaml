@@ -1,0 +1,47 @@
+---
+name: create_switchport_trunk 
+pack: network_essentials
+runner_type: run-python
+description: Configure port channel or a physical interface as a or Trunk interface.
+enabled: true
+entry_point: create_switchport_trunk.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+    default: tengigabitethernet
+    description: Interface type 
+    required: true
+    position: 3
+  intf_name:
+    type: string
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) or Port-channel number <1-6144>. 
+    required: true
+    position: 4
+  vlan_id: 
+    type: string
+    description: VLAN ID to be configure on the interface 
+    required: true
+    position: 5

@@ -1,0 +1,55 @@
+version: '2.0'
+network_essentials.server_provision:
+    description: Configure vlan,enable the switch port mode and configure the port speed on switch
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - intf_desc
+        - intf_type
+        - intf_name
+        - enabled
+        - vlan_id
+        - switchport_mode
+    tasks:
+        set_intf_admin_state:
+            action: network_essentials.set_intf_admin_state
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                enabled: <% $.enabled %>
+            on-success:
+                - create_vlan
+        create_vlan:
+            action: network_essentials.create_vlan
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_desc: <% $.intf_desc %>
+                vlan_id: <% $.vlan_id %>
+            on-success:
+                - create_switchport_access : <% $.switchport_mode = 'access' %>
+                - create_switchport_trunk  : <% $.switchport_mode = 'trunk' %>
+        create_switchport_access:
+            action: network_essentials.create_switchport_access
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                vlan_id: <% $.vlan_id %>
+        create_switchport_trunk:
+            action: network_essentials.create_switchport_trunk
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                vlan_id: <% $.vlan_id %>
