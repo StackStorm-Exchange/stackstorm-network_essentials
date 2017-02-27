@@ -18,38 +18,37 @@ from ne_base import log_exceptions
 
 class ValidateInterfaceState(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type,
-            intf_name, intf_state, rbridge_id):
+            intf_name, intf_state):
         """Run helper methods to implement the desired state.
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = self.switch_operation(intf_name, intf_state, intf_type,
-                                        rbridge_id)
+        changes = self.switch_operation(intf_name, intf_state, intf_type)
+
         return changes
 
     @log_exceptions
-    def switch_operation(self, intf_name, intf_state, intf_type, rbridge_id):
+    def switch_operation(self, intf_name, intf_state, intf_type):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
                 'successfully connected to %s to validate interface state',
                 self.host)
 
-            if intf_type == "port-channel":
-                temp_type = "port_channel"
-            else:
-                temp_type = intf_type
+            valid_intf = self._check_interface_presence(device,
+                                                        intf_type=intf_type,
+                                                        intf_name=intf_name)
 
-            valid_intf = self.validate_interface(intf_type=temp_type,
-                                                 intf_name=intf_name,
-                                                 rbridge_id=rbridge_id)
-
+            temp_type = 'port-channel' if intf_type == 'port_channel' else\
+                intf_type
+            # switch expects the type as port-channel
             if valid_intf:
-                changes = self._validate_interface_state(device,
-                                                         intf_type=intf_type,
-                                                         intf_name=intf_name,
-                                                         intf_state=intf_state,
-                                                         rbridge_id=rbridge_id)
+                changes = self._validate_interface_state(
+                    device,
+                    intf_type=temp_type,
+                    intf_name=intf_name,
+                    intf_state=intf_state)
+
             else:
                 self.logger.error(
                     "'Input is not a valid interface type or name")
@@ -60,12 +59,36 @@ class ValidateInterfaceState(NosDeviceAction):
                              self.host)
         return changes
 
+    def _check_interface_presence(self, device, intf_type, intf_name):
+
+        if intf_type not in device.interface.valid_int_types:
+            self.logger.error('Iterface type is not valid. '
+                              'Interface type must be one of %s'
+                              % device.interface.valid_int_types)
+            raise ValueError('Iterface type is not valid. '
+                             'Interface type must be one of %s'
+                             % device.interface.valid_int_types)
+
+        if not self.validate_interface(intf_type, intf_name):
+            raise ValueError('Interface %s is not valid' % (intf_name))
+
+        if not device.interface.interface_exists(int_type=intf_type,
+                                                 name=intf_name):
+            self.logger.error('Interface %s %s not present on the Device'
+                              % (intf_type, intf_name))
+            raise ValueError('Interface %s %s not present on the Device'
+                             % (intf_type, intf_name))
+
+        return True
+
     def _validate_interface_state(
-            self, device, intf_type, intf_name, intf_state, rbridge_id):
+            self, device, intf_type, intf_name, intf_state):
         """validate interface state.
         """
 
-        interfaces = device.interface.interface_detail
+        interfaces = device.interface.single_interface_detail(
+            int_type=intf_type,
+            name=intf_name)
 
         proto_state = next((pc['interface-proto-state']
                             for pc in interfaces if pc[
@@ -81,7 +104,8 @@ class ValidateInterfaceState(NosDeviceAction):
                     ' state as %s' % proto_state)
             else:
                 self.logger.error(
-                    "Invalid port channel/physical interface state")
+                    "Invalid port channel/physical interface state %s"
+                    % proto_state)
                 changes['state'] = False
         else:
             self.logger.error(
