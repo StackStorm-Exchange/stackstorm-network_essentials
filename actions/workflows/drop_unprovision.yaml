@@ -1,0 +1,33 @@
+version: '2.0'
+network_essentials.drop_unprovision:
+    description: removes deny acl from interface thus allowing traffic too flow
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - intf_type
+        - intf_name
+        - acl_name
+    tasks:
+        remove_acl:
+            action: network_essentials.remove_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                acl_name: <% $.acl_name %>
+                acl_direction: "in"
+            on-success:
+                - delete_acl
+            on-error:
+                - delete_acl
+        delete_acl:
+            action: network_essentials.delete_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
