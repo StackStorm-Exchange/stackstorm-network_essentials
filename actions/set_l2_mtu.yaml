@@ -35,7 +35,7 @@ parameters:
     description: Interface type
     required: true
     position: 3
-  port_list:
+  intf_name:
     type: array
     description: Interface names, can be comma separated physical ports, port channel numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9
     required: true
