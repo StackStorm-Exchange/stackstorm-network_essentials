@@ -65,7 +65,7 @@ class CreateSwitchPort(NosDeviceAction):
                 if not changes['switchport_doesnot_exists']:
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
-                        'switchport_doesnot_exists']:
+                    'switchport_doesnot_exists']:
                     changes['disable_isl'] = self._disable_isl(device,
                                                                intf_type,
                                                                intf_name)
@@ -86,7 +86,6 @@ class CreateSwitchPort(NosDeviceAction):
 
     def _check_interface_presence(self, device, intf_type, intf_name,
                                   vlan_id):
-
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
                               'Interface type must be one of %s'
