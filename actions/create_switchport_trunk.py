@@ -65,7 +65,7 @@ class CreateSwitchPort(NosDeviceAction):
                 if not changes['switchport_doesnot_exists']:
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
-                    'switchport_doesnot_exists']:
+                        'switchport_doesnot_exists']:
                     changes['disable_isl'] = self._disable_isl(device,
                                                                intf_type,
                                                                intf_name)
