@@ -89,6 +89,8 @@ network_essentials.drop_provision:
                 vlan_id: '1'
             on-success:
                 - apply_acl
+            on-error:
+                - apply_acl
         apply_acl:
             action: network_essentials.apply_acl
             input:
