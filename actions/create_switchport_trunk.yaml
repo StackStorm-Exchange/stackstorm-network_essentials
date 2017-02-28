@@ -2,7 +2,7 @@
 name: create_switchport_trunk 
 pack: network_essentials
 runner_type: run-python
-description: Configure port channel or a physical interface as a or Trunk interface.
+description: Configure port channel or a physical interface as a Trunk interface.
 enabled: true
 entry_point: create_switchport_trunk.py 
 parameters:
