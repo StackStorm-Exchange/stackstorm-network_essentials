@@ -40,7 +40,6 @@ class CheckPing(Action):
                 elif valid_address.version == 6:
                     cli = "ping ipv6 {} vrf {} count {} datagram-size {} timeout {}".format(
                         numips, vrf, count, size, timeout_value)
-
                 cli_cmd.append(cli)
             return cli_cmd
         except ValueError:
@@ -110,10 +109,8 @@ class CheckPing(Action):
                                   '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(?:(?:'
                                   '[0-9A-Fa-f]{1,4}:){,5}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]'
                                   '{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){,6}[0-9A-Fa-f]{1,4})?::)')
-        config = self.config['create_ping_cmd_action']
-        count = count if count else config['count']
-        timeout_value = timeout_value if timeout_value else config['timeout_value']
         cli_list = self.create_ping_cmd(targets, vrf, count, timeout_value, size)
+
         opt = {'device_type': 'brocade_vdx'}
         opt['ip'] = mgmt_ip
         opt['username'] = username
