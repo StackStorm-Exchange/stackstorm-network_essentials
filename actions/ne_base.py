@@ -841,6 +841,7 @@ def log_exceptions(func):
                              % (host, verr.message))
             raise
         except requests.exceptions.ConnectionError as cerr:
+            # pylint: disable=no-member
             logger.exception("Connection failed while logging in to %s "
                              "due to %s"
                              % (host, cerr.message.reason))
