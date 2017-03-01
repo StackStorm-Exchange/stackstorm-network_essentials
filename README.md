@@ -1,16 +1,4 @@
 # Network Essentials pack
+Network Essentials includes key foundational actions and workflows to automate Brocade network devices. This release includes automation building blocks for common networking tasks such as Edge Ports configuration and validation, Access Control List management. These basic building blocks are used by other Brocade Automation Suites. Customers can also use these Actions to create their own custom workflows for their specific automation needs.
 
-This pack contains actions to do the following and will be enhanced with a lot more functionality
-
-1. Configure the VCS Management Virtual IP - To manage the devices in a VCS with a single IP 
-Address. action name - configure_mgmt_virtual_ip
- 
-2. Create a VE interface, Setup an IP address and possibly associate it to a VRF. action name - 
-create_ve
-
-3. Configure a VLAN and set its description. action name configure_vlan
-
-This is a repo to split the network essentials pack.
-
-We will eventually move this repo to exchange once we get the legal approval.
-
+Installation and Action reference documentation are available at Brocade online User Guide <https://bwc-docs.brocade.com/latest/solutions/essentials/index.html>
