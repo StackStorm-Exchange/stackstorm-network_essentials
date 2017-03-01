@@ -520,6 +520,8 @@ class NosDeviceAction(Action):
             get_output = get(acl_name, resource_depth=3)
             acl_dict = get_output[1][0][self.host][
                 'response']['json']['output'][acl_type]
+            if isinstance(acl_dict, list):
+                acl_dict = acl_dict[0]
             if 'seq' in acl_dict:
                 seq_list = acl_dict['seq']
                 seq_list = seq_list if isinstance(
