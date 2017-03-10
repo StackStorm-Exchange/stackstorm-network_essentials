@@ -37,7 +37,7 @@ class SetIntfAdminState(NosDeviceAction):
             interface_list = self.expand_interface_range(intf_type=intf_type, intf_name=intf_name,
                              rbridge_id=rbridge_id)
             valid_desc = True
-            if intf_desc and intf_type not in ['ve','loopback']:
+            if intf_desc and intf_type not in ['ve', 'loopback']:
                 # if description is passed we validate that the length is good.
                 valid_desc = self.check_int_description(intf_description=intf_desc)
 
@@ -50,7 +50,7 @@ class SetIntfAdminState(NosDeviceAction):
             else:
                 raise ValueError('Input is not a valid Interface / description')
             self.logger.info('closing connection to %s after configuring enable interface -- '
-                              'all done!', self.host)
+                             'all done!', self.host)
         return changes
 
     def _set_intf_admin_state(self, device, intf_type, intf_name, rbridge_id, enabled, intf_desc):
@@ -59,7 +59,7 @@ class SetIntfAdminState(NosDeviceAction):
         for intf in intf_name:
             is_intf_interface_present = False
             intf = str(intf)
-            if rbridge_id and intf_type in ['ve','loopback']:
+            if rbridge_id and intf_type in ['ve', 'loopback']:
                 # This verification will not work if ve and loopback is not already configured
                 conf = device.interface.admin_state(get=True, name=intf, int_type=intf_type,
                                                     rbridge_id=rbridge_id)
@@ -67,7 +67,7 @@ class SetIntfAdminState(NosDeviceAction):
                 # This verification will not work if port-channel is not already configured or
                 # interface is already enabled
                 conf = device.interface.admin_state(get=True, name=intf, int_type=intf_type)
-            if conf and enabled: 
+            if conf and enabled:
                 self.logger.info('Interface %s %s is already enabled', intf_type, intf)
                 is_intf_interface_present = True
             elif not conf and not enabled:
@@ -77,13 +77,13 @@ class SetIntfAdminState(NosDeviceAction):
             if not is_intf_interface_present:
                 self.logger.info('Setting admin state on intf-type-%s intf-name-%s',
                                  intf_type, intf)
-                if rbridge_id and intf_type in ['ve','loopback']:
+                if rbridge_id and intf_type in ['ve', 'loopback']:
                     device.interface.admin_state(enabled=enabled, name=intf, int_type=intf_type,
                                                  rbridge_id=rbridge_id)
                 else:
                     device.interface.admin_state(enabled=enabled, name=intf, int_type=intf_type)
 
-            if intf_type not in ['ve','loopback']:
+            if intf_type not in ['ve', 'loopback']:
                 if intf_desc:
                     device.interface.description(int_type=intf_type, name=intf,
                                                  desc=intf_desc)
