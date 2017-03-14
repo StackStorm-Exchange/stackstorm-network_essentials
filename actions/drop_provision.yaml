@@ -98,3 +98,13 @@ parameters:
         description: interface name as string (182/0/97)
         required: true
         position: 15
+    acl_exists:
+        type: boolean
+        description: Indicates is the acl already exists.
+        default: False
+        position: 16
+    seq_id:
+        type: integer
+        description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+        required: false
+        position: 17

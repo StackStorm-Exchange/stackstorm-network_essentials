@@ -1,6 +1,6 @@
 version: '2.0'
 network_essentials.drop_provision:
-    description: This workflow accomplishes the task of stopping traffic on a specified interface by first creating and then applying a deny ACL with specific network attributes on that interface.
+    description: This workflow accomplishes the task of blocking traffic on a specified interface by applying a deny ACL on that interface. This is accomplished by first adding a deny rule to the ACL and reapplying the ACL on that interface. If the input parameter acl_exists is false, then the ACL is first created and then all else proceeds as before.
     type: direct
     input:
         - mgmt_ip
@@ -19,7 +19,18 @@ network_essentials.drop_provision:
         - ethertype
         - address_type
         - intf
+        - acl_exists
+        - seq_id
     tasks:
+        start:
+            action: core.local
+            input:
+                cmd: "echo 'drop_provision START'"
+            on-success:
+                - create_acl: <% $.acl_exists = false %>
+                - add_or_remove_l2_acl_rule: <% $.acl_exists = true and $.address_type = 'mac' %>
+                - add_ipv4_rule_acl: <% $.acl_exists = true and $.address_type = 'ip' %>
+                - add_ipv6_rule_acl: <% $.acl_exists = true and $.address_type = 'ipv6' %>
         create_acl:
             action: network_essentials.create_acl
             input:
@@ -40,6 +51,7 @@ network_essentials.drop_provision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
                 source: <% $.source %>
                 src_mac_addr_mask: <% $.src_mac_addr_mask %>
                 dst: <% $.destination %>
@@ -47,7 +59,8 @@ network_essentials.drop_provision:
                 ethertype: <% $.ethertype %>
                 vlan: <% $.vlan_id %>
             on-success:
-                - create_switchport_access
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
         add_ipv4_rule_acl:
             action: network_essentials.add_ipv4_rule_acl
             input:
@@ -55,6 +68,7 @@ network_essentials.drop_provision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
                 action: "deny"
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
@@ -62,7 +76,8 @@ network_essentials.drop_provision:
                 dscp: <% $.dscp %>
                 vlan_id: <% $.vlan_id %>
             on-success:
-                - create_switchport_access
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
         add_ipv6_rule_acl:
             action: network_essentials.add_ipv6_rule_acl
             input:
@@ -70,6 +85,7 @@ network_essentials.drop_provision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
                 action: "deny"
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
@@ -77,7 +93,8 @@ network_essentials.drop_provision:
                 dscp: <% $.dscp %>
                 vlan_id: <% $.vlan_id %>
             on-success:
-                - create_switchport_access
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
         create_switchport_access:
             action: network_essentials.create_switchport_access
             input:
@@ -100,3 +117,11 @@ network_essentials.drop_provision:
                 acl_name: <% $.acl_name %>
                 intf_name: <% $.intf_name %>
                 intf_type: <% $.intf_type %>
+            on-success:
+                - end
+            on-error:
+                - end
+        end:
+            action: core.local
+            input:
+                cmd: "echo 'drop_provision END'"
