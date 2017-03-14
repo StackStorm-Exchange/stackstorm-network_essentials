@@ -84,8 +84,6 @@ class CreateVrrpe(NosDeviceAction):
                         ve_name=ve_name,
                         vrid=vrid,
                         ip_version=ip_version)
-            else:
-                raise ValueError('Pre Validation Failed')
 
             self.logger.info(
                 'closing connection to %s after Enabling VRRPE - all done!',
