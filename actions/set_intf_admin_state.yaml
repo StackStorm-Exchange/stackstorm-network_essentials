@@ -25,6 +25,7 @@ parameters:
   intf_type:
     type: string
     enum:
+      - ethernet 
       - gigabitethernet
       - tengigabitethernet
       - fortygigabitethernet
