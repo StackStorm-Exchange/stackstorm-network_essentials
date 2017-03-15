@@ -1,0 +1,84 @@
+version: '2.0'
+network_essentials.drop_unprovision:
+    description: This workflow accomplishes the task of allowing traffic back on a specified interface by removing the deny ACL currently active on that interface. This is done by first removing the rule from ACL and reapplying the ACL on the interface. In the case where input parameter delete_acl is true (the rule happens to be the last one in the ACL), then the ACL is first removed from the interface after which it is deleted.
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - acl_name
+        - intf_type
+        - intf_name
+        - address_type
+        - delete_acl
+        - seq_id
+    tasks:
+        start:
+            action: core.local
+            input:
+                cmd: "echo 'drop_unprovision START'"
+            on-success:
+                - remove_acl: <% $.delete_acl = true %>
+                - add_or_remove_l2_acl_rule: <% $.delete_acl = false and $.address_type = 'mac' %>
+                - delete_ipv4_rule_acl: <% $.delete_acl = false and $.address_type = 'ip' %>
+        add_or_remove_l2_acl_rule:
+            action: network_essentials.add_or_remove_l2_acl_rule
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                delete: true
+            on-success:
+                - apply_acl
+        delete_ipv4_rule_acl:
+            action: network_essentials.delete_ipv4_rule_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+            on-success:
+                - apply_acl
+        apply_acl:
+            action: network_essentials.apply_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                intf_name: <% $.intf_name %>
+                intf_type: <% $.intf_type %>
+            on-success:
+                - end
+        remove_acl:
+            action: network_essentials.remove_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                acl_name: <% $.acl_name %>
+                acl_direction: "in"
+            on-success:
+                - delete_acl
+            on-error:
+                - delete_acl
+        delete_acl:
+            action: network_essentials.delete_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+            on-success:
+                - end
+            on-error:
+                - end
+        end:
+            action: core.local
+            input:
+                cmd: "echo 'drop_unprovision END'"
