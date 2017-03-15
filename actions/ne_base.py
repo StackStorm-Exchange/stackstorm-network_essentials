@@ -40,7 +40,7 @@ class NosDeviceAction(Action):
         self.conn = None
         self.auth = None
         self.asset = pyswitchlib.asset.Asset
-        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
