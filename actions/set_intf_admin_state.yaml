@@ -25,7 +25,7 @@ parameters:
   intf_type:
     type: string
     enum:
-      - ethernet 
+      - ethernet
       - gigabitethernet
       - tengigabitethernet
       - fortygigabitethernet
@@ -39,7 +39,7 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface names, can be comma separated physical ports, port channel numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9
+    description: Interface names, port channel numbers or VEs. Examples are 224/0/1, 224/0/2, 52/0/15-16 or 7, 8, 9
     required: true
     position: 4
   rbridge_id:
