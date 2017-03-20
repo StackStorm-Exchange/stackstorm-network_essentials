@@ -84,8 +84,6 @@ class CreateVrrpe(NosDeviceAction):
                         ve_name=ve_name,
                         vrid=vrid,
                         ip_version=ip_version)
-            else:
-                raise ValueError('Pre Validation Failed')
 
             self.logger.info(
                 'closing connection to %s after Enabling VRRPE - all done!',
@@ -121,7 +119,7 @@ class CreateVrrpe(NosDeviceAction):
                              version_to_validate)
 
         # Verify if the VRRPE configs pre-exist
-        vlan_list = device.interface.ve_interfaces()
+        vlan_list = device.interface.ve_interfaces(rbridge_id=rbridge_id)
 
         ve_present = False
         for each_ve in vlan_list:

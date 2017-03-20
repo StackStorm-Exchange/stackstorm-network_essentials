@@ -40,7 +40,7 @@ class NosDeviceAction(Action):
         self.conn = None
         self.auth = None
         self.asset = pyswitchlib.asset.Asset
-        self.RestInterfaceError = pyswitchlib.asset.RestInterfaceError
+        self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
@@ -170,19 +170,13 @@ class NosDeviceAction(Action):
         int_list = intf_name
         re_pattern1 = r"^(\d+)$"
         re_pattern2 = r"^(\d+)\-?(\d+)$"
-        re_pattern3 = r"^(\d+)\/(\d+)\/(\d+)$"
-        re_pattern4 = r"^(\d+)\/(\d+)\/(\d+)\-?(\d+)$"
+        re_pattern3 = r"^(\d+)\/(\d+)\/(\d+)$|^\d+/\d+$"
+        re_pattern4 = r"^(\d+)\/(\d+)\/(\d+)\-?(\d+)$|^(\d+)/(\d+)-(\d+)$"
         re_pattern5 = r"^(\d+)\/(\d+)\/(\d+)(:(\d+))?$"
 
         intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet", "fortygigabitethernet",
-                    "hundredgigabitethernet"]
-        if rbridge_id is None and 'loopback' in intf_type:
-            msg = 'Must specify `rbridge_id` when specifying a `loopback`'
-        elif rbridge_id is None and 've' in intf_type:
-            msg = 'Must specify `rbridge_id` when specifying a `ve`'
-        elif rbridge_id is not None and intf_type in intTypes:
-            msg = 'Should not specify `rbridge_id` when specifying a ' + intf_type
-        elif re.search(re_pattern1, int_list):
+                    "hundredgigabitethernet", "ve"]
+        if re.search(re_pattern1, int_list):
             int_list = ((int_list),)
         elif re.search(re_pattern2, int_list):
             try:
@@ -201,15 +195,21 @@ class NosDeviceAction(Action):
                 temp_list = re.match(re_pattern4, int_list)
             except Exception:
                 return None
-
-            if int(temp_list.groups()[0]) == int(temp_list.groups()[1]):
-                self.logger.info("Use range command only for unique values")
-            intList = range(int(temp_list.groups()[2]), int(
-                temp_list.groups()[3]) + 1)
             int_list = []
-            for intf in intList:
-                int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                                str(intf))
+            try:
+                if int(temp_list.groups()[0]) == int(temp_list.groups()[1]):
+                    self.logger.info("Use range command only for unique values")
+                intList = range(int(temp_list.groups()[2]), int(
+                    temp_list.groups()[3]) + 1)
+                for intf in intList:
+                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
+                                    str(intf))
+            except:
+                intList = range(int(temp_list.groups()[5]), int(
+                    temp_list.groups()[6]) + 1)
+                for intf in intList:
+                    int_list.append(temp_list.groups()[4] + '/' + str(intf))
+
             int_list = int_list
         elif re.search(re_pattern5, int_list):
             int_list = ((int_list),)
@@ -223,7 +223,7 @@ class NosDeviceAction(Action):
         for intf in int_list:
             intTypes = ["ve", "loopback"]
             if intf_type not in intTypes:
-                tmp_vlan_id = pynos.utilities.valid_interface(
+                tmp_vlan_id = pyswitch.utilities.valid_interface(
                     intf_type, name=str(intf))
 
                 if not tmp_vlan_id:

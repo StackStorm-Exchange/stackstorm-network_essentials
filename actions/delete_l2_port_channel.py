@@ -49,7 +49,7 @@ class DeletePortChannel(NosDeviceAction):
             for po in poChannel:
                 poNo = po['aggregator_id']
                 if poNo == str(portchannel_num):
-                    self.logger.info('Deleting port cahnnel %s ', portchannel_num)
+                    self.logger.info('Deleting port channel %s ', portchannel_num)
                     device.interface.remove_port_channel(port_int=str(portchannel_num))
                     is_po_present = False
         except Exception:

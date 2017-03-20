@@ -1,0 +1,127 @@
+version: '2.0'
+network_essentials.drop_provision:
+    description: This workflow accomplishes the task of blocking traffic on a specified interface by applying a deny ACL on that interface. This is accomplished by first adding a deny rule to the ACL and reapplying the ACL on that interface. If the input parameter acl_exists is false, then the ACL is first created and then all else proceeds as before.
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - acl_name
+        - intf_type
+        - intf_name
+        - protocol_type
+        - source
+        - src_mac_addr_mask
+        - destination
+        - dst_mac_addr_mask
+        - dscp
+        - vlan_id
+        - ethertype
+        - address_type
+        - intf
+        - acl_exists
+        - seq_id
+    tasks:
+        start:
+            action: core.local
+            input:
+                cmd: "echo 'drop_provision START'"
+            on-success:
+                - create_acl: <% $.acl_exists = false %>
+                - add_or_remove_l2_acl_rule: <% $.acl_exists = true and $.address_type = 'mac' %>
+                - add_ipv4_rule_acl: <% $.acl_exists = true and $.address_type = 'ip' %>
+                - add_ipv6_rule_acl: <% $.acl_exists = true and $.address_type = 'ipv6' %>
+        create_acl:
+            action: network_essentials.create_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_type: 'extended'
+                acl_name: <% $.acl_name %>
+                address_type: <% $.address_type %>
+            on-success:
+                - add_or_remove_l2_acl_rule: <% $.address_type = 'mac' %>
+                - add_ipv4_rule_acl: <% $.address_type = 'ip' %>
+                - add_ipv6_rule_acl: <% $.address_type = 'ipv6' %>
+        add_or_remove_l2_acl_rule:
+            action: network_essentials.add_or_remove_l2_acl_rule
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                source: <% $.source %>
+                src_mac_addr_mask: <% $.src_mac_addr_mask %>
+                dst: <% $.destination %>
+                dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
+                ethertype: <% $.ethertype %>
+                vlan: <% $.vlan_id %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_ipv4_rule_acl:
+            action: network_essentials.add_ipv4_rule_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                action: "deny"
+                protocol_type: <% $.protocol_type %>
+                source: <% $.source %>
+                destination: <% $.destination %>
+                dscp: <% $.dscp %>
+                vlan_id: <% $.vlan_id %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_ipv6_rule_acl:
+            action: network_essentials.add_ipv6_rule_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                action: "deny"
+                protocol_type: <% $.protocol_type %>
+                source: <% $.source %>
+                destination: <% $.destination %>
+                dscp: <% $.dscp %>
+                vlan_id: <% $.vlan_id %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        create_switchport_access:
+            action: network_essentials.create_switchport_access
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_name: <% $.intf %>
+                intf_type: <% $.intf_type %>
+                vlan_id: '1'
+            on-success:
+                - apply_acl
+            on-error:
+                - apply_acl
+        apply_acl:
+            action: network_essentials.apply_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                intf_name: <% $.intf_name %>
+                intf_type: <% $.intf_type %>
+            on-success:
+                - end
+            on-error:
+                - end
+        end:
+            action: core.local
+            input:
+                cmd: "echo 'drop_provision END'"
