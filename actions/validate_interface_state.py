@@ -11,33 +11,42 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import sys
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
 
 class ValidateInterfaceState(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type,
-            intf_name, intf_state):
+            intf_name, intf_state, rbridge_id):
         """Run helper methods to implement the desired state.
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = self.switch_operation(intf_name, intf_state, intf_type)
+        changes = self.switch_operation(intf_name, intf_state, intf_type, rbridge_id)
 
         return changes
 
     @log_exceptions
-    def switch_operation(self, intf_name, intf_state, intf_type):
+    def switch_operation(self, intf_name, intf_state, intf_type, rbridge_id):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
                 'successfully connected to %s to validate interface state',
                 self.host)
 
-            valid_intf = self._check_interface_presence(device,
-                                                        intf_type=intf_type,
-                                                        intf_name=intf_name)
+            valid_rbridge_int_types = ['ve', 'loopback']
+            if device.os_type == 'nos':
+                if intf_type in valid_rbridge_int_types and rbridge_id is None:
+                    raise ValueError('rbridge-id should not be empty. '
+                                     'Specify a valid value.')
+
+            if intf_type in valid_rbridge_int_types:
+                valid_intf = True
+            else:
+                valid_intf = self._check_interface_presence(device,
+                                                            intf_type=intf_type,
+                                                            intf_name=intf_name)
 
             temp_type = 'port-channel' if intf_type == 'port_channel' else\
                 intf_type
@@ -47,7 +56,8 @@ class ValidateInterfaceState(NosDeviceAction):
                     device,
                     intf_type=temp_type,
                     intf_name=intf_name,
-                    intf_state=intf_state)
+                    intf_state=intf_state,
+                    rbridge_id=rbridge_id)
 
             else:
                 self.logger.error(
@@ -82,34 +92,111 @@ class ValidateInterfaceState(NosDeviceAction):
         return True
 
     def _validate_interface_state(
-            self, device, intf_type, intf_name, intf_state):
+            self, device, intf_type, intf_name, intf_state, rbridge_id):
         """validate interface state.
         """
 
-        interfaces = device.interface.single_interface_detail(
-            int_type=intf_type,
-            name=intf_name)
-
-        proto_state = next((pc['interface-proto-state']
-                            for pc in interfaces if pc[
-                                'interface-name'] == intf_name and
-                            pc['interface-type'] == intf_type), None)
         changes = {}
-        if proto_state:
-            changes['intf'] = True
-            if proto_state == intf_state:
-                changes['state'] = proto_state
-                self.logger.info(
-                    'Successfully Validated port channel/physical interface'
-                    ' state as %s' % proto_state)
+        retVal = True
+        valid_rbridge_int_types = ['ve', 'loopback']
+        if intf_type in valid_rbridge_int_types:
+            if device.os_type == 'nos':
+                for rb in rbridge_id:
+                    is_intf_present = False
+                    is_intf_state_present = False
+                    interfaces = device.interface.ve_interfaces(rbridge_id=rb)
+                    for intf in interfaces:
+                        intfname = intf['if-name'].lower()
+                        iftype = str(intf_type).lower()
+                        ifname = iftype + " " + intf_name
+                        if ifname == intfname:
+                            changes['intf'] = True
+                            is_intf_present = True
+                            proto_state = intf['interface-proto-state']
+                            if proto_state == intf_state:
+                                changes['state'] = proto_state
+                                self.logger.info(
+                                    'Successfully Validated Ve/Loopback interface'
+                                    ' state as %s in rbridge-id %s' % (proto_state, rb))
+                                is_intf_state_present = True
+                                break
+                            else:
+                                changes['state'] = False
+                        else:
+                            changes['intf'] = False
+
+                    if not is_intf_present:
+                        self.logger.error(
+                            "Invalid port channel/physical interface name/type in rbridge-id %s"
+                            % rb)
+                        retVal = False
+                    else:
+                        if not is_intf_state_present:
+                            self.logger.error(
+                                "Invalid port channel/physical interface state %s in rbridge-id %s"
+                                % (proto_state, rb))
+                            retVal = False
+                if not retVal:
+                    sys.exit(-1)
+            else:
+                is_intf_present = False
+                is_intf_state_present = False
+                interfaces = device.interface.ve_interfaces()
+                for intf in interfaces:
+                    intfname = intf['if-name'].lower()
+                    iftype = str(intf_type).lower()
+                    ifname = iftype + " " + intf_name
+                    if ifname == intfname:
+                        changes['intf'] = True
+                        is_intf_present = True
+                        proto_state = intf['interface-proto-state']
+                        if proto_state == intf_state:
+                            changes['state'] = proto_state
+                            self.logger.info(
+                                'Successfully Validated Ve/Loopback interface'
+                                ' state as %s' % proto_state)
+                            is_intf_state_present = True
+                            break
+                        else:
+                            changes['state'] = False
+                    else:
+                        changes['intf'] = False
+
+                if not is_intf_present:
+                    self.logger.error(
+                        "Invalid port channel/physical interface name/type")
+                    sys.exit(-1)
+                else:
+                    if not is_intf_state_present:
+                        self.logger.error(
+                            "Invalid port channel/physical interface state %s"
+                            % proto_state)
+                        sys.exit(-1)
+        else:
+            interfaces = device.interface.single_interface_detail(
+                int_type=intf_type,
+                name=intf_name)
+
+            proto_state = next((pc['interface-proto-state']
+                                for pc in interfaces if pc[
+                                    'interface-name'] == intf_name and
+                                pc['interface-type'] == intf_type), None)
+            changes = {}
+            if proto_state:
+                changes['intf'] = True
+                if proto_state == intf_state:
+                    changes['state'] = proto_state
+                    self.logger.info(
+                        'Successfully Validated port channel/physical interface'
+                        ' state as %s' % proto_state)
+                else:
+                    self.logger.error(
+                        "Invalid port channel/physical interface state %s"
+                        % proto_state)
+                    changes['state'] = False
             else:
                 self.logger.error(
-                    "Invalid port channel/physical interface state %s"
-                    % proto_state)
-                changes['state'] = False
-        else:
-            self.logger.error(
-                "Invalid port channel/physical interface name/type")
-            changes['intf'] = False
+                    "Invalid port channel/physical interface name/type")
+                changes['intf'] = False
 
         return changes
