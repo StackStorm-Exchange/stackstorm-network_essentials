@@ -182,7 +182,7 @@ class CreateVe(NosDeviceAction):
     def _check_requirements_ve(self, device, ve_name, rbridge_id):
         """ Verify if the VE is pre-existing """
 
-        ves = device.interface.ve_interfaces()
+        ves = device.interface.ve_interfaces(rbridge_id=rbridge_id)
         for each_ve in ves:
             tmp_ve_name = 'Ve ' + ve_name
             if each_ve['if-name'] == tmp_ve_name:
@@ -196,13 +196,6 @@ class CreateVe(NosDeviceAction):
                                rbridge_id, vrf_name):
         """ Verify if the ip address is already associated to the VE """
 
-        '''
-        try:
-            ip_tmp = ip_interface(unicode(ip_address))
-            ip_address = ip_tmp.with_prefixlen
-        except ValueError:
-            self.logger.info('Invalid IP address %s', ip_address)
-        '''
         if len(unicode(ip_address).split("/")) != 2:
             raise ValueError('Pass IP address along with netmask.'
                              '(ip-address/netmask)', ip_address)
@@ -375,7 +368,7 @@ class CreateVe(NosDeviceAction):
                                          vrf_name=vrf_name)
         except (ValueError, KeyError):
             self.logger.info('Invalid Input values while configuring VRF %s on'
-                             'Ve %s on rbridge-id %s', vrf_name, ve_name,
+                             ' Ve %s on rbridge-id %s', vrf_name, ve_name,
                              rbridge_id)
 
     def _admin_state(self, device, ve_name, rbridge_id):
