@@ -31,6 +31,8 @@ class CreateSwitchPort(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create switchport on Interface',
                              self.host)
+            changes['vlan_exist'] = self._vlan_exist(device, vlan_id)
+
             if intf_type != 'port_channel':
                 changes[
                     'L2_interface_check'] = \
@@ -111,7 +113,11 @@ class CreateSwitchPort(NosDeviceAction):
                         if intf['mode'] == 'access':
                             if intf['vlan-id'] is not None:
                                 for vid in intf['vlan-id']:
-                                    if int(vid) == vlan_id:
+                                    if vid == vlan_id:
+                                        return False
+                                    elif vid != 1:
+                                        self.logger.info('Switchport access is pre-existing on '
+                                                         'with a different vlan_id %s', vid)
                                         return False
                             else:
                                 return True
@@ -122,17 +128,19 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Fetching switch port mode failed %s', str(e))
         return True
 
-    def _check_list(self, input_list, switch_list):
-        """ Check if the input list is in switch list """
-        return_list = []
-        for vid in input_list:
-            if str(vid) in switch_list:
-                return_list.append(vid)
-        return return_list
+    def _vlan_exist(self, device, vlan_id):
+        """ Verify if Vlan exists on the device """
+
+        vl_list = (list(self.expand_vlan_range(vlan_id)))
+        for vlan_id in vl_list:
+            if not device.interface.get_vlan_int(vlan_id=vlan_id):
+                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
+                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
     def _create_switchport(self, device, intf_type, intf_name, vlan_id):
         """Configuring Switch port access vlan on the interface with vlan"""
         try:
+            self.logger.info('Configuring Switch port access on intf_name %s', intf_name)
             device.interface.switchport(int_type=intf_type, name=intf_name)
             device.interface.acc_vlan(int_type=intf_type, name=intf_name, vlan=vlan_id)
             return True
