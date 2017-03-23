@@ -104,9 +104,11 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
 
-        if not device.interface.get_vlan_int(vlan_id=vlan_id):
-            self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-            raise ValueError('Vlan %s not present on the Device' % (vlan_id))
+        vl_list = (list(self.expand_vlan_range(vlan_id)))
+        for vlan_id in vl_list:
+            if not device.interface.get_vlan_int(vlan_id=vlan_id):
+                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
+                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
         return True
 
