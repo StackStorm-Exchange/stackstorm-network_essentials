@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pyswitch.utilities
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -122,9 +123,10 @@ class CreatePortChannel(NosDeviceAction):
                                  ' and protocol as active on interface %s is done',
                                  portchannel_num, channel_type, intf)
             except (ValueError, KeyError):
-                self.logger.info('Port Channel %s Creation and setting channel mode %s failed',
+                self.logger.error('Port Channel %s Creation and setting channel mode %s failed',
                                  portchannel_num,
                                  channel_type)
+                sys.exit(-1)
 
             # no-shut on the interface
             conf_interface = device.interface.admin_state(get=True, int_type=intf_type, name=intf)
