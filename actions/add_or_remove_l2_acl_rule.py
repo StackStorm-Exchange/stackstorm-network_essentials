@@ -79,7 +79,7 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
             if acl_type == 'extended' and not any([dst, dsthost, dst_mac_addr_mask]):
                 self.logger.error('Destination required in extended access list')
                 sys.exit(-1)
-            elif acl_type == 'standard' and any([dst, dsthost, dst_mac_addr_mask]):
+            elif acl_type == 'standard' and any([dsthost, dst_mac_addr_mask]):
                 self.logger.error('Destination cannot be given for standard access list')
                 sys.exit(-1)
 
