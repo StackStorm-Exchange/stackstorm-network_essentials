@@ -38,6 +38,10 @@ class CreatePortChannel(NosDeviceAction):
 
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
+            if device.os_type == 'slxos':
+                if mode != "standard":
+                    self.logger.info('SLXOS only supports port-channel type as standard')
+                    sys.exit(-1)
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
                                                                  port_channel_id,
                                                                  intf_desc)
