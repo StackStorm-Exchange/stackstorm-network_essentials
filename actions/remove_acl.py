@@ -24,11 +24,19 @@ class Remove_Acl(NosDeviceAction):
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
         msg = None
+        with self.pmgr(conn=self.conn, auth=self.auth) as device1:
+            os = device1.os_type
         for intf in interface_list:
-            if not self.validate_interface(intf_type, str(intf), rbridge_id):
-                msg = "Input is not a valid Interface"
-                self.logger.error(msg)
-                raise ValueError(msg)
+            if os == 'nos':
+                if not self.validate_interface(intf_type, str(intf), rbridge_id):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
+            else:
+                if not self.validate_interface(intf_type, str(intf), os_type=os):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
         if msg is None:
             changes = self._remove_acl(device, intf_type=intf_type,
                                        intf_name=interface_list,
