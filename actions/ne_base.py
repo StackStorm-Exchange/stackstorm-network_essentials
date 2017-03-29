@@ -121,6 +121,7 @@ class NosDeviceAction(Action):
 
         re_pattern1 = r"^(\d+)$"
         re_pattern2 = r"^(\d+)\-?(\d+)$"
+        re_pattern3 = r"^(\d+)\,?(\d+)$"
 
         if re.search(re_pattern1, vlan_id):
             try:
@@ -139,7 +140,8 @@ class NosDeviceAction(Action):
                 self.logger.warning("Use range command only for diff vlans")
             vlan_id = range(int(vlan_id.groups()[0]), int(
                 vlan_id.groups()[1]) + 1)
-
+        elif re.search(re_pattern3, vlan_id):
+            vlan_id = vlan_id.split(",")
         else:
             self.logger.info("Invalid vlan format")
             return None
@@ -153,7 +155,6 @@ class NosDeviceAction(Action):
             tmp_vlan_id = pynos.utilities.valid_vlan_id(vid, extended=extended)
 
             reserved_vlan_list = range(4087, 4096)
-
             if not tmp_vlan_id:
                 self.logger.error("'Not a valid vlan %s", vid)
                 return None
@@ -386,7 +387,7 @@ class NosDeviceAction(Action):
             "gigabitethernet",
             "tengigabitethernet",
             "fortygigabitethernet"]
-        if os_type is None:
+        if os_type is None or os_type == "nos":
             if rbridge_id is None and 'loopback' in intf_type:
                 msg = 'Must specify `rbridge_id` when specifying a `loopback`'
             elif rbridge_id is None and 've' in intf_type:

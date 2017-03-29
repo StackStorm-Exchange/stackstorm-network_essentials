@@ -44,6 +44,8 @@ class CreateVe(NosDeviceAction):
             self.logger.info('successfully connected to %s to create'
                              ' Ve', self.host)
             if device.os_type == 'nos':
+                if rbridge_id is None:
+                    rbridge_id = self.vlag_pair(device)
                 if ip_address is None:
                     tmp_list = rbridge_id
                 else:
@@ -194,15 +196,12 @@ class CreateVe(NosDeviceAction):
                                rbridge_id, vrf_name):
         """ Verify if the ip address is already associated to the VE """
 
-        try:
-            ip_tmp = ip_interface(unicode(ip_address))
-            ip_address = ip_tmp.with_prefixlen
-        except ValueError:
-            self.logger.info('Invalid IP address %s', ip_address)
-
         if len(unicode(ip_address).split("/")) != 2:
             raise ValueError('Pass IP address along with netmask.'
                              '(ip-address/netmask)', ip_address)
+        tmp_ip = unicode(ip_address).split("/")[0]
+        if not self.is_valid_ip(tmp_ip):
+            raise ValueError('Invalid IP address %s', tmp_ip)
 
         ves = device.interface.ve_interfaces(rbridge_id=rbridge_id)
         for each_ve in ves:

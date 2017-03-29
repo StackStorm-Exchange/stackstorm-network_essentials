@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -29,8 +30,11 @@ class ConfigureMacMoveDetection(NosDeviceAction):
         if move_threshold > 500 or move_threshold < 5:
             raise ValueError('Mac Move Threshold is Invalid. Not in <5-500> range')
         move_threshold = str(move_threshold)
-        with self.mgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
+            if device.os_type == 'slxos':
+                self.logger.info('Mac Move Detection is not supported in SLX platform')
+                sys.exit(-1)
             changes['conv-arp'] = self._configure_mac_move_detection(device,
                                                                   limit=move_threshold)
             self.logger.info('closing connection to %s after configuring mac move detect'
