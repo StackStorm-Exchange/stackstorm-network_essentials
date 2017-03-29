@@ -386,7 +386,7 @@ class NosDeviceAction(Action):
             "gigabitethernet",
             "tengigabitethernet",
             "fortygigabitethernet"]
-        if os_type is None:
+        if os_type is None or os_type == "nos":
             if rbridge_id is None and 'loopback' in intf_type:
                 msg = 'Must specify `rbridge_id` when specifying a `loopback`'
             elif rbridge_id is None and 've' in intf_type:
