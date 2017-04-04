@@ -144,8 +144,11 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             srchost = True
         elif src_ip:
             if self._validate_ip_(str(src_ip[0])):
-                output[key + '_host_any_ip'] = src_ip[0]
-                output[key + '_mask'] = src_mask[0]
+                if "." in src_mask[0]:
+                    output[key + '_host_any_ip'] = src_ip[0]
+                    output[key + '_mask'] = src_mask[0]
+                else:
+                    output[key + '_host_any_ip'] = src_ip[0] + '/' + src_mask[0]
                 srcmask = True
             else:
                 msg = 'Incorrect {} statement'.format(key)
