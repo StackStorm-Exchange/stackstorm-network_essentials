@@ -44,12 +44,18 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         elif acl_type == 'extended' and protocol_type is None:
             self.logger.error('protocol_type is required for extended access list')
             raise ValueError('protocol_type is required for extended access list')
-        elif acl_type == 'standard' and destination:
+        elif acl_type == 'standard' and destination == "any":
             self.logger.error('Destination cannot be given for standard access list')
             raise ValueError('Destination cannot be given for standard access list')
         elif acl_type == 'standard' and protocol_type:
             self.logger.error('protocol_type cannot be given for standard access list')
             raise ValueError('protocol_type cannot be given for standard access list')
+        elif acl_type == 'standard' and vlan_id:
+            self.logger.error('vlan_id cannot be given for standard access list')
+            raise ValueError('vlan_id cannot be given for standard access list')
+        elif acl_type == 'standard' and dscp:
+            self.logger.error('dscp cannot be given for standard access list')
+            raise ValueError('dscp cannot be given for standard access list')
         try:
             seq_dict = {key: None for key in seq_variables}
         except:
@@ -105,28 +111,52 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         self.logger.info('parsing the %s statement', key)
         output = {}
         msg = None
+        src_ip = None
+        src_mask = None
+        srcmask = False
+        srchost = False
         statement_list = statement.split(" ")
         map(lambda x: x.strip(",. \n-"), statement_list)
+        host = map(lambda x: x.replace(",", ' '), statement_list)
+        if " " in str(host):
+            src_host = [i.split(" ")[0] for i in host]
+            src_ip = [i.split(" ")[1] for i in host]
+            if "/" in str(src_ip):
+                src_ip = [i.split("/")[0] for i in src_ip]
+                src_mask = [i.split("/")[1] for i in src_ip]
+
+        if "/" in str(statement_list):
+            src_ip = [i.split("/")[0] for i in statement_list]
+            src_mask = [i.split("/")[1] for i in statement_list]
         if statement_list[0] == 'any' and len(statement_list) == 1:
             output[key + '_host_any_ip'] = statement_list.pop(0)
-        elif statement_list[0] == 'host':
+        elif 'host' in statement_list[0]:
             try:
-                output[key + '_host_any_ip'] = statement_list.pop(0)
-                host_ip = statement_list.pop(0)
-                if self._validate_ip_(host_ip):
-                    output[key + '_host_ip'] = host_ip
+                output[key + '_host_any_ip'] = src_host[0]
+                if self._validate_ip_(str(src_ip[0])):
+                    output[key + '_host_ip'] = src_ip[0]
                 else:
                     msg = 'host ip in {} statement is invalid'.format(key)
+                if src_mask:
+                    output[key + '_mask'] = src_mask[0]
             except:
                 msg = 'host ip missing in {} statement'.format(key)
+            srchost = True
+        elif src_ip:
+            if self._validate_ip_(str(src_ip[0])):
+                if "." in src_mask[0]:
+                    output[key + '_host_any_ip'] = src_ip[0]
+                    output[key + '_mask'] = src_mask[0]
+                else:
+                    output[key + '_host_any_ip'] = src_ip[0] + '/' + src_mask[0]
+                srcmask = True
+            else:
+                msg = 'Incorrect {} statement'.format(key)
         elif self._validate_ip_(statement_list[0]):
             output[key + '_host_any_ip'] = statement_list.pop(0)
-            try:
-                output[key + '_mask'] = statement_list.pop(0)
-            except:
-                msg = 'IP address mask missing in {} statement'.format(key)
         else:
             msg = 'Incorrect {} statement'.format(key)
+
         if msg is not None:
             self.logger.error(msg)
             raise ValueError(msg)
@@ -153,7 +183,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                            protocol_type] = statement_list.pop(0)
                 except:
                     msg = '{} port numbers range missing'.format(key)
-
+        elif srcmask or srchost:
+            return output
         else:
             msg = 'Incorrect {} statement'.format(key)
 
