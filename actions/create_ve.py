@@ -188,8 +188,14 @@ class CreateVe(NosDeviceAction):
             if each_ve['if-name'] == tmp_ve_name:
                 self.logger.info('VE %s is pre-existing on rbridge_id '
                                  '%s', ve_name, rbridge_id)
-                return False
-
+                if device.os_type == 'slxos':
+                    match = device.interface.vlan_router_ve(get=True, vlan_id=ve_name)
+                    if match:
+                        self.logger.info('Router VE %s is pre-existing on vlan_id '
+                                         '%s', match, ve_name)
+                        return False
+                else:
+                    return False
         return True
 
     def _check_requirements_ip(self, device, ve_name, ip_address,
@@ -340,6 +346,8 @@ class CreateVe(NosDeviceAction):
             device.interface.add_vlan_int(ve_name)
             device.interface.create_ve(enable=True, ve_name=ve_name,
                                        rbridge_id=rbridge_id)
+            if device.os_type == 'slxos':
+                device.interface.vlan_router_ve(vlan_id=ve_name, ve_config=ve_name)
         except (ValueError, KeyError):
             self.logger.info('Invalid Input values while creating to Ve')
 
