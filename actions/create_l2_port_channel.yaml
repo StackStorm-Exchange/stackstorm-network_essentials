@@ -2,7 +2,7 @@
 name: create_l2_port_channel 
 pack: network_essentials
 runner_type: run-python
-description: Create a port channel and map it to the interface and enable channel-group mode 
+description: Create an L2 port channel (LAG or vLAG) in Static or LACP mode
 enabled: true
 entry_point: create_l2_port_channel.py 
 parameters:
@@ -13,12 +13,12 @@ parameters:
     position: 0
   username:
     type: string
-    description: login username
+    description: Login user name to connect to the device
     default: admin
     position: 1
   password:
     type: string
-    description: login password
+    description: Login password to connect to the device
     default: password
     secret: true
     position: 2
@@ -54,7 +54,7 @@ parameters:
     position: 6
   protocol:
     type: string
-    description: port channel mode type
+    description: Port channel mode
     enum:
       - active
       - passive

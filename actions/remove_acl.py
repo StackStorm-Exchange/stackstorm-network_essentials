@@ -17,18 +17,26 @@ class Remove_Acl(NosDeviceAction):
         self.logger.info('successfully identified the access group type as %s', ag_type)
         # Check is the user input for Interface Name is correct
         for intf in intf_name:
-            if "-" not in intf:
+            if "-" not in str(intf):
                 interface_list.append(intf)
             else:
                 ex_intflist = self.extend_interface_range(intf_type=intf_type, intf_name=intf)
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
         msg = None
+        with self.pmgr(conn=self.conn, auth=self.auth) as device1:
+            os = device1.os_type
         for intf in interface_list:
-            if not self.validate_interface(intf_type, intf, rbridge_id):
-                msg = "Input is not a valid Interface"
-                self.logger.error(msg)
-                raise ValueError(msg)
+            if os == 'nos':
+                if not self.validate_interface(intf_type, str(intf), rbridge_id):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
+            else:
+                if not self.validate_interface(intf_type, str(intf), os_type=os):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
         if msg is None:
             changes = self._remove_acl(device, intf_type=intf_type,
                                        intf_name=interface_list,
@@ -59,9 +67,9 @@ class Remove_Acl(NosDeviceAction):
                             if rbridge_id else list(rmve_acl(intf, access_grp)))
                 result.append(str(rmve[0]))
                 if not rmve[0]:
-                    self.logger.error('Cannot remove  %s on interface %s %s due to %s',
-                                      acl_name, intf_type, intf,
-                                      str(rmve[1][0][self.host]['response']['json']['output']))
+                    self.logger.error('Cannot remove  %s on interface %s %s due to wrong intf_name'
+                                      '/acl_direction/no acl configured on that interface',
+                                      acl_name, intf_type, intf)
                     sys.exit(-1)
                 else:
                     self.logger.info('Successfully  removed  %s ACL on interface %s %s ',

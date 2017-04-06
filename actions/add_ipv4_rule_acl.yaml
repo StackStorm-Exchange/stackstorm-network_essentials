@@ -48,13 +48,13 @@ parameters:
     position: 6
   source:
     type: string
-    description: Source address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: true
     position: 7
     default: any
   destination:
     type: string
-    description: Destination address filters { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: false
     position: 8
   dscp:

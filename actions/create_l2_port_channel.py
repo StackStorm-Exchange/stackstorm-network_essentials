@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pyswitch.utilities
+import sys
 from ne_base import NosDeviceAction
 
 
@@ -37,6 +38,10 @@ class CreatePortChannel(NosDeviceAction):
 
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
+            if device.os_type == 'slxos':
+                if mode != "standard":
+                    self.logger.info('SLXOS only supports port-channel type as standard')
+                    sys.exit(-1)
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
                                                                  port_channel_id,
                                                                  intf_desc)
@@ -122,9 +127,10 @@ class CreatePortChannel(NosDeviceAction):
                                  ' and protocol as active on interface %s is done',
                                  portchannel_num, channel_type, intf)
             except (ValueError, KeyError):
-                self.logger.info('Port Channel %s Creation and setting channel mode %s failed',
+                self.logger.error('Port Channel %s Creation and setting channel mode %s failed',
                                  portchannel_num,
                                  channel_type)
+                sys.exit(-1)
 
             # no-shut on the interface
             conf_interface = device.interface.admin_state(get=True, int_type=intf_type, name=intf)
