@@ -51,7 +51,13 @@ class DeleteVe(NosDeviceAction):
 
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
-            return False
+
+        if device.os_type == 'slxos':
+            ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
+            if ve_id != vlan_id:
+                self.logger.info('vlan_id %s is mapped to a different router interface ve %s',
+                                 vlan_id, ve_id)
+                return False
 
         return True
 
@@ -75,7 +81,9 @@ class DeleteVe(NosDeviceAction):
             tmp_ve_name = device.interface.create_ve(get=True, ve_name=user_ve)
             tmp_dut_ve = [str(item) for item in tmp_ve_name]
             if user_ve in tmp_dut_ve:
-                self.logger.info('Deleting Ve %s', user_ve)
+                self.logger.info('Deleting router interface %s to vlan %s mapping and Ve %s',
+                                 ve_name, ve_name, user_ve)
+                device.interface.vlan_router_ve(delete=True, vlan_id=ve_name, ve_config=ve_name)
                 device.interface.create_ve(enable=False, ve_name=user_ve)
                 is_ve_present = False
 
