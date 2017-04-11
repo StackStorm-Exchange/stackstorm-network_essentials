@@ -52,13 +52,14 @@ class CreateSwitchPort(NosDeviceAction):
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
                         'switchport_doesnot_exists']:
-                    changes['disable_isl'] = self._disable_isl(device,
-                                                               intf_type,
-                                                               intf_name)
-                    changes[
-                        'disable_fabric_trunk'] = self._disable_fabric_trunk(
-                        device, intf_type,
-                        intf_name)
+                    if device.os_type == 'nos':
+                        changes['disable_isl'] = self._disable_isl(device,
+                                                                   intf_type,
+                                                                   intf_name)
+                        changes[
+                            'disable_fabric_trunk'] = self._disable_fabric_trunk(
+                            device, intf_type,
+                            intf_name)
                 if changes['switchport_doesnot_exists']:
                     changes['switchport_access_config'] = self._create_switchport(device,
                                                                                   intf_type,
