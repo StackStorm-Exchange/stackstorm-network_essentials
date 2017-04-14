@@ -134,7 +134,7 @@ class CheckPing(Action):
 
                     p_tx = re.search(r'(\d+)(\spackets\stransmitted)',
                                      str(value_list[i + 1])).group(1)
-                    p_rx = re.search(r'(\d+)(\spackets\sreceived)',
+                    p_rx = re.search(r'(\d+)(\spackets\sreceived|\sreceived)',
                                      str(value_list[i + 1])).group(1)
                     p_loss = re.search(r'(\d+)(\%)(\spacket\sloss)',
                                        str(value_list[i + 1])).group(1)
