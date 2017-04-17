@@ -17,18 +17,27 @@ class Apply_Acl(NosDeviceAction):
         self.logger.info('successfully identified the access group type as %s', ag_type)
         # Check is the user input for Interface Name is correct
         for intf in intf_name:
-            if "-" not in intf:
+            if "-" not in str(intf):
                 interface_list.append(intf)
             else:
                 ex_intflist = self.extend_interface_range(intf_type=intf_type, intf_name=intf)
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
         msg = None
+        with self.pmgr(conn=self.conn, auth=self.auth) as device1:
+            os = device1.os_type
         for intf in interface_list:
-            if not self.validate_interface(intf_type, intf, rbridge_id):
-                msg = "Input is not a valid Interface"
-                self.logger.error(msg)
-                raise ValueError(msg)
+            if os == 'nos':
+                if not self.validate_interface(intf_type, str(intf), rbridge_id):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
+            else:
+                if not self.validate_interface(intf_type, str(intf), os_type=os):
+                    msg = "Input is not a valid Interface"
+                    self.logger.error(msg)
+                    raise ValueError(msg)
+
         if msg is None:
             changes = self._apply_acl(device, intf_type=intf_type,
                                       intf_name=interface_list,
