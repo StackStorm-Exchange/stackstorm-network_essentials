@@ -44,7 +44,7 @@ class DeleteVlan(NosDeviceAction):
             if vlan_list:
                 changes["vlan"] = self._delete_vlan(
                     device, vlan_id=vlan_list)
-                changes['show_vlan_brief'] = self._fetch_Vlan_state(device)
+                # changes['show_vlan'] = self._fetch_Vlan_state(device, vlan_id)
             else:
                 raise ValueError('Input is not a valid vlan ')
 
@@ -70,7 +70,7 @@ class DeleteVlan(NosDeviceAction):
                 delete_flag = False
         return delete_flag
 
-    def _fetch_Vlan_state(self, device):
+    def _fetch_Vlan_state(self, device, vlan_id):
         """validate Vlan state.
         """
 
@@ -79,7 +79,7 @@ class DeleteVlan(NosDeviceAction):
         host_username = self.auth[0]
         host_password = self.auth[1]
         cli_arr = []
-        cli_cmd = 'show vlan brief'
+        cli_cmd = 'show vlan ' + vlan_id
         cli_arr.append(cli_cmd)
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
