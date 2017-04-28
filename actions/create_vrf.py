@@ -41,26 +41,49 @@ class CreateVRF(NosDeviceAction):
                              'for tenants',
                              self.host)
 
-            self.validate_supports_rbridge(device, rbridge_id)
+            if rbridge_id:
+                for rb_id in rbridge_id:
+                    self.validate_supports_rbridge(device, rb_id)
 
-            validation_VRF = self._check_requirements_VRF(device, rbridge_id,
-                                                          vrf_name)
-            if validation_VRF:
-                changes['Create_VRF'] = self._create_VRF(device, rbridge_id,
-                                                         vrf_name)
+                    validation_VRF = self._check_requirements_VRF(device, rb_id,
+                                                                  vrf_name)
+                    if validation_VRF:
+                        changes['Create_VRF'] = self._create_VRF(device, rb_id,
+                                                                 vrf_name)
 
-            validate_vrf_afi = self._validate_vrf_afi(device, rbridge_id,
-                                                      vrf_name, afi)
-            if validate_vrf_afi:
-                changes['Create_address_family'] = self._create_vrf_afi(
-                    device, rbridge_id,
-                    vrf_name, afi)
-            self.logger.info('closing connection to %s after Create VRF '
-                             '- all done!',
-                             self.host)
+                    validate_vrf_afi = self._validate_vrf_afi(device, rb_id,
+                                                              vrf_name, afi)
+                    if validate_vrf_afi:
+                        changes['Create_address_family'] = self._create_vrf_afi(
+                            device, rb_id,
+                            vrf_name, afi)
+                    self.logger.info('closing connection to %s after Create VRF '
+                                     '- all done!',
+                                     self.host)
 
-            if 'Create_VRF' in changes:
-                self._fetch_VRF_state(device, vrf_name)
+                    if 'Create_VRF' in changes:
+                        self._fetch_VRF_state(device, vrf_name)
+            else:
+                self.validate_supports_rbridge(device, rbridge_id)
+
+                validation_VRF = self._check_requirements_VRF(device, rbridge_id,
+                                                              vrf_name)
+                if validation_VRF:
+                    changes['Create_VRF'] = self._create_VRF(device, rbridge_id,
+                                                             vrf_name)
+
+                validate_vrf_afi = self._validate_vrf_afi(device, rbridge_id,
+                                                          vrf_name, afi)
+                if validate_vrf_afi:
+                    changes['Create_address_family'] = self._create_vrf_afi(
+                        device, rbridge_id,
+                        vrf_name, afi)
+                self.logger.info('closing connection to %s after Create VRF '
+                                 '- all done!',
+                                 self.host)
+
+                if 'Create_VRF' in changes:
+                    self._fetch_VRF_state(device, vrf_name)
         return changes
 
     def _check_requirements_VRF(self, device, rbridge_id, vrf_name):

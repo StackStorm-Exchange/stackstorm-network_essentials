@@ -28,7 +28,7 @@ parameters:
     required: true
     position: 3
   rbridge_id:
-    type: string
+    type: array
     description: RBridge ID of the switch. This parameter is only applicable for VDX switches.
     required: false
     position: 4
