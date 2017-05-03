@@ -104,11 +104,13 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
 
-        vl_list = (list(self.expand_vlan_range(vlan_id)))
-        for vlan_id in vl_list:
-            if not device.interface.get_vlan_int(vlan_id=vlan_id):
-                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
+        vlan_list = vlan_id.split(',')
+        for vlan in vlan_list:
+            vl_list = (list(self.expand_vlan_range(vlan)))
+            for vlan_id in vl_list:
+                if not device.interface.get_vlan_int(vlan_id=vlan_id):
+                    self.logger.error('Vlan %s not present on the Device' % (vlan_id))
+                    raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
         return True
 
@@ -158,8 +160,6 @@ class CreateSwitchPort(NosDeviceAction):
                     if intf['interface-name'] == intf_name:
                         if intf['mode'] == 'trunk':
                             if intf['vlan-id'] is not None:
-                                if len(intf['vlan-id']) > len(vlan_range):
-                                    return False
                                 ret = self._check_list(vlan_range,
                                                        intf['vlan-id'])
                                 if ret:
