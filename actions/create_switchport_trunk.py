@@ -43,7 +43,7 @@ class CreateSwitchPort(NosDeviceAction):
                 'successfully connected to %s to create '
                 'switchport on Interface',
                 self.host)
-            if vlan_id =='all':
+            if vlan_id == 'all':
                 vlan_action = 'all'
                 vlan_num = None
             else:
@@ -109,7 +109,7 @@ class CreateSwitchPort(NosDeviceAction):
                               % (intf_type, intf_name))
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
-        if vlan_action == 'add' :
+        if vlan_action == 'add':
             vlan_list = vlan_id.split(',')
             for vlan in vlan_list:
                 vl_list = (list(self.expand_vlan_range(vlan)))
