@@ -24,10 +24,10 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: Single VLAN or range of VLANs. For example 21 or 21-26
+    description: Single VLAN/range of VLANS/batch wise values. For example 21 or 21-26 or 10,13-14,89-91
     required: true
     position: 3
-  intf_desc:
+  vlan_desc:
     type: string
-    description: VLAN description.  Same description is used when creating multiple VLANs
+    description: VLAN description without any space. Same description is used when creating multiple VLANs
     position: 4
