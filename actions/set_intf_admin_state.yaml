@@ -53,6 +53,6 @@ parameters:
     position: 5
   intf_desc:
     type: string
-    description: Interface description
+    description: Interface description without any space
     position: 6
 
