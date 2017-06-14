@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import sys
 from ne_base import NosDeviceAction
 from pyswitch.device import Device
 from execute_cli import CliCMD
@@ -44,7 +44,7 @@ class DeleteVlan(NosDeviceAction):
             if vlan_list:
                 changes["vlan"] = self._delete_vlan(
                     device, vlan_id=vlan_list)
-                changes['show_vlan_brief'] = self._fetch_Vlan_state(device)
+                # changes['show_vlan'] = self._fetch_Vlan_state(device, vlan_id)
             else:
                 raise ValueError('Input is not a valid vlan ')
 
@@ -62,15 +62,19 @@ class DeleteVlan(NosDeviceAction):
                     is_vlan_interface_present = True
                     break
             if is_vlan_interface_present:
-                device.interface.del_vlan_int(vlan)
-                self.logger.info('VLAN %s is deleted', vlan)
-                delete_flag = True
+                retVal = device.interface.del_vlan_int(vlan)
+                if retVal:
+                    self.logger.info('VLAN %s is deleted', vlan)
+                    delete_flag = True
+                else:
+                    delete_flag = False
+                    sys.exit(-1)
             else:
                 self.logger.info('VLAN %s does not exist', vlan)
                 delete_flag = False
         return delete_flag
 
-    def _fetch_Vlan_state(self, device):
+    def _fetch_Vlan_state(self, device, vlan_id):
         """validate Vlan state.
         """
 
@@ -79,7 +83,7 @@ class DeleteVlan(NosDeviceAction):
         host_username = self.auth[0]
         host_password = self.auth[1]
         cli_arr = []
-        cli_cmd = 'show vlan brief'
+        cli_cmd = 'show vlan ' + vlan_id
         cli_arr.append(cli_cmd)
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,

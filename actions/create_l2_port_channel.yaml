@@ -61,7 +61,7 @@ parameters:
       - modeon
     default: active
     position: 7
-  intf_desc:
+  port_channel_desc:
     type: string
-    description: Port channel Interface description name
+    description: Port channel Interface description name without any space
     position: 8

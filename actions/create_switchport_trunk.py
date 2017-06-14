@@ -43,9 +43,15 @@ class CreateSwitchPort(NosDeviceAction):
                 'successfully connected to %s to create '
                 'switchport on Interface',
                 self.host)
+            if vlan_id == 'all':
+                vlan_action = 'all'
+                vlan_num = None
+            else:
+                vlan_action = 'add'
+                vlan_num = vlan_id
 
             changes['Interface_Present'] = self._check_interface_presence(
-                device, intf_type, intf_name, vlan_id)
+                device, intf_type, intf_name, vlan_action, vlan_num)
 
             if intf_type != 'port_channel':
                 changes[
@@ -61,7 +67,7 @@ class CreateSwitchPort(NosDeviceAction):
                 changes[
                     'switchport_doesnot_exists'] = \
                     self._check_requirements_switchport_exists(
-                        device, intf_type, intf_name, vlan_id)
+                        device, intf_type, intf_name, vlan_action, vlan_num)
                 if not changes['switchport_doesnot_exists']:
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
@@ -77,7 +83,7 @@ class CreateSwitchPort(NosDeviceAction):
                     changes[
                         'switchport_trunk_config'] = self._create_switchport(
                         device, intf_type,
-                        intf_name, vlan_id)
+                        intf_name, vlan_action, vlan_num)
                 self.logger.info(
                     'closing connection to %s after configuring'
                     ' switch port on interface -- all done!',
@@ -85,7 +91,7 @@ class CreateSwitchPort(NosDeviceAction):
         return changes
 
     def _check_interface_presence(self, device, intf_type, intf_name,
-                                  vlan_id):
+                                  vlan_action, vlan_id):
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
                               'Interface type must be one of %s'
@@ -103,12 +109,14 @@ class CreateSwitchPort(NosDeviceAction):
                               % (intf_type, intf_name))
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
-
-        vl_list = (list(self.expand_vlan_range(vlan_id)))
-        for vlan_id in vl_list:
-            if not device.interface.get_vlan_int(vlan_id=vlan_id):
-                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
+        if vlan_action == 'add':
+            vlan_list = vlan_id.split(',')
+            for vlan in vlan_list:
+                vl_list = (list(self.expand_vlan_range(vlan)))
+                for vlan_id in vl_list:
+                    if not device.interface.get_vlan_int(vlan_id=vlan_id):
+                        self.logger.error('Vlan %s not present on the Device' % (vlan_id))
+                        raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
         return True
 
@@ -142,7 +150,7 @@ class CreateSwitchPort(NosDeviceAction):
         return False
 
     def _check_requirements_switchport_exists(self, device, intf_type,
-                                              intf_name, vlan_id):
+                                              intf_name, vlan_action, vlan_id):
         """ Fail the task if switch port exists.
         """
 
@@ -153,20 +161,20 @@ class CreateSwitchPort(NosDeviceAction):
 
             if return_code is not None:
                 result = device.interface.switchport_list
-                vlan_range = (list(self.expand_vlan_range(vlan_id)))
+                if vlan_action == 'add':
+                    vlan_range = (list(self.expand_vlan_range(vlan_id)))
                 for intf in result:
                     if intf['interface-name'] == intf_name:
                         if intf['mode'] == 'trunk':
-                            if intf['vlan-id'] is not None:
-                                if len(intf['vlan-id']) > len(vlan_range):
-                                    return False
-                                ret = self._check_list(vlan_range,
-                                                       intf['vlan-id'])
-                                if ret:
-                                    if len(ret) == len(vlan_range):
-                                        return False
-                            else:
-                                return True
+                            if vlan_action == 'add':
+                                if intf['vlan-id'] is not None:
+                                    ret = self._check_list(vlan_range,
+                                                           intf['vlan-id'])
+                                    if ret:
+                                        if len(ret) == len(vlan_range):
+                                            return False
+                                else:
+                                    return True
                         else:
                             self.logger.error("Access mode is "
                                               "configured on interface,"
@@ -189,7 +197,8 @@ class CreateSwitchPort(NosDeviceAction):
                 return_list.append(vid)
         return return_list
 
-    def _create_switchport(self, device, intf_type, intf_name, vlan_id):
+    def _create_switchport(self, device, intf_type, intf_name, vlan_action,
+                           vlan_id):
         """ Configuring Switch port trunk allowed vlan add on the
         interface with the vlan."""
         try:
@@ -197,7 +206,7 @@ class CreateSwitchPort(NosDeviceAction):
             device.interface.trunk_mode(int_type=intf_type,
                                         name=intf_name, mode='trunk')
             device.interface.trunk_allowed_vlan(int_type=intf_type,
-                                                name=intf_name, action='add',
+                                                name=intf_name, action=vlan_action,
                                                 vlan=vlan_id)
 
         except ValueError as e:

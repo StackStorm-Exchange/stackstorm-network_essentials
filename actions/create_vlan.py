@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import itertools
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
@@ -25,12 +26,12 @@ class CreateVlan(NosDeviceAction):
            3.No errors reported when the VLAN already exists (idempotent)
     """
 
-    def run(self, mgmt_ip, username, password, vlan_id, intf_desc):
+    def run(self, mgmt_ip, username, password, vlan_id, vlan_desc):
         """Run helper methods to implement the desired state.
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = self.switch_operation(intf_desc, vlan_id)
+        changes = self.switch_operation(vlan_desc, vlan_id)
 
         return changes
 
@@ -42,8 +43,13 @@ class CreateVlan(NosDeviceAction):
                 'successfully connected to %s to validate interface vlan',
                 self.host)
             # Check is the user input for VLANS is correct
+            vlan_list = []
+            vlanlist = vlan_id.split(',')
+            for val in vlanlist:
+                temp = self.expand_vlan_range(vlan_id=val)
+                vlan_list.append(temp)
 
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+            vlan_list = list(itertools.chain.from_iterable(vlan_list))
 
             valid_desc = True
             if intf_desc:

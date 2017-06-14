@@ -28,7 +28,7 @@ class CreatePortChannel(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, ports, intf_type, port_channel_id,
-           protocol, mode, intf_desc):
+           protocol, mode, port_channel_desc):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -44,7 +44,7 @@ class CreatePortChannel(NosDeviceAction):
                     sys.exit(-1)
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
                                                                  port_channel_id,
-                                                                 intf_desc)
+                                                                 port_channel_desc)
             if changes['pre_validation']:
                 changes['port_channel_configs'] = self._create_port_channel(device,
                                                                     intf_name=ports,
@@ -52,7 +52,7 @@ class CreatePortChannel(NosDeviceAction):
                                                                     portchannel_num=port_channel_id,
                                                                     channel_type=mode,
                                                                     mode_type=protocol,
-                                                                    intf_desc=intf_desc)
+                                                                    intf_desc=port_channel_desc)
             self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
             changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
             changes['fabric_trunk_disable'] = self._disable_trunk(device, intf_type, ports)
