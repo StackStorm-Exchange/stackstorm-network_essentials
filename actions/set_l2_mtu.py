@@ -21,7 +21,7 @@ class set_l2_mtu(NosDeviceAction):
             self.logger.info('successfully connected to %s to set mtu',
                              self.host)
 
-            interface_list = self.extract_port_list(intf_type, intf_name)
+            interface_list = self.extract_port_list(device, intf_type, intf_name)
 
             changes = self._set_l2_mtu(device, intf_type=intf_type,
                                        intf_name=interface_list,
