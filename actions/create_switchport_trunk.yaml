@@ -42,6 +42,6 @@ parameters:
     position: 4
   vlan_id: 
     type: string
-    description: VLAN ID/all to be configured on the interface. e.g 5 or 4-7 or all
+    description: Single or range of VLANs to be configured on the interface. For example, 5 or 4-7 or 4,6,9-11 or all.
     required: true
     position: 5
