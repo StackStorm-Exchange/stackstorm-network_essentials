@@ -1,7 +1,7 @@
 ---
 name: add_or_remove_l2_acl_rule
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Add or remove an ACL rule to or from an L2 ACL
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py

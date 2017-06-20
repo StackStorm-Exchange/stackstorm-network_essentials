@@ -1,7 +1,7 @@
 ---
 name: delete_vrrpe
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Delete VRRPe group
 enabled: true
 entry_point: delete_vrrpe.py 

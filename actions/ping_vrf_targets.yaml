@@ -1,7 +1,7 @@
 ---
 name: ping_vrf_targets
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Ping target IPs from the switch using the specified VRF, uses the default VRF if VRF is not provided
 enabled: true
 entry_point: ping_vrf_targets.py

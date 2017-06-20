@@ -1,7 +1,7 @@
 ---
 name: create_switchport_access
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Configure a port channel or a physical interface as an Access interface.
 enabled: true
 entry_point: create_switchport_access.py
