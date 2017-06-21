@@ -1,7 +1,7 @@
 ---
 name: validate_vrrpe_state
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Validate VRRPe state on multiple switches to ensure one VRRPe master is elected and other switches are in backup mode. 
 enabled: true
 entry_point: validate_vrrpe_state.py

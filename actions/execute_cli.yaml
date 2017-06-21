@@ -1,7 +1,7 @@
 ---
 name: execute_cli
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Execute CLI command and return the result
 enabled: true
 entry_point: execute_cli.py

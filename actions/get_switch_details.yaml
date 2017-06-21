@@ -1,7 +1,7 @@
 ---
 name: get_switch_details
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Get switch details from a device
 enabled: true
 entry_point: get_switch_details.py

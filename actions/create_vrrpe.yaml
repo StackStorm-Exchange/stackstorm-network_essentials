@@ -1,7 +1,7 @@
 ---
 name: create_vrrpe
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Create a VRRPe session on multiple switches by creating VRRPe group and assigning virtual IP
 enabled: true
 entry_point: create_vrrpe.py 

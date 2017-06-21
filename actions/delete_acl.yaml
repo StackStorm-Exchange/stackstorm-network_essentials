@@ -1,7 +1,7 @@
 ---
 name: delete_acl
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Delete an existing Access Control List (ACL)
 enabled: true
 entry_point: delete_acl.py

@@ -1,7 +1,7 @@
 ---
 name: set_intf_admin_state
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Enable or disable a single physical port, port-channel, loopback or VE interface on a device.  Optionally set the interface description.
 enabled: true
 entry_point: set_intf_admin_state.py
