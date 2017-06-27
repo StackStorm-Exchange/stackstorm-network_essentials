@@ -191,8 +191,8 @@ class CreatePortChannel(NosDeviceAction):
         """Disable ISL on the interface.
         """
         if device.os_type!= 'nos':
-           self.logger.info('Disabling fabric isl is not supported on this platform/interface')
-           return False
+            self.logger.info('Disabling fabric isl is not supported on this platform')
+            return False
         try:
             for intf in intf_name:
                 conf = device.interface.fabric_isl(get=True, name=intf, int_type=intf_type)
@@ -208,8 +208,8 @@ class CreatePortChannel(NosDeviceAction):
         """Disable ISL Fabric Trunk on the interface.
         """
         if device.os_type!= 'nos':
-           self.logger.info('Disabling fabric trunk is not supported on this platform/interface')
-           return False
+            self.logger.info('Disabling fabric trunk is not supported on this platform')
+            return False
         try:
             for intf in intf_name:
                 conf = device.interface.fabric_trunk(get=True, name=intf, int_type=intf_type)
@@ -225,8 +225,8 @@ class CreatePortChannel(NosDeviceAction):
         """Fabric neighbor discovery settings on the interface.
         """
         if device.os_type!= 'nos':
-           self.logger.info('Disabling fabric neighbor is not supported on this platform/interface')
-           return False
+            self.logger.info('Disabling fabric neighbor is not supported on this platform')
+            return False
         try:
             for intf in intf_name:
                 conf = device.interface.fabric_neighbor(get=True, name=intf, int_type=intf_type)
