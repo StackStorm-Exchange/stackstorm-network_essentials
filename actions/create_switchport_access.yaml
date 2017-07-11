@@ -41,7 +41,15 @@ parameters:
     required: true
     position: 4
   vlan_id:
-    type: string
-    description: VLAN ID to be configure on the interface 
+    type: string 
+    description: VLAN ID to be configure on the interface.Valid values <1-4090/8191 when VFAB disabled/enabled>
     required: true
     position: 5
+  mac_group_id:
+    type: array 
+    description: Mac Group id. Valid Range [1,500]
+    position: 6
+  mac_address:
+    type: array
+    description: Mac address to be associated with the vlan.HHHH.HHHH.HHHH format
+    position: 7
