@@ -22,21 +22,22 @@ class CreateSwitchPort(NosDeviceAction):
        Switches .
        This action acheives the below functionality
            1.Check specified interface is L2 or L3,continue only if
-           L2 interface.
+              L2 interface.
            2.Configure switch port trunk allowed vlan add with vlan
-           specified by user on the L2
-           interface .
+              specified by user on the L2 interface .
+           3. Configure switchport trunk vlan and ctag vlan if specified
+              by the user.
     """
 
-    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id, c_tag):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = self.switch_operation(intf_name, intf_type, vlan_id)
+        changes = self.switch_operation(intf_name, intf_type, vlan_id, c_tag)
         return changes
 
     @log_exceptions
-    def switch_operation(self, intf_name, intf_type, vlan_id):
+    def switch_operation(self, intf_name, intf_type, vlan_id, c_tag):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
@@ -51,7 +52,7 @@ class CreateSwitchPort(NosDeviceAction):
                 vlan_num = vlan_id
 
             changes['Interface_Present'] = self._check_interface_presence(
-                device, intf_type, intf_name, vlan_action, vlan_num)
+                device, intf_type, intf_name, vlan_action, vlan_num, c_tag)
 
             if intf_type != 'port_channel':
                 changes[
@@ -67,7 +68,7 @@ class CreateSwitchPort(NosDeviceAction):
                 changes[
                     'switchport_doesnot_exists'] = \
                     self._check_requirements_switchport_exists(
-                        device, intf_type, intf_name, vlan_action, vlan_num)
+                        device, intf_type, intf_name, vlan_action, vlan_num, c_tag)
                 if not changes['switchport_doesnot_exists']:
                     self.logger.info("configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
@@ -83,15 +84,14 @@ class CreateSwitchPort(NosDeviceAction):
                     changes[
                         'switchport_trunk_config'] = self._create_switchport(
                         device, intf_type,
-                        intf_name, vlan_action, vlan_num)
-                self.logger.info(
-                    'closing connection to %s after configuring'
-                    ' switch port on interface -- all done!',
-                    self.host)
+                        intf_name, vlan_action, vlan_num, c_tag)
+            self.logger.info('closing connection to %s after configuring'
+                             ' switch port on interface -- all done!', self.host)
+
         return changes
 
     def _check_interface_presence(self, device, intf_type, intf_name,
-                                  vlan_action, vlan_id):
+                                  vlan_action, vlan_id, c_tag):
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
                               'Interface type must be one of %s'
@@ -110,7 +110,16 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
         if vlan_action == 'add':
-            vlan_list = vlan_id.split(',')
+            if c_tag is not None:
+                if int(c_tag) not in range(1, 4091):
+                    self.logger.error('c_tag vlan %s must be in range(1,4090)' % (vlan_id))
+                    raise ValueError('c_tag vlan %s must be in range(1,4090)' % (vlan_id))
+                if int(vlan_id) not in range(4096, 8192):
+                    self.logger.error('vlan_id %s must be in range(4096,8191)' % (vlan_id))
+                    raise ValueError('vlan_id %s must be in range(4096,8191)' % (vlan_id))
+                vlan_list = vlan_id.split(',') + [c_tag]
+            else:
+                vlan_list = vlan_id.split(',')
             for vlan in vlan_list:
                 vl_list = (list(self.expand_vlan_range(vlan)))
                 for vlan_id in vl_list:
@@ -150,7 +159,7 @@ class CreateSwitchPort(NosDeviceAction):
         return False
 
     def _check_requirements_switchport_exists(self, device, intf_type,
-                                              intf_name, vlan_action, vlan_id):
+                                              intf_name, vlan_action, vlan_id, c_tag):
         """ Fail the task if switch port exists.
         """
 
@@ -183,6 +192,18 @@ class CreateSwitchPort(NosDeviceAction):
                                 "Access mode is "
                                 "configured on interface,"
                                 "Pls remove and re-configure")
+            if c_tag is not None:
+                rt = device.interface.switchport_trunk_allowed_ctag(get=True, intf_type=intf_type,
+                                                                intf_name=intf_name,
+                                                                trunk_vlan_id=vlan_id)
+                if rt is not None and rt == c_tag:
+                    self.logger.info('vlan_id %s to c_tag %s mapping is pre-existing on the'
+                                     ' switchport', vlan_id, c_tag)
+                    return False
+                elif rt is not None and rt != c_tag:
+                    self.logger.info('vlan_id %s is mapped to a different c_tag %s on the'
+                                     ' switchport', vlan_id, c_tag)
+                    return False
         except ValueError as e:
             self.logger.error("Fetching Switch port enable failed %s"
                               % (e.message))
@@ -198,16 +219,24 @@ class CreateSwitchPort(NosDeviceAction):
         return return_list
 
     def _create_switchport(self, device, intf_type, intf_name, vlan_action,
-                           vlan_id):
+                           vlan_id, c_tag):
         """ Configuring Switch port trunk allowed vlan add on the
         interface with the vlan."""
         try:
+            self.logger.info('Configuring Switch port trunk')
             device.interface.switchport(int_type=intf_type, name=intf_name)
             device.interface.trunk_mode(int_type=intf_type,
                                         name=intf_name, mode='trunk')
-            device.interface.trunk_allowed_vlan(int_type=intf_type,
-                                                name=intf_name, action=vlan_action,
-                                                vlan=vlan_id)
+            if c_tag is None:
+                device.interface.trunk_allowed_vlan(int_type=intf_type,
+                                                    name=intf_name,
+                                                    action=vlan_action,
+                                                    vlan=vlan_id)
+            else:
+                device.interface.switchport_trunk_allowed_ctag(intf_type=intf_type,
+                                                           intf_name=intf_name,
+                                                           trunk_vlan_id=vlan_id,
+                                                           trunk_ctag_id=c_tag)
 
         except ValueError as e:
             self.logger.exception("Configuring Switch port trunk failed %s"
@@ -250,3 +279,4 @@ class CreateSwitchPort(NosDeviceAction):
         except ValueError:
             self.logger.exception("disable fabric trunk failed")
             raise ValueError("disable fabric trunk  failed")
+        return True
