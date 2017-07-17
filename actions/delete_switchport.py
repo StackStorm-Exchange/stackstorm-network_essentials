@@ -43,11 +43,12 @@ class DeleteSwitchport(NosDeviceAction):
 
             intf_list = self.expand_interface_range(intf_type=intf_type, intf_name=intf_name,
                                                     rbridge_id='')
-            int_list_present = self._check_interface_presence(device, intf_type,
-                                                              intf_list)
-            if int_list_present != []:
-                changes['delete_switchport_intf'] = self._delete_switchport(device, intf_type,
-                                                                            int_list_present)
+            if intf_list is not None:
+                int_list_present = self._check_interface_presence(device, intf_type,
+                                                                  intf_list)
+                if int_list_present != []:
+                    changes['delete_switchport_intf'] = self._delete_switchport(device, intf_type,
+                                                                                int_list_present)
 
             self.logger.info('Closing connection to %s after Deleting Switchports on the interface'
                              'on the device -- all done!',
@@ -61,11 +62,11 @@ class DeleteSwitchport(NosDeviceAction):
             self.logger.error('Interface type is not valid. '
                               'Interface type must be one of %s'
                               % device.interface.valid_int_types)
-            raise ValueError('Iterface type is not valid. '
+            raise ValueError('Interface type is not valid. '
                              'Interface type must be one of %s'
                              % device.interface.valid_int_types)
         for each_intf in intf_list:
-            if not self.validate_interface(intf_type, each_intf):
+            if not self.validate_interface(intf_type, str(each_intf)):
                 raise ValueError('Interface %s is not valid' % (each_intf))
 
             if not device.interface.interface_exists(int_type=intf_type,
