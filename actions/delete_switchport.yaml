@@ -38,7 +38,7 @@ parameters:
   intf_name:
     type: string 
     description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1).
-                 Example for interface 235/0/35 or 235/0/35-40 or 2/35,38,39.
-                 Example for port-channel 10 or 1-10 or 1,2-10,15. 
+                 Example for interface 235/0/35 or 235/0/35-40
+                 Example for port-channel 10 or 1-10
     required: true
     position: 4
