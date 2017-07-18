@@ -49,7 +49,3 @@ parameters:
     type: array 
     description: Mac Group id. Valid Range [1,500]
     position: 6
-  mac_address:
-    type: array
-    description: Mac address to be associated with the vlan.HHHH.HHHH.HHHH format
-    position: 7

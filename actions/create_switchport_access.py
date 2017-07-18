@@ -21,11 +21,10 @@ class CreateSwitchPort(NosDeviceAction):
        This action acheives the below functionality
            1.Check specified interface is L2 or L3,continue only if L2 interface.
            2.Configure switch port access vlan with vlan specified by user on the L2 interface .
-           3.Associate the mac-group/mac to the access vlan
+           3.Associate the mac-group to the access vlan
     """
 
-    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id, mac_group_id,
-            mac_address):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id, mac_group_id):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -34,6 +33,7 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.info('successfully connected to %s to create switchport on Interface',
                              self.host)
 
+            mac_address = None
             if mac_group_id is not None:
                 mac_group_id = [str(e) for e in mac_group_id]
             changes['vlan_exist'] = self._vlan_exist(device, vlan_id, mac_group_id, mac_address)
