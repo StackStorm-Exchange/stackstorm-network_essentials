@@ -42,6 +42,11 @@ parameters:
     position: 4
   vlan_id: 
     type: string
-    description: Single or range of VLANs to be configured on the interface. For example, 5 or 4-7 or 4,6,9-11 or all.
+    description: Single or range of VLANs to be configured on the interface. Valid values <1-4090/8191 when VFAB disabled/enabled>
+                 For example, 5 or 4-7 or 4,6,9-11 or all. Range not supported for VFAB vlans. 
     required: true
     position: 5
+  c_tag: 
+    type: string
+    description: Ctag Vlan ID.Valid values <1-4090>
+    position: 6
