@@ -81,9 +81,15 @@ class CreateVlan(NosDeviceAction):
             result = {}
             if not vlan_exists:
                 cr_vlan = device.interface.add_vlan_int(vlan)
-                self.logger.info('Successfully created a VLAN %s', vlan)
-                result['result'] = cr_vlan
-                result['output'] = 'Successfully created a VLAN %s' % vlan
+                if cr_vlan:
+                    self.logger.info('Successfully created a VLAN %s', vlan)
+                    result['result'] = cr_vlan
+                    result['output'] = 'Successfully created a VLAN %s' % vlan
+                else:
+                    self.logger.exception(
+                        'Configuring interface VLAN %s failed', vlan)
+                    raise ValueError(
+                        'Configuring interface VLAN %s failed' % vlan)
             else:
                 result['result'] = 'False'
                 result['output'] = 'VLAN  %s already exists on' \
