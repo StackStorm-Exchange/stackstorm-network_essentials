@@ -21,9 +21,10 @@ class CreateSwitchPort(NosDeviceAction):
        This action acheives the below functionality
            1.Check specified interface is L2 or L3,continue only if L2 interface.
            2.Configure switch port access vlan with vlan specified by user on the L2 interface .
+           3.Associate the mac-group to the access vlan
     """
 
-    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id, mac_group_id):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -31,7 +32,13 @@ class CreateSwitchPort(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s to create switchport on Interface',
                              self.host)
-            changes['vlan_exist'] = self._vlan_exist(device, vlan_id)
+
+            mac_address = None
+            if mac_group_id is not None:
+                mac_group_id = [str(e) for e in mac_group_id]
+            changes['vlan_exist'] = self._vlan_exist(device, vlan_id, mac_group_id, mac_address)
+            if mac_group_id is not None:
+                mac_group_id = self._pre_check_mac_group(device, mac_group_id)
 
             if intf_type != 'port_channel':
                 changes[
@@ -44,12 +51,11 @@ class CreateSwitchPort(NosDeviceAction):
                 changes['L2_interface_check'] = True
 
             if changes['L2_interface_check']:
-                changes[
-                    'switchport_doesnot_exists'] = \
+                changes['switchport_doesnot_exists'], mac_gps, mac_ads =\
                     self._check_requirements_switchport_exists(
-                        device, intf_type, intf_name, vlan_id)
+                        device, intf_type, intf_name, vlan_id, mac_address, mac_group_id)
                 if not changes['switchport_doesnot_exists']:
-                    self.logger.info("configs are pre-existing on the device")
+                    self.logger.info("SwitchPort configs are pre-existing on the device")
                 if intf_type != 'port_channel' and changes[
                         'switchport_doesnot_exists']:
                     if device.os_type == 'nos':
@@ -60,12 +66,22 @@ class CreateSwitchPort(NosDeviceAction):
                             'disable_fabric_trunk'] = self._disable_fabric_trunk(
                             device, intf_type,
                             intf_name)
-                if changes['switchport_doesnot_exists']:
+                if changes['switchport_doesnot_exists'] and mac_group_id is None and\
+                        mac_address is None:
                     changes['switchport_access_config'] = self._create_switchport(device,
                                                                                   intf_type,
                                                                                   intf_name,
                                                                                   vlan_id)
-
+                if changes['switchport_doesnot_exists'] and mac_gps != []:
+                    changes['mac_groups'] = self._config_switchport_mac_group(device,
+                                                                              intf_type,
+                                                                              intf_name,
+                                                                              mac_gps)
+                if changes['switchport_doesnot_exists'] and mac_ads != []:
+                    changes['mac_groups'] = self._config_switchport_mac_address(device,
+                                                                                intf_type,
+                                                                                intf_name,
+                                                                                mac_ads)
             self.logger.info(
                 'closing connection to %s after configuring switch port on interface -- all done!',
                 self.host)
@@ -100,10 +116,13 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Interface type or name invalid.')
         return False
 
-    def _check_requirements_switchport_exists(self, device, intf_type, intf_name, vlan_id):
+    def _check_requirements_switchport_exists(self, device, intf_type, intf_name, vlan_id,
+                                              mac_address, mac_group_id):
         """ Fail the task if switch port exists.
         """
+
         try:
+            diff_grps, diff_macs = [], []
             return_code = device.interface.switchport(int_type=intf_type, name=intf_name,
                                                       get='True')
 
@@ -115,21 +134,69 @@ class CreateSwitchPort(NosDeviceAction):
                             if intf['vlan-id'] is not None:
                                 for vid in intf['vlan-id']:
                                     if vid == vlan_id:
-                                        return False
-                                    elif vid != 1:
+                                        return False, diff_grps, diff_macs
+                                    elif int(vid) != 1:
                                         self.logger.info('Switchport access is pre-existing on '
                                                          'with a different vlan_id %s', vid)
-                                        return False
+                                        return False, diff_grps, diff_macs
                             else:
-                                return True
+                                return True, diff_grps, diff_macs
                         else:
-                            raise ValueError("Switchport trunk already on Interface,\
-                              Pls removed and re - configure")
+                            raise ValueError("Switchport trunk already on Interface,"
+                                             "Pls removed and re - configure")
+
+            if mac_group_id is not None:
+                rt = device.interface.switchport_access_mac_group_create(get=True,
+                                                                  intf_type=intf_type,
+                                                                  intf_name=intf_name)
+                if rt != []:
+                    for each_vlan, each_mg in rt:
+                        if each_vlan != vlan_id and each_mg in mac_group_id:
+                            self.logger.error('Mac Group %s is already used with a different'
+                                              ' vlan_id %s', each_mg, each_vlan)
+                            raise ValueError('Mac Group is already used with a different Vlan')
+                    tmp_groups = zip([vlan_id] * len(mac_group_id), mac_group_id)
+                    valid_mgs = [items for items in rt if items in tmp_groups]
+                    if valid_mgs != []:
+                        if len(valid_mgs) == len(tmp_groups):
+                            self.logger.info('vlan_id %s is pre-configured with Mac Groups %s',
+                                             vlan_id, mac_group_id)
+                        else:
+                            self.logger.info('vlan_id %s is pre-configured with Mac Groups %s',
+                                             vlan_id, valid_mgs)
+                            diff_grps = set(valid_mgs).symmetric_difference(set(tmp_groups))
+                            self.logger.info('To be configured Mac Groups %s', list(diff_grps))
+                else:
+                    diff_grps = zip([vlan_id] * len(mac_group_id), mac_group_id)
+
+            if mac_address is not None:
+                rt1 = device.interface.switchport_access_mac_create(get=True,
+                                                                    intf_type=intf_type,
+                                                                    intf_name=intf_name)
+                if rt1 != []:
+                    for each_vl, each_mc in rt1:
+                        if each_vl != vlan_id and each_mc in mac_address:
+                            self.logger.error('Mac Address %s is already used with a different'
+                                              ' vlan_id %s', each_mc, each_vl)
+                            raise ValueError('Mac Address is already used with a different Vlan')
+                    tmp_macs = zip([vlan_id] * len(mac_address), mac_address)
+                    valid_macs = [items for items in rt1 if items in tmp_macs]
+                    if valid_macs != []:
+                        if len(valid_macs) == len(tmp_macs):
+                            self.logger.info('vlan_id %s is pre-configured with Mac Address %s',
+                                             vlan_id, mac_address)
+                        else:
+                            self.logger.info('vlan_id %s is pre-configured with Mac Address %s',
+                                             vlan_id, valid_macs)
+                            diff_macs = set(valid_macs).symmetric_difference(set(tmp_macs))
+                            self.logger.info('To be configured Mac Address %s', list(diff_macs))
+                else:
+                    diff_macs = zip([vlan_id] * len(mac_address), mac_address)
         except (ValueError, IndexError, KeyError), e:
             raise ValueError('Fetching switch port mode failed %s', str(e))
-        return True
+        return True, list(diff_grps), list(diff_macs)
 
-    def _vlan_exist(self, device, vlan_id):
+    def _vlan_exist(self, device, vlan_id, mac_group_id, mac_address):
         """ Verify if Vlan exists on the device """
 
         vl_list = (list(self.expand_vlan_range(vlan_id)))
@@ -138,8 +205,36 @@ class CreateSwitchPort(NosDeviceAction):
                 self.logger.error('Vlan %s not present on the Device' % (vlan_id))
                 raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
+        if mac_address is not None:
+            for each_mac in mac_address:
+                if not self.is_valid_mac(each_mac):
+                    raise ValueError('Invalid MAC Address %s', each_mac)
+
+        if mac_group_id is not None:
+            for each_group in mac_group_id:
+                if int(each_group) not in range(1, 501):
+                    raise ValueError('Invalid MAC Group Id %s', each_group)
+
+    def _pre_check_mac_group(self, device, mac_group_id):
+        """ Check if mac group is pre-configured or not """
+
+        out = device.interface.mac_group_create(get=True)
+        if out is None:
+            self.logger.error('Mac Groups %s are not present on the device', mac_group_id)
+            raise ValueError('Mac Groups %s are not present on the Device' % (mac_group_id))
+        else:
+            mac_grps = [item for item in out if item in mac_group_id]
+            if mac_grps == []:
+                self.logger.error('Mac Groups %s not present on the device', mac_group_id)
+                raise ValueError('Mac Groups %s not present on the Device' % (mac_group_id))
+            if len(mac_grps) != len(mac_group_id):
+                self.logger.info('Only %s Mac Groups are present on the device out of %s',
+                                 mac_grps, mac_group_id)
+        return mac_grps
+
     def _create_switchport(self, device, intf_type, intf_name, vlan_id):
         """Configuring Switch port access vlan on the interface with vlan"""
+
         try:
             self.logger.info('Configuring Switch port access on intf_name %s', intf_name)
             device.interface.switchport(int_type=intf_type, name=intf_name)
@@ -149,6 +244,54 @@ class CreateSwitchPort(NosDeviceAction):
             raise ValueError('Configuring Switch port access failed due to %s', str(e))
         except Exception, e:
             raise ValueError('Configuring Switch port access failed due to %s', str(e))
+
+    def _config_switchport_mac_group(self, device, intf_type, intf_name, mac_gps):
+        """Associate the Mac Group to the Access Vlan.
+        """
+
+        try:
+            self.logger.info("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Groups %s ", mac_gps)
+            device.interface.switchport(int_type=intf_type, name=intf_name)
+            for each_vlan, each_group in mac_gps:
+                device.interface.switchport_access_mac_group_create(intf_name=intf_name,
+                                                                    intf_type=intf_type,
+                                                                    access_vlan_id=str(each_vlan),
+                                                                    mac_group_id=each_group)
+        except ValueError, e:
+            raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Groups %s Failed due to %s", mac_gps, str(e))
+        except KeyError, e:
+            raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Groups %s Failed due to %s", mac_gps, str(e))
+        except Exception, e:
+            raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Groups %s Failed due to %s", mac_gps, str(e))
+        return True
+
+    def _config_switchport_mac_address(self, device, intf_type, intf_name, mac_ads):
+        """Associate the Mac address to the Access Vlan.
+        """
+
+        try:
+            self.logger.info("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Address %s ", mac_ads)
+            device.interface.switchport(int_type=intf_type, name=intf_name)
+            for each_vlan, each_group in mac_ads:
+                device.interface.switchport_access_mac_create(intf_name=intf_name,
+                                                              intf_type=intf_type,
+                                                              access_vlan_id=str(each_vlan),
+                                                              mac_address=each_group)
+        except ValueError, e:
+            raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Address %s Failed due to %s", mac_ads, str(e))
+        except KeyError, e:
+            raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
+                             "Address %s Failed due to %s", mac_ads, str(e))
+        except Exception, e:
+            raise KeyError("Configuring Switchport Access Vlan and Associating the Mac "
+                           "Address %s Failed due to %s", mac_ads, str(e))
+        return True
 
     def _disable_isl(self, device, intf_type, intf_name):
         """Disable ISL on the interface.
