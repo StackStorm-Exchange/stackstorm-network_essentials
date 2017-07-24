@@ -134,9 +134,6 @@ class RemoveSwitchPort(NosDeviceAction):
 
         try:
             self.logger.info('Removing Switch port trunk allowed vlan %s', vlan_id)
-            device.interface.switchport(int_type=intf_type, name=intf_name)
-            device.interface.trunk_mode(int_type=intf_type,
-                                        name=intf_name, mode='trunk')
             if c_tag is None:
                 device.interface.trunk_allowed_vlan(int_type=intf_type,
                                                     name=intf_name,
