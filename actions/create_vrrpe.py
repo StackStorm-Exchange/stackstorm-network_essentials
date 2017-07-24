@@ -176,7 +176,7 @@ class CreateVrrpe(NosDeviceAction):
                             ip_version = ''
         if not ve_present:
             self.logger.error('Ve %s is not available' % ve_name)
-            ip_version = ''
+            raise ValueError('Ve %s is not present on the device' % (ve_name))
 
         return str(ip_version)
 
