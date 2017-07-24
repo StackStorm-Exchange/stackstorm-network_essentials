@@ -1,0 +1,54 @@
+---
+name: remove_switchport_trunk_allowed_vlan 
+pack: network_essentials
+runner_type: run-python
+description: Remove switch port trunk allowed vlan from an interface.
+enabled: true
+entry_point: remove_switchport_trunk_allowed_vlan.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+    default: tengigabitethernet
+    description: Interface type 
+    required: true
+    position: 3
+  intf_name:
+    type: string
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) or Port-channel number <1-6144>. 
+    required: true
+    position: 4
+  vlan_id: 
+    type: string
+    description: Single or range of VLANs to be configured on the interface. 
+                 NOS - Valid values <1-4090/8191 when VFAB disabled/enabled>
+                 SLX - Valid values <1-4090>
+                 For example, 5 or 4-7 or 4,6,9-11 or all. Range not supported for VFAB vlans. 
+    required: true
+    position: 5
+  c_tag: 
+    type: string
+    description: Ctag Vlan ID.Valid values <1-4090>. Valid only on NOS devices
+    position: 6

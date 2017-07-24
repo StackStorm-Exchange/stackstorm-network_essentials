@@ -160,7 +160,7 @@ class NosDeviceAction(Action):
                 return None
             elif vid in reserved_vlan_list:
                 self.logger.error(
-                    "Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                    "User provided vlans contains reserved vlans %s", vid)
                 return None
 
         return vlan_id
