@@ -160,7 +160,7 @@ class NosDeviceAction(Action):
                 return None
             elif vid in reserved_vlan_list:
                 self.logger.error(
-                    "Vlan cannot be created, as it is not a user/fcoe vlan %s", vid)
+                    "User provided vlans contains reserved vlans %s", vid)
                 return None
 
         return vlan_id
@@ -806,7 +806,7 @@ class NosDeviceAction(Action):
             raise ValueError('VLAG PAIR must be <= 2 leaf nodes')
         return list(set(rb_list))
 
-    def extract_port_list(self, intf_type, port_list):
+    def extract_port_list(self, device, intf_type, port_list):
         interface_list = []
         for intf in port_list:
             if "-" not in str(intf):
@@ -818,7 +818,7 @@ class NosDeviceAction(Action):
                     interface_list.append(str(ex_intf))
 
         for intf in interface_list:
-            if not self.validate_interface(intf_type, intf):
+            if not self.validate_interface(intf_type, intf, os_type=device.os_type):
                 msg = "Input is not a valid Interface"
                 self.logger.error(msg)
                 raise ValueError(msg)

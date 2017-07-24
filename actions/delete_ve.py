@@ -31,7 +31,10 @@ class DeleteVe(NosDeviceAction):
         changes = {}
 
         with Device(conn=self.conn, auth=self.auth) as device:
+            if device.os_type == 'nos' and rbridge_id is None:
+                rbridge_id = self.vlag_pair(device)
             self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
+
             self.logger.info('successfully connected to %s to Delete Ve',
                              self.host)
             changes['pre_check'] = self._check_req(device, rbridge_id=rbridge_id,

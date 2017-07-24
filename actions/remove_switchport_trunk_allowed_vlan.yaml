@@ -1,10 +1,10 @@
 ---
-name: create_switchport_access
+name: remove_switchport_trunk_allowed_vlan 
 pack: network_essentials
-runner_type: python-script
-description: Configure a port channel or a physical interface as an Access interface.
+runner_type: run-python
+description: Remove switch port trunk allowed vlan from an interface.
 enabled: true
-entry_point: create_switchport_access.py
+entry_point: remove_switchport_trunk_allowed_vlan.py 
 parameters:
   mgmt_ip:
     type: string
@@ -37,15 +37,18 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) 
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) or Port-channel number <1-6144>. 
     required: true
     position: 4
-  vlan_id:
-    type: string 
-    description: VLAN ID to be configure on the interface.Valid values <1-4090/8191 when VFAB disabled/enabled>
+  vlan_id: 
+    type: string
+    description: Single or range of VLANs to be configured on the interface. 
+                 NOS - Valid values <1-4090/8191 when VFAB disabled/enabled>
+                 SLX - Valid values <1-4090>
+                 For example, 5 or 4-7 or 4,6,9-11 or all. Range not supported for VFAB vlans. 
     required: true
     position: 5
-  mac_group_id:
-    type: array 
-    description: Mac Group id. Valid Range [1,500]
+  c_tag: 
+    type: string
+    description: Ctag Vlan ID.Valid values <1-4090>. Valid only on NOS devices
     position: 6

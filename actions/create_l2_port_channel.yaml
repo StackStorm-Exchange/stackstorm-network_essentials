@@ -63,5 +63,5 @@ parameters:
     position: 7
   port_channel_desc:
     type: string
-    description: Port channel Interface description name without any space
+    description: Port channel interface description without any space
     position: 8

@@ -1,0 +1,33 @@
+---
+name: configure_mac_group 
+pack: network_essentials 
+runner_type: run-python
+description: Configure Mac Group and the mac addresses.
+enabled: true
+entry_point: configure_mac_group.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  mac_group_id:
+    type: integer
+    description: Mac Group id. Valid Range [1,500]
+    required: true
+    position: 3
+  mac_address:
+    type: array
+    description: Single/list of Mac addresses to be part of the mac group. Mac Address -> HHHH.HHHH.HHHH format
+    position: 4

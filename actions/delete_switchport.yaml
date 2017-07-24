@@ -1,10 +1,10 @@
 ---
-name: create_switchport_access
-pack: network_essentials
-runner_type: python-script
-description: Configure a port channel or a physical interface as an Access interface.
+name: delete_switchport 
+pack: network_essentials 
+runner_type: run-python
+description: Delete Switchport on an interface.
 enabled: true
-entry_point: create_switchport_access.py
+entry_point: delete_switchport.py
 parameters:
   mgmt_ip:
     type: string
@@ -32,20 +32,13 @@ parameters:
       - hundredgigabitethernet
       - port_channel
     default: tengigabitethernet
-    description: Interface type 
+    description: Interface type
     required: true
     position: 3
   intf_name:
-    type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) 
+    type: string 
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1).
+                 Example for interface 235/0/35 or 235/0/35-40
+                 Example for port-channel 10 or 1-10
     required: true
     position: 4
-  vlan_id:
-    type: string 
-    description: VLAN ID to be configure on the interface.Valid values <1-4090/8191 when VFAB disabled/enabled>
-    required: true
-    position: 5
-  mac_group_id:
-    type: array 
-    description: Mac Group id. Valid Range [1,500]
-    position: 6

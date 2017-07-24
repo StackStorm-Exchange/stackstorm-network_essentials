@@ -1,0 +1,24 @@
+---
+name: get_next_available_vf_id_for_mapping
+pack: network_essentials
+runner_type: run-python
+description: Auto pick the lowest available VF ID(4096-8191) on the device. 
+enabled: true
+entry_point: get_next_available_vf_id_for_mapping.py 
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
