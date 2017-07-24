@@ -14,6 +14,7 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import re
 
 
 class CreateSwitchPort(NosDeviceAction):
@@ -111,10 +112,15 @@ class CreateSwitchPort(NosDeviceAction):
                              % (intf_type, intf_name))
         if vlan_action == 'add':
             if c_tag is not None:
+                ctag_pattern = r"^(\d+)$"
+                if not re.match(ctag_pattern, c_tag):
+                    self.logger.error('Invalid c_tag %s format, '
+                                      'c_tag range is not support', c_tag)
+                    raise ValueError('Invalid c_tag %s format' % (c_tag))
                 if int(c_tag) not in range(1, 4091):
                     if int(vlan_id) not in range(4096, 8192):
                         self.logger.error('c_tag vlan %s must be in range(1,4090) &'
-                                          ' vlan_id %s must be in range(4096,8191)',
+                                          'vlan_id %s must be in range(4096,8191)',
                                           c_tag, vlan_id)
                         raise ValueError('c_tag vlan is not in range(1,4090) &'
                                          ' vlan_id is not in range(4096,8191)')
@@ -125,6 +131,12 @@ class CreateSwitchPort(NosDeviceAction):
                 vlan_list = vlan_id.split(',')
             for vlan in vlan_list:
                 vl_list = (list(self.expand_vlan_range(vlan)))
+                if c_tag is None and\
+                        [vl for vl in vl_list if vl not in range(1, 4091)] != []:
+                    self.logger.error('Invalid vlan_id range, '
+                                      'vlan_id %s is not in range(1,4090)', vlan_id)
+                    raise ValueError('Invalid vlan_id range, '
+                                     'vlan_id %s is not in range(1,4090)' % (vlan_id))
                 for vlan_id in vl_list:
                     if not device.interface.get_vlan_int(vlan_id=vlan_id):
                         self.logger.error('Vlan %s not present on the Device' % (vlan_id))
