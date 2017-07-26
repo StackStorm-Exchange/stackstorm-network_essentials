@@ -35,6 +35,10 @@ class VirtualFabric(NosDeviceAction):
 
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            if device.os_type != 'nos':
+                self.logger.error('VF feature is supported only on VDX platform')
+                raise TypeError('Action is valid only VDX platform')
+
             self.logger.info(
                 'successfully connected to %s to Configure VCS Virtual Fabric '
                 ' on the device', self.host)
