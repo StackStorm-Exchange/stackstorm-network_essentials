@@ -8,7 +8,7 @@ machine:
     version: 4.2.2
   environment:
     DEPLOY_PACKAGES: 1
-    DEB: wheezy jessie trusty xenial
+    DEB: trusty xenial
     RPM: el6 el7
     ST2_HOST: localhost
     ST2_USERNAME: admin
