@@ -50,5 +50,6 @@ parameters:
     position: 5
   c_tag: 
     type: string
-    description: Ctag Vlan ID.Valid values <1-4090>. Valid only on NOS devices
+    description: Single or range of Ctag Vlan IDs.Valid values <1-4090>. Valid only on NOS devices
+                 For example, 5 or 4-7 or 4,6,9-11 or all. 
     position: 6
