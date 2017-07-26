@@ -14,14 +14,14 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-
+import sys
 MAX_DOT1Q_VLAN = 4095
 
 
 class AutoPickPortChannel(NosDeviceAction):
     """
        Implements the logic to autofetch  vfab or network id on
-        VDX/SLX Switches .
+        VDX Switches .
        This action acheives the below functionality
            1.Provides a vfab number if vfab or network id is not passed
     """
@@ -38,6 +38,9 @@ class AutoPickPortChannel(NosDeviceAction):
     def switch_operation(self):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            if device.os_type != 'nos':
+                self.logger.error('VF feature is supported only on VDX platform')
+                sys.exit(-1)
             self.logger.info(
                 'successfully connected to %s to fetch vfab id or network id',
                 self.host)
