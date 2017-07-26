@@ -15,6 +15,7 @@ import sys
 from ne_base import NosDeviceAction
 from pyswitch.device import Device
 from execute_cli import CliCMD
+import itertools
 
 
 class DeleteVlan(NosDeviceAction):
@@ -37,9 +38,15 @@ class DeleteVlan(NosDeviceAction):
             self.logger.info(
                 'successfully connected to %s to delete interface vlan',
                 self.host)
-            # Check is the user input for VLANS is correct
 
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+            # Check is the user input for VLANS is correct
+            vlan_list = []
+            vlanlist = vlan_id.split(',')
+            for val in vlanlist:
+                temp = self.expand_vlan_range(vlan_id=val)
+                vlan_list.append(temp)
+
+            vlan_list = list(itertools.chain.from_iterable(vlan_list))
 
             if vlan_list:
                 changes["vlan"] = self._delete_vlan(
