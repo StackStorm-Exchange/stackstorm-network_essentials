@@ -14,7 +14,6 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import sys
 
 
 class VirtualFabric(NosDeviceAction):
@@ -38,7 +37,7 @@ class VirtualFabric(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             if device.os_type != 'nos':
                 self.logger.error('VF feature is supported only on VDX platform')
-                sys.exit(-1)
+                raise TypeError('Action is valid only VDX platform')
 
             self.logger.info(
                 'successfully connected to %s to Configure VCS Virtual Fabric '
