@@ -1,10 +1,10 @@
 ---
-name: configure_vf 
+name: enable_vf 
 pack: network_essentials 
 runner_type: run-python
 description: Enable/Disable vcs virtual fabric.
 enabled: true
-entry_point: configure_vf.py
+entry_point: enable_vf.py
 parameters:
   mgmt_ip:
     type: string
