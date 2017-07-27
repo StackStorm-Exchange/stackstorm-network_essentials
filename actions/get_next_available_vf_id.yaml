@@ -1,10 +1,10 @@
 ---
-name: configure_vf 
-pack: network_essentials 
+name: get_next_available_vf_id
+pack: network_essentials
 runner_type: run-python
-description: Enable/Disable vcs virtual fabric.
+description: Auto pick the lowest available VF ID(4096-8191) on the device. 
 enabled: true
-entry_point: configure_vf.py
+entry_point: get_next_available_vf_id.py 
 parameters:
   mgmt_ip:
     type: string
@@ -22,8 +22,3 @@ parameters:
     default: password
     secret: true
     position: 2
-  virtual_fabric_enable:
-    type: boolean
-    description: Enable/Disable VCS Virtual Fabric 
-    default: True
-    position: 3
