@@ -166,6 +166,8 @@ class CreateSwitchPort(NosDeviceAction):
                                              vlan_id, valid_mgs)
                             diff_grps = set(valid_mgs).symmetric_difference(set(tmp_groups))
                             self.logger.info('To be configured Mac Groups %s', list(diff_grps))
+                    else:
+                        diff_grps = tmp_groups
                 else:
                     diff_grps = zip([vlan_id] * len(mac_group_id), mac_group_id)
 
