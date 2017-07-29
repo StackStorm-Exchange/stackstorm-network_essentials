@@ -58,34 +58,26 @@ class CreateVlan(NosDeviceAction):
             if not valid_desc:
                 raise ValueError('Unsupported `vlan_desc` value passed', intf_desc)
 
-            changes['vlan'] = self._create_vlan(device, vlan_id=vlan_list)
-            self._update_vlan(device, vlan_id=vlan_list, intf_desc=intf_desc)
+            changes['vlan'] = self._create_vlan(device, vlan_list, intf_desc)
 
             self.logger.info('Closing connection to %s after '
                              'creating vlan -- all done!',
                              self.host)
         return changes
 
-    def _create_vlan(self, device, vlan_id):
+    def _create_vlan(self, device, vlan_list, intf_desc):
 
         try:
-            self.logger.info('Creating Vlans %s', vlan_id)
-            for vlan in vlan_id:
-                device.interface.add_vlan_int(vlan)
+            self.logger.info('Creating Vlans %s', vlan_list)
+            if intf_desc:
+                for vlan in vlan_list:
+                    device.interface.add_vlan_int(vlan)
+                    device.interface.description(int_type='vlan', name=vlan, desc=intf_desc)
+            else:
+                for vlan in vlan_list:
+                    device.interface.add_vlan_int(vlan)
         except KeyError, ValueError:
             self.logger.info('VLAN %s creation failed', vlan)
             raise ValueError('VLAN creation failed')
-
-        return True
-
-    def _update_vlan(self, device, vlan_id, intf_desc):
-
-        try:
-            self.logger.info('Configuring Vlan description as %s', intf_desc)
-            for vlan in vlan_id:
-                device.interface.description(int_type='vlan', name=vlan, desc=intf_desc)
-        except (KeyError, ValueError, AttributeError) as e:
-            self.logger.info('Configuring Vlan description failed for %s' % vlan)
-            raise ValueError('Configuring Vlan description failed', e.message)
 
         return True
