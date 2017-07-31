@@ -110,9 +110,11 @@ class CreateSwitchPort(NosDeviceAction):
                               % (intf_type, intf_name))
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
+
+        c_tag_list = []
+        vlanid_list = []
         if vlan_action == 'add':
             vlan_list = []
-            c_tag_list = []
             vlanlist = vlan_id.split(',')
             vlanid_list = vlan_id
             for val in vlanlist:
