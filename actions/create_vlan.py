@@ -21,9 +21,7 @@ class CreateVlan(NosDeviceAction):
     """
        Implements the logic to create vlans on VDX and SLX devices.
        This action achieves the below functionality
-           1.Vlan Id and description validation
-           2.Check for the vlan on the Device,if not present create it
-           3.No errors reported when the VLAN already exists (idempotent)
+           1.Create a Vlan Id and description
     """
 
     def run(self, mgmt_ip, username, password, vlan_id, vlan_desc):
@@ -40,82 +38,46 @@ class CreateVlan(NosDeviceAction):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
-                'successfully connected to %s to validate interface vlan',
+                'Successfully connected to %s to create interface vlans',
                 self.host)
             # Check is the user input for VLANS is correct
             vlan_list = []
             vlanlist = vlan_id.split(',')
             for val in vlanlist:
                 temp = self.expand_vlan_range(vlan_id=val)
+                if temp is None:
+                    raise ValueError('Reserved/Control Vlans or Invalid Vlan Ids passed'
+                                     ' in args `vlan_id` %s' % (vlan_id))
                 vlan_list.append(temp)
 
             vlan_list = list(itertools.chain.from_iterable(vlan_list))
 
             valid_desc = True
             if intf_desc:
-                # if description is passed we validate that the length is good.
-                valid_desc = self.check_int_description(
-                    intf_description=intf_desc)
+                valid_desc = self.check_int_description(intf_description=intf_desc)
+            if not valid_desc:
+                raise ValueError('Unsupported `vlan_desc` value passed', intf_desc)
 
-            if vlan_list and valid_desc:
-                changes['vlan'] = self._create_vlan(
-                    device, vlan_id=vlan_list, intf_desc=intf_desc)
-            else:
-                raise ValueError('Input is not a valid vlan or description')
+            changes['vlan'] = self._create_vlan(device, vlan_list, intf_desc, vlan_id)
 
-            self.logger.info('Closing connection to %s after configuring '
-                             'create vlan -- all done!',
+            self.logger.info('Closing connection to %s after '
+                             'creating vlan -- all done!',
                              self.host)
         return changes
 
-    def _create_vlan(self, device, vlan_id, intf_desc):
-        output = []
-        vlans = device.interface.vlans
-        vlan_dict = {}
-        for vlan in vlans:
-            vlan_dict[vlan['vlan-id']] = vlan
-        for vlan in vlan_id:
-            vlan_exists = False
-            if vlan in vlan_dict:
-                vlan_exists = True
-            result = {}
-            if not vlan_exists:
-                cr_vlan = device.interface.add_vlan_int(vlan)
-                if cr_vlan:
-                    self.logger.info('Successfully created a VLAN %s', vlan)
-                    result['result'] = cr_vlan
-                    result['output'] = 'Successfully created a VLAN %s' % vlan
-                else:
-                    self.logger.exception(
-                        'Configuring interface VLAN %s failed', vlan)
-                    raise ValueError(
-                        'Configuring interface VLAN %s failed' % vlan)
-            else:
-                result['result'] = 'False'
-                result['output'] = 'VLAN  %s already exists on' \
-                                   ' the device' % vlan
-                self.logger.info('VLAN %s already exists, not created', vlan)
+    def _create_vlan(self, device, vlan_list, intf_desc, vlan_id):
 
+        try:
+            self.logger.info('Creating Vlans %s', vlan_id)
             if intf_desc:
-                self.logger.info(
-                    'Configuring VLAN description as %s', intf_desc)
-                try:
-                    device.interface.description(
-                        int_type='vlan', name=vlan, desc=intf_desc)
-                    result[
-                        'description'] = 'Successfully updated VLAN ' \
-                                         'description for %s' % vlan
-                    self.logger.info(
-                        'Successfully updated VLAN description for %s' %
-                        vlan)
-                except (KeyError, ValueError, AttributeError) as e:
-                    self.logger.info(
-                        'Configuring VLAN interface failed for %s' %
-                        vlan)
-                    raise ValueError(
-                        'Configuring VLAN interface failed', e.message)
+                for vlan in vlan_list:
+                    device.interface.add_vlan_int(vlan)
+                    device.interface.description(int_type='vlan', name=vlan, desc=intf_desc)
             else:
-                self.logger.debug('Skipping to update Interface description,'
-                                  ' as no info provided')
-            output.append(result)
-        return output
+                for vlan in vlan_list:
+                    device.interface.add_vlan_int(vlan)
+        except (KeyError, ValueError) as e:
+            self.logger.info('VLAN %s creation failed due to %s' % (vlan, e.message))
+            raise ValueError('VLAN creation failed')
+
+        return True
