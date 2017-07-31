@@ -63,8 +63,8 @@ class DeleteVlan(NosDeviceAction):
             self.logger.info('Deleting Vlans %s', vlan_list)
             for vlan in vlan_list:
                 device.interface.del_vlan_int(vlan)
-        except KeyError, ValueError:
-            self.logger.info('VLAN %s deletion failed', vlan)
+        except (KeyError, ValueError) as e:
+            self.logger.info('VLAN %s deletion failed due to %s' % (vlan, e.message))
             raise ValueError('VLAN deletion failed')
 
         return True

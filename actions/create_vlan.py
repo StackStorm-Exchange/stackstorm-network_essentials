@@ -76,8 +76,8 @@ class CreateVlan(NosDeviceAction):
             else:
                 for vlan in vlan_list:
                     device.interface.add_vlan_int(vlan)
-        except KeyError, ValueError:
-            self.logger.info('VLAN %s creation failed', vlan)
+        except (KeyError, ValueError) as e:
+            self.logger.info('VLAN %s creation failed due to %s' % (vlan, e.message))
             raise ValueError('VLAN creation failed')
 
         return True
