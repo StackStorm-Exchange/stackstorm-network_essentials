@@ -50,17 +50,17 @@ class DeleteVlan(NosDeviceAction):
 
             vlan_list = list(itertools.chain.from_iterable(vlan_list))
 
-            changes["vlan"] = self._delete_vlan(device, vlan_list)
+            changes["vlan"] = self._delete_vlan(device, vlan_list, vlan_id)
 
             self.logger.info('Closing connection to %s after '
                              'Deleting vlans -- all done!',
                              self.host)
         return changes
 
-    def _delete_vlan(self, device, vlan_list):
+    def _delete_vlan(self, device, vlan_list, vlan_id):
 
         try:
-            self.logger.info('Deleting Vlans %s', vlan_list)
+            self.logger.info('Deleting Vlans %s', vlan_id)
             for vlan in vlan_list:
                 device.interface.del_vlan_int(vlan)
         except (KeyError, ValueError) as e:
