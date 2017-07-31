@@ -58,17 +58,17 @@ class CreateVlan(NosDeviceAction):
             if not valid_desc:
                 raise ValueError('Unsupported `vlan_desc` value passed', intf_desc)
 
-            changes['vlan'] = self._create_vlan(device, vlan_list, intf_desc)
+            changes['vlan'] = self._create_vlan(device, vlan_list, intf_desc, vlan_id)
 
             self.logger.info('Closing connection to %s after '
                              'creating vlan -- all done!',
                              self.host)
         return changes
 
-    def _create_vlan(self, device, vlan_list, intf_desc):
+    def _create_vlan(self, device, vlan_list, intf_desc, vlan_id):
 
         try:
-            self.logger.info('Creating Vlans %s', vlan_list)
+            self.logger.info('Creating Vlans %s', vlan_id)
             if intf_desc:
                 for vlan in vlan_list:
                     device.interface.add_vlan_int(vlan)
