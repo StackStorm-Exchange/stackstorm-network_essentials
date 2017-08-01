@@ -74,4 +74,7 @@ class AutoPickPortChannel(NosDeviceAction):
         for num in vfab_range:
             if num not in vfab_array:
                 break
+            elif num == 8191:
+                self.logger.info('No free VF ID available on the device')
+                num = ''
         return num
