@@ -201,12 +201,6 @@ class CreateSwitchPort(NosDeviceAction):
     def _vlan_exist(self, device, vlan_id, mac_group_id, mac_address):
         """ Verify if Vlan exists on the device """
 
-        vl_list = (list(self.expand_vlan_range(vlan_id)))
-        for vlan_id in vl_list:
-            if not device.interface.get_vlan_int(vlan_id=vlan_id):
-                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
-
         if mac_address is not None:
             for each_mac in mac_address:
                 if not self.is_valid_mac(each_mac):
