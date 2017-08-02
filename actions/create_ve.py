@@ -299,24 +299,22 @@ class CreateVe(NosDeviceAction):
         for each_ve in ves:
             tmp_ve = 'Ve ' + ve_name
             if each_ve['ip-address'] != 'unassigned' and vrf_name in vrf_list:
-                if each_ve['if-name'] == tmp_ve and \
-                                each_ve['ip-address'] == ip_address:
+                if each_ve['if-name'] == tmp_ve and each_ve['ip-address'] == ip_address:
                     self.logger.error('Ve %s is pre-assigned to this IP'
                                       ' address %s, and VRF %s on '
                                       'rbridge-id %s', ve_name,
                                       each_ve['ip-address'], vrf_name,
                                       rbridge_id)
                     return False
-                elif each_ve['if-name'] == tmp_ve and \
-                                each_ve['ip-address'] != '' and ip_address == '':
+                elif each_ve['if-name'] == tmp_ve and each_ve['ip-address'] != '' \
+                        and ip_address == '':
                     self.logger.error('There is an IP address %s pre-existing '
                                       'on the Ve %s, Remove the IP address '
                                       'before assigning the VRF %s on '
                                       'rbridge-id %s', each_ve['ip-address'],
                                       ve_name, vrf_name, rbridge_id)
                     return False
-                elif each_ve['if-name'] == tmp_ve and \
-                                each_ve['ip-address'] != ip_address:
+                elif each_ve['if-name'] == tmp_ve and each_ve['ip-address'] != ip_address:
                     self.logger.error('Ve %s is pre-assigned to a different '
                                       'IP address %s, Remove the IP address'
                                       'before assigning the VRF %s on '
