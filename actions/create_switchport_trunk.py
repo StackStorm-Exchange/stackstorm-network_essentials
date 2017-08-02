@@ -155,11 +155,6 @@ class CreateSwitchPort(NosDeviceAction):
                                       ' list of equal length', vlan_id, c_tag)
                     raise ValueError('Unsupported vlan_id & c_tag combination passed')
 
-            for vlan in vlan_list + c_tag_list:
-                if not device.interface.get_vlan_int(vlan_id=vlan):
-                    self.logger.error('Vlan %s not present on the Device' % (vlan))
-                    raise ValueError('Vlan %s not present on the Device' % (vlan))
-
         return vlanid_list, c_tag_list
 
     def _check_requirements_L2_interface(self, device, intf_type, intf_name):
