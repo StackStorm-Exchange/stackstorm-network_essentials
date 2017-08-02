@@ -42,10 +42,10 @@ parameters:
     position: 4
   vlan_id:
     type: string 
-    description: VLAN ID to be configure on the interface.Valid values <1-4090/8191 when VFAB disabled/enabled>
+    description: VLAN ID to be configure on the interface. For 802.1Q VLANs, ID must be below 4096, for service or transport VFs valid range is from 4096 through 8191.
     required: true
     position: 5
   mac_group_id:
     type: array 
-    description: Mac Group id. Valid Range [1,500]
+    description: ID of previously created MAC group to be used in MAC-based VLAN classification at the access port.  Applicable only when Virtual Fabric is enabled.  This is a fabric-wide ID, valid values are 1 through 500.
     position: 6

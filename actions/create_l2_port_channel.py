@@ -126,7 +126,9 @@ class CreatePortChannel(NosDeviceAction):
                 self.logger.info('Configuring port channel %s with mode as %s'
                                  ' and protocol as active on interface %s is done',
                                  portchannel_num, channel_type, intf)
-            except (ValueError, KeyError):
+            except (ValueError, KeyError) as e:
+                error_message = str(e.message)
+                self.logger.error(error_message)
                 self.logger.error('Port Channel %s Creation and setting channel mode %s failed',
                                  portchannel_num,
                                  channel_type)

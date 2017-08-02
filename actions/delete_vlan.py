@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
+import itertools
 from ne_base import NosDeviceAction
-from pyswitch.device import Device
-from execute_cli import CliCMD
+from ne_base import log_exceptions
 
 
 class DeleteVlan(NosDeviceAction):
@@ -31,62 +30,41 @@ class DeleteVlan(NosDeviceAction):
 
         return changes
 
+    @log_exceptions
     def switch_operation(self, vlan_id):
         changes = {}
-        with Device(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
-                'successfully connected to %s to delete interface vlan',
+                'Successfully connected to %s to delete interface vlans',
                 self.host)
+
             # Check is the user input for VLANS is correct
+            vlan_list = []
+            vlanlist = vlan_id.split(',')
+            for val in vlanlist:
+                temp = self.expand_vlan_range(vlan_id=val)
+                if temp is None:
+                    raise ValueError('Reserved/Control Vlans or Invalid Vlan Ids passed'
+                                     ' in args `vlan_id` %s' % (vlan_id))
+                vlan_list.append(temp)
 
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+            vlan_list = list(itertools.chain.from_iterable(vlan_list))
 
-            if vlan_list:
-                changes["vlan"] = self._delete_vlan(
-                    device, vlan_id=vlan_list)
-                # changes['show_vlan'] = self._fetch_Vlan_state(device, vlan_id)
-            else:
-                raise ValueError('Input is not a valid vlan ')
+            changes["vlan"] = self._delete_vlan(device, vlan_list, vlan_id)
 
-            self.logger.info('Closing connection to %s after configuring '
-                             'Delete vlan -- all done!',
+            self.logger.info('Closing connection to %s after '
+                             'Deleting vlans -- all done!',
                              self.host)
         return changes
 
-    def _delete_vlan(self, device, vlan_id):
-        interfaces = device.interface.vlans
-        is_vlan_interface_present = False
-        for vlan in vlan_id:
-            for interface in interfaces:
-                if int(interface['vlan-id']) == int(vlan):
-                    is_vlan_interface_present = True
-                    break
-            if is_vlan_interface_present:
-                retVal = device.interface.del_vlan_int(vlan)
-                if retVal:
-                    self.logger.info('VLAN %s is deleted', vlan)
-                    delete_flag = True
-                else:
-                    delete_flag = False
-                    sys.exit(-1)
-            else:
-                self.logger.info('VLAN %s does not exist', vlan)
-                delete_flag = False
-        return delete_flag
+    def _delete_vlan(self, device, vlan_list, vlan_id):
 
-    def _fetch_Vlan_state(self, device, vlan_id):
-        """validate Vlan state.
-        """
+        try:
+            self.logger.info('Deleting Vlans %s', vlan_id)
+            for vlan in vlan_list:
+                device.interface.del_vlan_int(vlan)
+        except (KeyError, ValueError) as e:
+            self.logger.info('VLAN %s deletion failed due to %s' % (vlan, e.message))
+            raise ValueError('VLAN deletion failed')
 
-        exec_cli = CliCMD()
-        host_ip = self.host
-        host_username = self.auth[0]
-        host_password = self.auth[1]
-        cli_arr = []
-        cli_cmd = 'show vlan ' + vlan_id
-        cli_arr.append(cli_cmd)
-        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
-                                                      password=host_password,
-                                                      cli_cmd=cli_arr)
-        output = str(raw_cli_output)
-        return output
+        return True

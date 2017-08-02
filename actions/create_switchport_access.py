@@ -166,6 +166,8 @@ class CreateSwitchPort(NosDeviceAction):
                                              vlan_id, valid_mgs)
                             diff_grps = set(valid_mgs).symmetric_difference(set(tmp_groups))
                             self.logger.info('To be configured Mac Groups %s', list(diff_grps))
+                    else:
+                        diff_grps = tmp_groups
                 else:
                     diff_grps = zip([vlan_id] * len(mac_group_id), mac_group_id)
 
@@ -198,12 +200,6 @@ class CreateSwitchPort(NosDeviceAction):
 
     def _vlan_exist(self, device, vlan_id, mac_group_id, mac_address):
         """ Verify if Vlan exists on the device """
-
-        vl_list = (list(self.expand_vlan_range(vlan_id)))
-        for vlan_id in vl_list:
-            if not device.interface.get_vlan_int(vlan_id=vlan_id):
-                self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-                raise ValueError('Vlan %s not present on the Device' % (vlan_id))
 
         if mac_address is not None:
             for each_mac in mac_address:

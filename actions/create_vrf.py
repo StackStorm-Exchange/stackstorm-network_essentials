@@ -117,8 +117,10 @@ class CreateVRF(NosDeviceAction):
                 vrf_name)
             device.interface.vrf_afi(
                 vrf_name=vrf_name, rbridge_id=rbridge_id, afi=afi)
-        except (ValueError, KeyError):
-            self.logger.info('Invalid Input types while creating %s address '
+        except (ValueError, KeyError) as e:
+            error_message = str(e.message)
+            self.logger.error(error_message)
+            raise ValueError('Invalid Input types while creating %s address '
                              'family on VRF %s',
                              afi, vrf_name)
             return False
@@ -129,11 +131,14 @@ class CreateVRF(NosDeviceAction):
 
         try:
             self.logger.info('Creating VRF %s ', vrf_name)
+            self.logger.info('vrf name type %s', type(vrf_name))
+            self.logger.info('Rbridge id type %s', type(rbridge_id))
             device.interface.vrf(vrf_name=vrf_name, rbridge_id=rbridge_id)
-        except (ValueError, KeyError):
-            self.logger.info('Invalid Input types while creating VRF %s',
+        except (ValueError, KeyError) as e:
+            error_message = str(e.message)
+            self.logger.error(error_message)
+            raise ValueError('Invalid Input types while creating VRF %s',
                              vrf_name)
-            return False
         return True
 
     def _fetch_VRF_state(self, device, vrf_name):

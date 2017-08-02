@@ -21,7 +21,7 @@ MAX_DOT1Q_VLAN = 4095
 class AutoPickPortChannel(NosDeviceAction):
     """
        Implements the logic to autofetch  vfab or network id on
-        VDX/SLX Switches .
+        VDX Switches .
        This action acheives the below functionality
            1.Provides a vfab number if vfab or network id is not passed
     """
@@ -38,6 +38,9 @@ class AutoPickPortChannel(NosDeviceAction):
     def switch_operation(self):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            if device.os_type != 'nos':
+                self.logger.error('VF feature is supported only on VDX platform')
+                raise TypeError('Action is valid only VDX platform')
             self.logger.info(
                 'successfully connected to %s to fetch vfab id or network id',
                 self.host)
@@ -71,4 +74,7 @@ class AutoPickPortChannel(NosDeviceAction):
         for num in vfab_range:
             if num not in vfab_array:
                 break
+            elif num == 8191:
+                self.logger.info('No free VF ID available on the device')
+                num = ''
         return num
