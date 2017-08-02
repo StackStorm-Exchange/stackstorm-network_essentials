@@ -2,7 +2,7 @@
 name: configure_mac_group 
 pack: network_essentials 
 runner_type: run-python
-description: Configure Mac Group and the mac addresses.
+description: Create a new Mac group on a device and configure member mac addresses.
 enabled: true
 entry_point: configure_mac_group.py
 parameters:
@@ -24,10 +24,10 @@ parameters:
     position: 2
   mac_group_id:
     type: integer
-    description: Mac Group id. Valid Range [1,500]
+    description: MAC group ID <NUMBER:1,500>
     required: true
     position: 3
   mac_address:
     type: array
-    description: Single/list of Mac addresses to be part of the mac group. Mac Address -> HHHH.HHHH.HHHH format
+    description: Single or comma seperated list of MAC addresses to be part of the MAC group. MAC address in HHHH.HHHH.HHHH format.
     position: 4
