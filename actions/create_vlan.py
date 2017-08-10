@@ -36,7 +36,7 @@ class CreateVlan(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_desc, vlan_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth,connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
             self.logger.info(
                 'Successfully connected to %s to create interface vlans',
                 self.host)
@@ -65,11 +65,11 @@ class CreateVlan(NosDeviceAction):
                              self.host)
         return changes
 
-    def _create_vlan(self, device, vlan_list,intf_desc,vlan_id):
+    def _create_vlan(self, device, vlan_list, intf_desc, vlan_id):
 
         try:
             self.logger.info('Creating Vlans')
-            device.interface.add_vlan_int(vlan_id_list=vlan_list,desc=intf_desc)
+            device.interface.add_vlan_int(vlan_id_list=vlan_list, desc=intf_desc)
         except (KeyError, ValueError) as e:
             self.logger.info('VLAN creation failed due to %s' % (e.message))
             raise ValueError('VLAN creation failed')
