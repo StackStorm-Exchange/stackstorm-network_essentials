@@ -14,7 +14,7 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import re
+import itertools
 
 
 class RemoveSwitchPort(NosDeviceAction):
@@ -41,7 +41,7 @@ class RemoveSwitchPort(NosDeviceAction):
                 'switchport trunk allowed vlan on the Interface',
                 self.host)
 
-            changes['Interface_Present'] = self._check_interface_presence(
+            v_list, c_list = self._check_interface_presence(
                 device, intf_type, intf_name, vlan_id, c_tag)
 
             changes['switchport_doesnot_exists'] = \
@@ -49,8 +49,9 @@ class RemoveSwitchPort(NosDeviceAction):
                                                            intf_name)
             if changes['switchport_doesnot_exists']:
                 changes['switchport_trunk_config'] = self._remove_switchport(device, intf_type,
-                                                                             intf_name, vlan_id,
-                                                                             c_tag)
+                                                                             intf_name,
+                                                                             vlan_id=v_list,
+                                                                             c_tag=c_list)
             self.logger.info('closing connection to %s after Removing the'
                              ' switch port trunk allowed vlan on interface -- all done!', self.host)
 
@@ -75,43 +76,50 @@ class RemoveSwitchPort(NosDeviceAction):
                               % (intf_type, intf_name))
             raise ValueError('Interface %s %s not present on the Device'
                              % (intf_type, intf_name))
-        if c_tag is not None:
-            ctag_pattern = r"^(\d+)$"
-            if not re.match(ctag_pattern, c_tag):
-                self.logger.error('Invalid c_tag %s format, '
-                                  'c_tag range is not support', c_tag)
-                raise ValueError('Invalid c_tag %s format' % (c_tag))
-            if int(c_tag) not in range(1, 4091):
-                if int(vlan_id) not in range(4096, 8192):
-                    self.logger.error('c_tag vlan %s must be in range(1,4090) &'
-                                      'vlan_id %s must be in range(4096,8191)',
-                                      c_tag, vlan_id)
-                    raise ValueError('c_tag vlan is not in range(1,4090) &'
-                                     ' vlan_id is not in range(4096,8191)')
-                self.logger.error('c_tag vlan %s must be in range(1,4090)' % (c_tag))
-                raise ValueError('c_tag vlan %s must be in range(1,4090)' % (c_tag))
-            vlan_list = vlan_id.split(',') + [c_tag]
-        else:
-            vlan_list = vlan_id.split(',')
-        for vlan in vlan_list:
-            vl_list = self.expand_vlan_range(vlan)
-            if vl_list is not None:
-                vl_list = list(vl_list)
-                if c_tag is None and\
-                        [vl for vl in vl_list if vl not in range(1, 4091)] != []:
-                    self.logger.error('Invalid vlan_id range, '
-                                      'vlan_id %s is not in range(1,4090)', vlan_id)
-                    raise ValueError('Invalid vlan_id range, '
-                                     'vlan_id %s is not in range(1,4090)' % (vlan_id))
-                for vlan_id in vl_list:
-                    if not device.interface.get_vlan_int(vlan_id=vlan_id):
-                        self.logger.error('Vlan %s not present on the Device' % (vlan_id))
-                        raise ValueError('Vlan %s not present on the Device' % (vlan_id))
-            else:
-                self.logger.error('vlan_id %s contains non user vlans' % (vlan_id))
-                raise ValueError('vlan_id %s contains non user vlans' % (vlan_id))
+        c_tag_list = []
+        vlanid_list = []
+        vlan_list = []
+        vlanlist = vlan_id.split(',')
+        vlanid_list = vlan_id
+        for val in vlanlist:
+            temp = self.expand_vlan_range(vlan_id=val)
+            if temp is None:
+                raise ValueError('Reserved/Control Vlans passed in args `vlan_id`')
+            vlan_list.append(temp)
 
-        return True
+        vlan_list = list(itertools.chain.from_iterable(vlan_list))
+
+        for vf in vlan_list:
+            if c_tag is not None:
+                vlanid_list = vlan_list
+                if int(vf) not in xrange(4096, 8192):
+                    self.logger.error('Vlans in vlan_id %s must be in'
+                                      ' range(4096,8191)', vlan_id)
+                    raise ValueError('Vlans in vlan_id must be in range(4096,8191)')
+            else:
+                if int(vf) not in xrange(1, 4091):
+                    self.logger.error('Vlans in vlan_id %s must be in range(1,4090)',
+                                      vlan_id)
+                    raise ValueError('Vlans in vlan_id must be in range(1,4090)')
+
+        if c_tag is not None:
+            ctag_list = c_tag.split(',')
+            for cval in ctag_list:
+                ctemp = self.expand_vlan_range(vlan_id=cval)
+                c_tag_list.append(ctemp)
+            c_tag_list = list(itertools.chain.from_iterable(c_tag_list))
+            for ctag in c_tag_list:
+                if int(ctag) not in xrange(1, 4091):
+                    self.logger.error('Vlans in c_tag %s must be in range(1,4090)',
+                                      c_tag)
+                    raise ValueError('Vlans in c_tag must be in range(1,4090)')
+            if len(vlanid_list) != len(c_tag_list):
+                self.logger.error('Both vlan_id %s & c_tag %s must be either'
+                                  ' a single value or'
+                                  ' list of equal length', vlan_id, c_tag)
+                raise ValueError('Unsupported vlan_id & c_tag combination passed')
+
+        return vlanid_list, c_tag_list
 
     def _check_requirements_switchport_exists(self, device, intf_type, intf_name):
         """ Fail the task if switch port exists.
@@ -134,17 +142,18 @@ class RemoveSwitchPort(NosDeviceAction):
 
         try:
             self.logger.info('Removing Switch port trunk allowed vlan %s', vlan_id)
-            if c_tag is None:
+            if c_tag == []:
                 device.interface.trunk_allowed_vlan(int_type=intf_type,
                                                     name=intf_name,
                                                     action='remove',
                                                     vlan=vlan_id)
             else:
-                device.interface.switchport_trunk_allowed_ctag(delete=True,
+                for each_vl, each_ct in zip(vlan_id, c_tag):
+                    device.interface.switchport_trunk_allowed_ctag(delete=True,
                                                            intf_type=intf_type,
                                                            intf_name=intf_name,
-                                                           trunk_vlan_id=vlan_id,
-                                                           trunk_ctag_id=c_tag)
+                                                           trunk_vlan_id=str(each_vl),
+                                                           trunk_ctag_id=str(each_ct))
 
         except ValueError as e:
             self.logger.exception("Removing Switch port trunk vlan failed %s"
