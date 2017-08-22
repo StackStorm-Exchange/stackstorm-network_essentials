@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ipaddress import ip_interface
+
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -100,12 +101,17 @@ class CreateVe(NosDeviceAction):
                                                         vrf_name=vrf_name,
                                                         rbridge_id=rbridge_id,
                                                         ve_name=str(vlan_id))
+                    else:
+                        raise ValueError('Failed VRF check on device %s', self.host)
+
                     if changes['pre_validation_ip']:
                         changes['assign_ip'] =\
                             self._assign_ip_to_ve(device,
                                                   rbridge_id=rbridge_id,
                                                   ve_name=vlan_id,
                                                   ip_address=ip_address)
+                    else:
+                        raise ValueError('Failed IP address check on device %s', self.host)
                 elif vrf_name is not None and vrf_name != '':
                     ve_exists =\
                         self._check_requirements_ve(device,
@@ -128,6 +134,8 @@ class CreateVe(NosDeviceAction):
                                                         vrf_name=vrf_name,
                                                         rbridge_id=rbridge_id,
                                                         ve_name=str(vlan_id))
+                    else:
+                        raise ValueError('Failed VRF check on device %s', self.host)
                 elif ip_address is not None and ip_address != '':
                     ip_address = temp_address
                     ve_exists =\
@@ -151,6 +159,8 @@ class CreateVe(NosDeviceAction):
                                                   rbridge_id=rbridge_id,
                                                   ve_name=vlan_id,
                                                   ip_address=ip_address)
+                    else:
+                        raise ValueError('Failed IP address check on device %s', self.host)
                 elif ip_address is None and vrf_name is None:
                     ve_exists =\
                         self._check_requirements_ve(device,
@@ -169,7 +179,7 @@ class CreateVe(NosDeviceAction):
                                                     rbridge_id=rbridge_id,
                                                     ve_name=vlan_id)
                     if ve_exists:
-                        changes['create_ve'] =\
+                        changes['create_ve'] = \
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
                                             ve_name=vlan_id)
@@ -215,31 +225,31 @@ class CreateVe(NosDeviceAction):
             if each_ve['ip-address'] != 'unassigned':
                 if each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] == ip_address:
-                    self.logger.info('Ip address %s on the VE %s is'
-                                     ' pre-existing on rbridge_id %s',
-                                     ip_address, ve_name, rbridge_id)
+                    self.logger.error('Ip address %s on the VE %s is'
+                                      ' pre-existing on rbridge_id %s',
+                                      ip_address, ve_name, rbridge_id)
                     return False
                 elif each_ve['if-name'] != tmp_ve_name and\
                         each_ve['ip-address'] == ip_address:
-                    self.logger.info('Ip address %s is pre-assigned to a '
-                                     'different %s on rbridge_id %s',
-                                     ip_address, each_ve['if-name'],
-                                     rbridge_id)
+                    self.logger.error('Ip address %s is pre-assigned to a '
+                                      'different %s on rbridge_id %s',
+                                      ip_address, each_ve['if-name'],
+                                      rbridge_id)
                     return False
                 elif each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] != ip_address:
-                    self.logger.info('Ve %s is pre-assigned with a different'
-                                     ' IP %s on rbridge_id %s',
-                                     ve_name, each_ve['ip-address'],
-                                     rbridge_id)
+                    self.logger.error('Ve %s is pre-assigned with a different'
+                                      ' IP %s on rbridge_id %s',
+                                      ve_name, each_ve['ip-address'],
+                                      rbridge_id)
                     return False
                 elif ip_interface(unicode(ip_address)).network == \
                         ip_interface(unicode(each_ve['ip-address'])).network:
-                    self.logger.info('IP address %s overlaps with a previously'
-                                     ' configured IP subnet. Check %s on'
-                                     ' rbridge_id %s',
-                                     ip_address, each_ve['if-name'],
-                                     rbridge_id)
+                    self.logger.error('IP address %s overlaps with a previously'
+                                      ' configured IP subnet. Check %s on'
+                                      ' rbridge_id %s',
+                                      ip_address, each_ve['if-name'],
+                                      rbridge_id)
                     return False
 
         if vrf_name == '':
@@ -249,11 +259,11 @@ class CreateVe(NosDeviceAction):
                                                    vrf_name=vrf_name)
             if vrf_fwd is not None:
                     config_tmp = vrf_fwd
-                    self.logger.info('There is a VRF %s configured on the'
-                                     ' VE %s on rbridge_id %s ,Remove the'
-                                     ' VRF to configure the IP Address %s',
-                                     config_tmp, ve_name, rbridge_id,
-                                     ip_address)
+                    self.logger.error('There is a VRF %s configured on the'
+                                      ' VE %s on rbridge_id %s ,Remove the'
+                                      ' VRF to configure the IP Address %s',
+                                      config_tmp, ve_name, rbridge_id,
+                                      ip_address)
                     return False
 
         if vrf_name is not None and vrf_name != '':
@@ -269,10 +279,10 @@ class CreateVe(NosDeviceAction):
         afi_status = device.interface.vrf_afi(
             get=True, rbridge_id=rbridge_id, vrf_name=vrf_name)
         if not afi_status[afi]:
-            self.logger.info('To configure the ipv6 address on the Ve on '
-                             'rbridge_id %s, VRF Address Family-ipv6 has '
-                             'to be configured on VRF %s',
-                             rbridge_id, vrf_name)
+            self.logger.error('To configure the ipv6 address on the Ve on '
+                              'rbridge_id %s, VRF Address Family-ipv6 has '
+                              'to be configured on VRF %s',
+                              rbridge_id, vrf_name)
             return False
         return True
 
@@ -289,34 +299,32 @@ class CreateVe(NosDeviceAction):
         for each_ve in ves:
             tmp_ve = 'Ve ' + ve_name
             if each_ve['ip-address'] != 'unassigned' and vrf_name in vrf_list:
-                if each_ve['if-name'] == tmp_ve and\
-                        each_ve['ip-address'] == ip_address:
-                    self.logger.info('Ve %s is pre-assigned to this IP'
-                                     ' address %s, and VRF %s on '
-                                     'rbridge-id %s', ve_name,
-                                     each_ve['ip-address'], vrf_name,
-                                     rbridge_id)
+                if each_ve['if-name'] == tmp_ve and each_ve['ip-address'] == ip_address:
+                    self.logger.error('Ve %s is pre-assigned to this IP'
+                                      ' address %s, and VRF %s on '
+                                      'rbridge-id %s', ve_name,
+                                      each_ve['ip-address'], vrf_name,
+                                      rbridge_id)
                     return False
-                elif each_ve['if-name'] == tmp_ve and\
-                        each_ve['ip-address'] != '' and ip_address == '':
-                    self.logger.info('There is an IP address %s pre-existing '
-                                     'on the Ve %s, Remove the IP address '
-                                     'before assigning the VRF %s on '
-                                     'rbridge-id %s', each_ve['ip-address'],
-                                     ve_name, vrf_name, rbridge_id)
+                elif each_ve['if-name'] == tmp_ve and each_ve['ip-address'] != '' \
+                        and ip_address == '':
+                    self.logger.error('There is an IP address %s pre-existing '
+                                      'on the Ve %s, Remove the IP address '
+                                      'before assigning the VRF %s on '
+                                      'rbridge-id %s', each_ve['ip-address'],
+                                      ve_name, vrf_name, rbridge_id)
                     return False
-                elif each_ve['if-name'] == tmp_ve and\
-                        each_ve['ip-address'] != ip_address:
-                    self.logger.info('Ve %s is pre-assigned to a different '
-                                     'IP address %s, Remove the IP address'
-                                     'before assigning the VRF %s on '
-                                     'rbridge-id %s', ve_name,
-                                     each_ve['ip-address'], vrf_name,
-                                     rbridge_id)
+                elif each_ve['if-name'] == tmp_ve and each_ve['ip-address'] != ip_address:
+                    self.logger.error('Ve %s is pre-assigned to a different '
+                                      'IP address %s, Remove the IP address'
+                                      'before assigning the VRF %s on '
+                                      'rbridge-id %s', ve_name,
+                                      each_ve['ip-address'], vrf_name,
+                                      rbridge_id)
                     return False
 
         if vrf_name not in vrf_list:
-            self.logger.info('Create VRF %s on rbridge-id %s before '
+            self.logger.error('Create VRF %s on rbridge-id %s before '
                              'assigning it to Ve', vrf_name, rbridge_id)
             return False
 
@@ -349,7 +357,8 @@ class CreateVe(NosDeviceAction):
             if device.os_type == 'slxos':
                 device.interface.vlan_router_ve(vlan_id=ve_name, ve_config=ve_name)
         except (ValueError, KeyError):
-            self.logger.info('Invalid Input values while creating to Ve')
+            self.logger.error('Invalid Input values while creating to Ve')
+        return True
 
     def _assign_ip_to_ve(self, device, rbridge_id, ve_name, ip_address):
         """ Associate the IP address to the VE"""
@@ -364,6 +373,7 @@ class CreateVe(NosDeviceAction):
         except (ValueError, KeyError):
             self.logger.info('Invalid Input values while assigning IP '
                              'address to Ve')
+        return True
 
     def _create_vrf_forwarding(self, device, rbridge_id, ve_name, vrf_name):
         """ Configure VRF is any"""
@@ -375,9 +385,10 @@ class CreateVe(NosDeviceAction):
                                          rbridge_id=rbridge_id,
                                          vrf_name=vrf_name)
         except (ValueError, KeyError):
-            self.logger.info('Invalid Input values while configuring VRF %s on'
-                             ' Ve %s on rbridge-id %s', vrf_name, ve_name,
-                             rbridge_id)
+            self.logger.error('Invalid Input values while configuring VRF %s on'
+                              ' Ve %s on rbridge-id %s', vrf_name, ve_name,
+                              rbridge_id)
+        return True
 
     def _admin_state(self, device, ve_name, rbridge_id):
         """ Admin settings on interface """
@@ -392,6 +403,9 @@ class CreateVe(NosDeviceAction):
                                          int_type='ve', rbridge_id=rbridge_id)
             self.logger.info('Admin state setting on Ve %s is successfull',
                              ve_name)
+            return True
+        else:
+            return False
 
     def _ipv6_link_local(self, device, name, rbridge_id):
         """ Enable ipv6 link local only on VE """
@@ -408,9 +422,11 @@ class CreateVe(NosDeviceAction):
                 self.logger.info('Configuring IPV6 link local on Ve %s on'
                                  ' rbridge_id %s is '
                                  'successfull', name, rbridge_id)
+                return True
             else:
                 self.logger.info('IPV6 link local on Ve %s on rbridge_id %s'
                                  ' is pre-existing', name, rbridge_id)
+                return False
         except (ValueError, KeyError) as e:
-            self.logger.info('Invalid Input values while configuring IPV6 '
-                             'link local %s ', e)
+            self.logger.error('Invalid Input values while configuring IPV6 '
+                              'link local %s ', e)
