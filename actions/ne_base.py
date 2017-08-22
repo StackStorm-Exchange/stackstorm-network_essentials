@@ -16,9 +16,7 @@
 import re
 
 import ipaddress
-import pynos.device
 import pyswitch.device
-import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
 import socket
@@ -34,7 +32,6 @@ class NosDeviceAction(Action):
             config=config,
             action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
-        self.mgr = pynos.device.Device
         self.pmgr = pyswitch.device.Device
         self.host = None
         self.conn = None
@@ -152,7 +149,7 @@ class NosDeviceAction(Action):
             else:
                 extended = "false"
 
-            tmp_vlan_id = pynos.utilities.valid_vlan_id(vid, extended=extended)
+            tmp_vlan_id = pyswitch.utilities.valid_vlan_id(vid, extended=extended)
 
             reserved_vlan_list = range(4087, 4096)
             if not tmp_vlan_id:
@@ -418,7 +415,7 @@ class NosDeviceAction(Action):
 
         intTypes = ["ve", "loopback", "ethernet"]
         if intf_type not in intTypes:
-            tmp_vlan_id = pynos.utilities.valid_interface(
+            tmp_vlan_id = pyswitch.utilities.valid_interface(
                 intf_type, name=str(intf))
 
             if not tmp_vlan_id:
