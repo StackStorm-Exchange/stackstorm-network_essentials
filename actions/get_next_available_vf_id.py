@@ -58,18 +58,19 @@ class AutoPickPortChannel(NosDeviceAction):
         """
         vfab_array = []
         vfab_range = xrange(4096, 8192)
-        re_pattern1 = r"^(\d+)$"
-        re_pattern2 = r"^(\d+)\-(\d+)$"
 
-        if re.search(re_pattern2, length_of_the_range):
-            length = len(range(int(length_of_the_range.split('-')[0]),
-                               int(length_of_the_range.split('-')[1]) + 1))
-            length_of_the_range = int(length)
-        elif re.search(re_pattern1, length_of_the_range):
+        re_pattern = r"^(\d+)$"
+
+        if re.search(re_pattern, length_of_the_range):
             length_of_the_range = int(length_of_the_range)
         else:
-            self.logger.error('Invalid format in args `length_of_the_range`')
-            raise ValueError('Invalid format in args `length_of_the_range`')
+            length_of_the_range = len(self.get_vlan_list(length_of_the_range))
+
+        if length_of_the_range > 4096:
+            self.logger.error('length_of_the_range %s must be a value between 1 to 4095',
+                              length_of_the_range)
+            raise ValueError('length_of_the_range %s must be a value between 1 to 4095' %
+                             (length_of_the_range))
 
         try:
             vfab_mode = device.interface.vfab_enable(get=True)
@@ -77,11 +78,6 @@ class AutoPickPortChannel(NosDeviceAction):
                 self.logger.info('vfab mode is disabled, hence autopicking'
                                  ' is not possible')
                 return None
-            if int(length_of_the_range) not in xrange(1, 4096):
-                self.logger.error('length_of_the_range %s must be a value between 1 to 4095',
-                                  length_of_the_range)
-                raise ValueError('length_of_the_range %s must be a value between 1 to 4095' %
-                                 (length_of_the_range))
             result = device.interface.vlans
         except Exception as e:
             raise ValueError(e)
@@ -91,29 +87,24 @@ class AutoPickPortChannel(NosDeviceAction):
                 continue
             vfab_array.append(vfab_num)
 
-        available_vlans_length = len(xrange(4096, 8192)) - len(vfab_array)
+        available_vlans_length = len(vfab_range) - len(vfab_array)
         if available_vlans_length < length_of_the_range:
             self.logger.error('Not enough VF IDs are available on the device for the range')
             raise ValueError('Not enough VF IDs are available on the device for the range')
 
-        if length_of_the_range == 1:
-            for num in vfab_range:
-                if num not in vfab_array:
-                    break
-                elif num == 8191:
-                    self.logger.info('No free VF ID available on the device')
-                    num = ''
-        else:
-            tmp_list = []
-            available_vlans = set(xrange(4096, 8192)).symmetric_difference(set(vfab_array))
-            for numd in available_vlans:
-                if len(tmp_list) == length_of_the_range:
-                    break
-                tmp_list.append(numd)
+        tmp_list = []
+        available_vlans = set(vfab_range).symmetric_difference(set(vfab_array))
+        for numd in available_vlans:
+            tmp_list.append(numd)
+            if len(tmp_list) == length_of_the_range:
+                break
+            elif numd == 8191:
+                self.logger.info('No free VF ID available on the device')
+                return ''
 
-            # convert the list to string for the workflow
-            vlan_str = ''
-            for tmp in tmp_list:
-                vlan_str = vlan_str + ',' + str(tmp)
-            num = vlan_str.lstrip(',')
+        # convert the list to string for the workflow
+        vlan_str = ''
+        for tmp in tmp_list:
+            vlan_str = vlan_str + ',' + str(tmp)
+        num = vlan_str.lstrip(',')
         return num

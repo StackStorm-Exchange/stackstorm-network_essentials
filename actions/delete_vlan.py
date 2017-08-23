@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import itertools
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -39,17 +38,7 @@ class DeleteVlan(NosDeviceAction):
                 self.host)
 
             # Check is the user input for VLANS is correct
-            vlan_list = []
-            vlanlist = vlan_id.split(',')
-            for val in vlanlist:
-                temp = self.expand_vlan_range(vlan_id=val)
-                if temp is None:
-                    raise ValueError('Reserved/Control Vlans or Invalid Vlan Ids passed'
-                                     ' in args `vlan_id` %s' % (vlan_id))
-                vlan_list.append(temp)
-
-            vlan_list = list(itertools.chain.from_iterable(vlan_list))
-
+            vlan_list = self.get_vlan_list(vlan_id)
             changes["vlan"] = self._delete_vlan(device, vlan_list, vlan_id)
 
             self.logger.info('Closing connection to %s after '
