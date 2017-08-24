@@ -97,8 +97,7 @@ class AutoPickPortChannel(NosDeviceAction):
         for numd in available_vlans:
             tmp_list.append(numd)
             if len(tmp_list) == length_of_the_range:
-                break         
-
+                break
         # convert the list to string for the workflow
         vlan_str = ''
         for tmp in tmp_list:
