@@ -1,0 +1,41 @@
+---
+name: configure_class_map 
+pack: network_essentials 
+runner_type: run-python
+description: Create Class Map and set the match criteris.
+enabled: true
+entry_point: configure_class_map.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  class_name:
+    type: string
+    description: Policy Map Class Name (Max Size -64)
+    required: true
+    position: 3
+  match_type:
+    type: string
+    description: Interface type
+    enum:
+      - access-group 
+      - bridge-domain 
+      - vlan
+    position: 4
+  match_value:
+    type: string
+    description: If match_type=access-group, pass name of MAC/IP Access group, match_type=bridge-domain, pass single Bridge-Domain id, match_type=vlan pass single Vlan Id.
+    position: 5
