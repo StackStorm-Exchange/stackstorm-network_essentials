@@ -20,6 +20,7 @@ import pyswitch.device
 import pyswitchlib.asset
 import requests.exceptions
 import socket
+import itertools
 from st2actions.runners.pythonrunner import Action
 
 
@@ -830,6 +831,19 @@ class NosDeviceAction(Action):
         if rbridge_id is not None:
             self.logger.info('Device does not support rbridge')
             raise ValueError('Device does not support rbridge')
+
+    def get_vlan_list(self, vlan_id):
+        """ Expand the vlan_id values into a list """
+        vlan_list = []
+        vlanlist = vlan_id.split(',')
+        for val in vlanlist:
+            temp = self.expand_vlan_range(vlan_id=val)
+            if temp is None:
+                raise ValueError('Reserved/Control/Invalid vlans passed in args `vlan_id`')
+            vlan_list.append(temp)
+
+        vlan_list = list(itertools.chain.from_iterable(vlan_list))
+        return vlan_list
 
 # log_exceptions decorator
 
