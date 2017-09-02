@@ -1,0 +1,50 @@
+---
+name: firmware
+pack: network_essentials
+runner_type: run-python
+description: Download Firmware and Check the status
+enabled: true
+entry_point: firmware.py
+parameters:
+    mgmt_ip:
+        type: string
+        description: Management IP address of the target device
+        required: true
+        position: 0
+    username:
+        type: string
+        description: Login user name to connect to the device
+        default: admin
+        position: 1
+    password:
+        type: string
+        description: Login password to connect to the device
+        default: password
+        position: 2
+    host_ip:
+        type: string
+        description: IP address of the firmware download server
+        required: true
+        position: 3
+    protocol_type:
+        type: string
+        enum:
+            - scp
+        description: Protocol to use for firmwaredownload
+        default: scp
+        position: 4
+    proto_username:
+        type: string
+        description: Username to use for firmwaredownload protocol
+        default: fvt
+        position: 5
+    proto_password:
+        type: string
+        description: Password to use for firmwaredownload protocol
+        default: pray4green
+        position: 6
+    firmware_path:
+        type: string
+        description: Full firmware path.
+        required: true
+        position: 7
