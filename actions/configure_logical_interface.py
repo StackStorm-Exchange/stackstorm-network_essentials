@@ -150,6 +150,15 @@ class ConfigureLogicalInterface(NosDeviceAction):
         tmp_lif = list(tmp[0])[:]
         tmp_vlan = list(tmp[1])[:]
         for lif_name, vlan_id in zip(lif_name, vlan_id):
+            dut_untag_vlan = device.interface.logical_interface_untag_vlan(get=True,
+                                                                           intf_name=intf_name,
+                                                                           lif_name=lif_name,
+                                                                           intf_type=intf_type)
+            if dut_untag_vlan is not None:
+                self.logger.info('untag vlan_id %s is pre-existing on lif_name %s',
+                                 dut_untag_vlan, lif_name)
+                tmp_vlan.remove(dut_untag_vlan)
+                tmp_lif.remove(lif_name)
             dut_vlan = device.interface.logical_interface_tag_vlan(get=True, intf_name=intf_name,
                                                                    lif_name=lif_name,
                                                                    intf_type=intf_type)
@@ -172,6 +181,17 @@ class ConfigureLogicalInterface(NosDeviceAction):
         tmp_vlan = list(tmp[1])[:]
         tmp_in_vlan = list(tmp[2])[:]
         for lif_name, vlan_id, inner_vlan_id in zip(lif_name, vlan_id, inner_vlan_id):
+            dut_untag_vlan = device.interface.logical_interface_untag_vlan(get=True,
+                                                                           intf_name=intf_name,
+                                                                           lif_name=lif_name,
+                                                                           intf_type=intf_type)
+            if dut_untag_vlan is not None:
+                self.logger.info('untag vlan_id %s is pre-existing on lif_name %s',
+                                 dut_untag_vlan, lif_name)
+                tmp_vlan.remove(vlan_id)
+                tmp_lif.remove(lif_name)
+                tmp_in_vlan.remove(inner_vlan_id)
+
             dut_vlan = device.interface.logical_interface_tag_vlan(get=True, intf_name=intf_name,
                                                                    lif_name=lif_name,
                                                                    intf_type=intf_type)
