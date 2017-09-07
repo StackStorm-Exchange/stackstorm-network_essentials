@@ -208,6 +208,16 @@ class ConfigureLogicalInterface(NosDeviceAction):
             raise ValueError('Invalid Switchport mode while configuring untag vlan '
                              'on a logical interface')
 
+        lif_name_tmp = lif_name[0]
+        dut_tag_vlan = device.interface.logical_interface_tag_vlan(get=True,
+                                                                   intf_name=intf_name,
+                                                                   lif_name=lif_name_tmp,
+                                                                   intf_type=intf_type)
+        if dut_tag_vlan['outer_vlan'] is not None:
+            self.logger.info('tag vlan_id %s is pre-existing on lif_name %s',
+                             dut_tag_vlan['outer_vlan'], lif_name)
+            return False
+
         dut_vlan = device.interface.logical_interface_untag_vlan(get=True,
                                             intf_name=intf_name, lif_name=lif_name[0],
                                             intf_type=intf_type,
