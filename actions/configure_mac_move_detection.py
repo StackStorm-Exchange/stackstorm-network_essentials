@@ -32,9 +32,6 @@ class ConfigureMacMoveDetection(NosDeviceAction):
         move_threshold = str(move_threshold)
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info('successfully connected to %s', self.host)
-            if device.os_type == 'slxos':
-                self.logger.info('Mac Move Detection is not supported in SLX platform')
-                sys.exit(-1)
             changes['conv-arp'] = self._configure_mac_move_detection(device,
                                                                   limit=move_threshold)
             self.logger.info('closing connection to %s after configuring mac move detect'
