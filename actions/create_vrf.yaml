@@ -2,7 +2,7 @@
 name: create_vrf
 pack: network_essentials
 runner_type: run-python
-description: Create Virtual Routing and Forwarding (VRF) instance on the switch for L3 tenants.
+description: Create Virtual Routing and Forwarding (VRF) instance on a switch for L3 tenants.
 enabled: true
 entry_point: create_vrf.py 
 parameters:

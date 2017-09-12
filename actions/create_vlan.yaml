@@ -2,7 +2,7 @@
 name: create_vlan
 pack: network_essentials
 runner_type: run-python
-description: Create a VLANs and provide VLAN descriptions
+description: Create a single or range of VLANs on a switch
 enabled: true
 entry_point: create_vlan.py
 parameters:
@@ -24,7 +24,7 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: Single VLAN/range of VLANS/batch wise values. For example 21 or 21-26 or 10,13-14,89-91
+    description: Single VLAN ID or range of VLAN IDs. For example 21 or 21-26 or 10,13-14,89-91
     required: true
     position: 3
   vlan_desc:
