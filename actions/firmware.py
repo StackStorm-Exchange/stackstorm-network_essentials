@@ -110,10 +110,3 @@ class Firmware(NosDeviceAction):
             self.fwdl_monitor_timer = \
                 Timer(30, lambda: self.firmware_download_monitor_periodic())
             self.fwdl_monitor_timer.start()
-
-
-
-
-
-
-
