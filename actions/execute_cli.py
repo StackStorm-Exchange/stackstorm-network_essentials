@@ -74,5 +74,3 @@ class CliCMD(NosDeviceAction):
         finally:
             if net_connect is not None:
                 net_connect.disconnect()
-
-
