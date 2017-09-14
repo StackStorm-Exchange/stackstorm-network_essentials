@@ -16,6 +16,7 @@ from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 from threading import Timer
 
+
 class Firmware(NosDeviceAction):
     """
     Implements the logic to download firmware on the switch and
@@ -35,25 +36,29 @@ class Firmware(NosDeviceAction):
             proto_username, proto_password, disruptive_download, firmware_path)
 
     @log_exceptions
-    def switch_operation(self, host_ip, protocol_type, proto_username, proto_password, disruptive_download,
-                         firmware_path):
+    def switch_operation(self, host_ip, protocol_type, proto_username, proto_password,
+                         disruptive_download, firmware_path):
         try:
             with self.pmgr(conn=self.conn, auth=self.auth) as device:
                 self.logger.info('successfully connected to %s to download firmware', self.host)
-                fwdl_status_dictlist = device.firmware.download_firmware(protocol=protocol_type, host=host_ip,
-                                                                         user_name=proto_username,
-                                                                         password=proto_password,
-                                                                         coldboot=disruptive_download,
-                                                                         directory=firmware_path,
-                                                                         os_type=device.os_type)
+                fwdl_status_dictlist = device.firmware.download_firmware(
+                    protocol=protocol_type,
+                    host=host_ip,
+                    user_name=proto_username,
+                    password=proto_password,
+                    coldboot=disruptive_download,
+                    directory=firmware_path,
+                    os_type=device.os_type)
+
                 num_entries = 0
                 num_success = 0
                 for fwdl_status_dict in fwdl_status_dictlist:
                     num_entries += 1
                     if device.os_type is 'nos':
-                        self.logger.info("Rbridge:%d Download Status code: %d Status message:%s", fwdl_status_dict['rbridge-id'],
-                              fwdl_status_dict['status_code'],
-                              fwdl_status_dict['status_msg'])
+                        self.logger.info("Rbridge:%d Download Status code: %d Status message:%s",
+                                         fwdl_status_dict['rbridge-id'],
+                                         fwdl_status_dict['status_code'],
+                                         fwdl_status_dict['status_msg'])
                     else:
                         self.logger.info("Download Status code: %d Status message:%s",
                               fwdl_status_dict['status_code'],
@@ -66,7 +71,8 @@ class Firmware(NosDeviceAction):
                     firmware download successful. Start Monitor process
                     """
                     self.last_proc_fwdl_entry = 0
-                    self.fwdl_monitor_timer = Timer(30, lambda: self.firmware_download_monitor_periodic())
+                    self.fwdl_monitor_timer = \
+                        Timer(30, lambda: self.firmware_download_monitor_periodic())
                     self.fwdl_monitor_timer.start()
                 else:
                     self.logger.info("Firmware download failed, not starting monitoring")
@@ -84,7 +90,8 @@ class Firmware(NosDeviceAction):
                         continue
                     else:
                         self.last_proc_fwdl_entry = index
-                        self.logger.info("Index: %d Blade:%s Time:%s Message:%s", index, fwdl_status['blade-name'],
+                        self.logger.info("Index: %d Blade:%s Time:%s Message:%s", index,
+                                         fwdl_status['blade-name'],
                                          fwdl_status['timestamp'], fwdl_status['message'])
                         if fwdl_status['message'] == 'Firmware is downloaded successfully.':
                             self.logger.info("All done. Process complete")
@@ -95,11 +102,13 @@ class Firmware(NosDeviceAction):
                     self.last_proc_fwdl_entry = 0
                     self.fwdl_monitor_timer = None
                 else:
-                    self.fwdl_monitor_timer = Timer(30, lambda: self.firmware_download_monitor_periodic())
+                    self.fwdl_monitor_timer = \
+                        Timer(30, lambda: self.firmware_download_monitor_periodic())
                     self.fwdl_monitor_timer.start()
         except Exception, exc:
             self.logger.info('Exception while getting device: %s', exc.message)
-            self.fwdl_monitor_timer = Timer(30, lambda: self.firmware_download_monitor_periodic())
+            self.fwdl_monitor_timer = \
+                Timer(30, lambda: self.firmware_download_monitor_periodic())
             self.fwdl_monitor_timer.start()
 
 
