@@ -43,8 +43,16 @@ parameters:
         description: Password to use for firmwaredownload protocol
         default: pray4green
         position: 6
+    disruptive_download:
+        type: string
+        enum:
+            - True
+            - False
+        description: Should the download be ISSU upgrade or disruptive download
+        default: False
+        position: 7
     firmware_path:
         type: string
         description: Full firmware path.
         required: true
-        position: 7
+        position: 8
