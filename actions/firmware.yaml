@@ -44,10 +44,7 @@ parameters:
         default: pray4green
         position: 6
     disruptive_download:
-        type: string
-        enum:
-            - True
-            - False
+        type: boolean
         description: Should the download be ISSU upgrade or disruptive download
         default: False
         position: 7
