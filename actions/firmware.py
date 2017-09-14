@@ -117,8 +117,3 @@ class Firmware(NosDeviceAction):
 
 
 
-
-
-
-
-
