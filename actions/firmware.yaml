@@ -1,5 +1,5 @@
 ---
-name: firmware
+name: firmware_download
 pack: network_essentials
 runner_type: run-python
 description: Download Firmware and Check the status
@@ -11,6 +11,24 @@ parameters:
         description: Management IP address of the target device
         required: true
         position: 0
+    host_ip:
+        type: string
+        description: IP address of the firmware download server
+        required: true
+        position: 3
+    proto_username:
+        type: string
+        description: Username to use for firmwaredownload protocol
+        position: 5
+    proto_password:
+        type: string
+        description: Password to use for firmwaredownload protocol
+        position: 6
+    firmware_path:
+        type: string
+        description: Full firmware path.
+        required: true
+        position: 8
     username:
         type: string
         description: Login user name to connect to the device
@@ -21,11 +39,6 @@ parameters:
         description: Login password to connect to the device
         default: password
         position: 2
-    host_ip:
-        type: string
-        description: IP address of the firmware download server
-        required: true
-        position: 3
     protocol_type:
         type: string
         enum:
@@ -33,23 +46,12 @@ parameters:
         description: Protocol to use for firmwaredownload
         default: scp
         position: 4
-    proto_username:
-        type: string
-        description: Username to use for firmwaredownload protocol
-        default: fvt
-        position: 5
-    proto_password:
-        type: string
-        description: Password to use for firmwaredownload protocol
-        default: pray4green
-        position: 6
     disruptive_download:
         type: boolean
         description: Should the download be ISSU upgrade or disruptive download
         default: False
         position: 7
-    firmware_path:
-        type: string
-        description: Full firmware path.
-        required: true
-        position: 8
+    timeout:
+        type: integer
+        description: Action timeout .
+        default: 1800
