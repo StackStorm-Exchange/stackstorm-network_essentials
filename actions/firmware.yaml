@@ -15,42 +15,42 @@ parameters:
         type: string
         description: IP address of the firmware download server
         required: true
-        position: 3
+        position: 1
     proto_username:
         type: string
         description: Username to use for firmwaredownload protocol
-        position: 5
+        position: 2
     proto_password:
         type: string
         description: Password to use for firmwaredownload protocol
-        position: 6
+        position: 3
     firmware_path:
         type: string
         description: Full firmware path.
         required: true
-        position: 8
+        position: 4
     username:
         type: string
         description: Login user name to connect to the device
         default: admin
-        position: 1
+        position: 5
     password:
         type: string
         description: Login password to connect to the device
         default: password
-        position: 2
+        position: 6
     protocol_type:
         type: string
         enum:
             - scp
         description: Protocol to use for firmwaredownload
         default: scp
-        position: 4
+        position: 7
     disruptive_download:
         type: boolean
         description: Should the download be ISSU upgrade or disruptive download
         default: False
-        position: 7
+        position: 8
     timeout:
         type: integer
         description: Action timeout .
