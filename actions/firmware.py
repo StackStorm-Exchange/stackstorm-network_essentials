@@ -77,7 +77,7 @@ class Firmware(NosDeviceAction):
                 else:
                     self.logger.info("Firmware download failed, not starting monitoring")
         except Exception, exc:
-            self.logger.info('Not able to connect to switch: %s', exc.message)
+            self.logger.error('Not able to connect to switch: %s', exc.message)
 
     def firmware_download_monitor_periodic(self):
         try:
@@ -106,7 +106,7 @@ class Firmware(NosDeviceAction):
                         Timer(30, lambda: self.firmware_download_monitor_periodic())
                     self.fwdl_monitor_timer.start()
         except Exception, exc:
-            self.logger.info('Exception while getting device: %s', exc.message)
+            self.logger.error('Exception while getting device: %s', exc.message)
             self.fwdl_monitor_timer = \
                 Timer(30, lambda: self.firmware_download_monitor_periodic())
             self.fwdl_monitor_timer.start()
