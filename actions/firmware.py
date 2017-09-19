@@ -41,6 +41,7 @@ class Firmware(NosDeviceAction):
         try:
             with self.pmgr(conn=self.conn, auth=self.auth) as device:
                 self.logger.info('successfully connected to %s to download firmware', self.host)
+                self.firmware_download_start_action(device)
                 fwdl_status_dictlist = device.firmware.download_firmware(
                     protocol=protocol_type,
                     host=host_ip,
@@ -99,8 +100,7 @@ class Firmware(NosDeviceAction):
                         else:
                             pass
                 if self.fwdl_complete is True:
-                    self.last_proc_fwdl_entry = 0
-                    self.fwdl_monitor_timer = None
+                    self.firmware_download_complete_action(device)
                 else:
                     self.fwdl_monitor_timer = \
                         Timer(30, lambda: self.firmware_download_monitor_periodic())
@@ -110,3 +110,13 @@ class Firmware(NosDeviceAction):
             self.fwdl_monitor_timer = \
                 Timer(30, lambda: self.firmware_download_monitor_periodic())
             self.fwdl_monitor_timer.start()
+
+    def firmware_download_start_action(self, device):
+        firmware_version = device.asset.get_os_full_version()
+        self.logger.info("Current firmware:%s", firmware_version)
+
+    def firmware_download_complete_action(self, device):
+        self.last_proc_fwdl_entry = 0
+        self.fwdl_monitor_timer = None
+        firmware_version = device.asset.get_os_full_version()
+        self.logger.info("Latest firmware:%s", firmware_version)
