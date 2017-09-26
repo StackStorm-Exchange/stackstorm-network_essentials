@@ -89,7 +89,7 @@ class DeleteMacGroup(NosDeviceAction):
             for each_mg in mac_group_id:
                 device.interface.mac_group_create(delete=True, mac_group_id=each_mg)
         except (ValueError, KeyError):
-            self.logger.exception("Deleting Mac Groups Failed", each_mg)
+            self.logger.exception("Deleting Mac Group %s Failed", each_mg)
             raise ValueError("Deleting Mac Group Failed")
 
         return True

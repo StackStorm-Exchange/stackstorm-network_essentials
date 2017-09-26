@@ -87,7 +87,7 @@ class ConfigureMacGroup(NosDeviceAction):
             self.logger.info('Configuring Mac Group %s', mac_group_id)
             device.interface.mac_group_create(mac_group_id=mac_group_id)
         except (ValueError, KeyError):
-            self.logger.exception("Configuring Mac Group Failed", mac_group_id)
+            self.logger.exception("Configuring Mac Group %s Failed", mac_group_id)
             raise ValueError("Configuring Mac Group Failed")
 
         return True

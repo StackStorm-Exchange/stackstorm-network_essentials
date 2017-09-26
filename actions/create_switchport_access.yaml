@@ -2,7 +2,7 @@
 name: create_switchport_access
 pack: network_essentials
 runner_type: run-python
-description: Configure a port channel or a physical interface as an Access interface.
+description: Configure a port channel or a physical interface as an access interface.
 enabled: true
 entry_point: create_switchport_access.py
 parameters:
@@ -42,7 +42,7 @@ parameters:
     position: 4
   vlan_id:
     type: string 
-    description: VLAN ID to be configure on the interface. For 802.1Q VLANs, ID must be below 4096, for service or transport VFs valid range is from 4096 through 8191.
+    description: VLAN ID to be configured on the interface. For 802.1Q VLANs, ID must be below 4096, for service or transport VFs valid range is from 4096 through 8191.
     required: true
     position: 5
   mac_group_id:

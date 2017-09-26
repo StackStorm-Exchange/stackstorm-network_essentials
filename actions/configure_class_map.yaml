@@ -1,10 +1,10 @@
 ---
-name: create_vrf
-pack: network_essentials
+name: configure_class_map 
+pack: network_essentials 
 runner_type: run-python
-description: Create Virtual Routing and Forwarding (VRF) instance on a switch for L3 tenants.
+description: Create Class Map and set the match criteris.
 enabled: true
-entry_point: create_vrf.py 
+entry_point: configure_class_map.py
 parameters:
   mgmt_ip:
     type: string
@@ -22,22 +22,20 @@ parameters:
     default: password
     secret: true
     position: 2
-  vrf_name:
+  class_name:
     type: string
-    description: VRF name, for example vrf32 or 32
+    description: Policy Map Class Name (Max Size -64)
     required: true
     position: 3
-  rbridge_id:
-    type: array
-    description: RBridge ID of the switch. This parameter is only applicable for VDX switches.
-    required: false
-    position: 4
-  afi:
+  match_type:
     type: string
-    description: IP address type
-    position: 5
-    required: false
+    description: Interface type
     enum:
-      - ipv4
-      - ipv6
-    default: ipv4
+      - access-group 
+      - bridge-domain 
+      - vlan
+    position: 4
+  match_value:
+    type: string
+    description: If match_type=access-group, pass name of MAC/IP Access group, match_type=bridge-domain, pass single Bridge-Domain id, match_type=vlan pass single Vlan Id.
+    position: 5

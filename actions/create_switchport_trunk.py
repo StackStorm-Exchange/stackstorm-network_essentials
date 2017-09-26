@@ -14,7 +14,6 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import itertools
 
 
 class CreateSwitchPort(NosDeviceAction):
@@ -114,17 +113,8 @@ class CreateSwitchPort(NosDeviceAction):
         c_tag_list = []
         vlanid_list = []
         if vlan_action == 'add':
-            vlan_list = []
-            vlanlist = vlan_id.split(',')
             vlanid_list = vlan_id
-            for val in vlanlist:
-                temp = self.expand_vlan_range(vlan_id=val)
-                if temp is None:
-                    raise ValueError('Reserved/Control Vlans passed in args `vlan_id`')
-                vlan_list.append(temp)
-
-            vlan_list = list(itertools.chain.from_iterable(vlan_list))
-
+            vlan_list = self.get_vlan_list(vlan_id)
             for vf in vlan_list:
                 if c_tag is not None:
                     vlanid_list = vlan_list
@@ -139,11 +129,7 @@ class CreateSwitchPort(NosDeviceAction):
                         raise ValueError('Vlans in vlan_id must be in range(1,4090)')
 
             if c_tag is not None:
-                ctag_list = c_tag.split(',')
-                for cval in ctag_list:
-                    ctemp = self.expand_vlan_range(vlan_id=cval)
-                    c_tag_list.append(ctemp)
-                c_tag_list = list(itertools.chain.from_iterable(c_tag_list))
+                c_tag_list = self.get_vlan_list(c_tag)
                 for ctag in c_tag_list:
                     if int(ctag) not in xrange(1, 4091):
                         self.logger.error('Vlans in c_tag %s must be in range(1,4090)',
