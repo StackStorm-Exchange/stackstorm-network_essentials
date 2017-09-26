@@ -76,9 +76,10 @@ class AutoPickNetworkID(NosDeviceAction):
             if device.os_type == 'nos':
                 vfab_mode = device.interface.vfab_enable(get=True)
                 if not vfab_mode:
-                    self.logger.info('vfab mode is disabled, hence autopicking'
+                    self.logger.error('vfab mode is disabled, hence autopicking'
+                                      ' is not possible')
+                    raise ValueError('vfab mode is disabled, hence autopicking'
                                      ' is not possible')
-                    return None
                 result = device.interface.vlans
             else:
                 result = device.interface.bridge_domain_all()
