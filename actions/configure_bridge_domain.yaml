@@ -43,14 +43,17 @@ parameters:
     type: boolean
     description:  Configure Statistics. 
     position: 6
+    default: True 
   bpdu_drop_enable:
     type: boolean
     description: Drop BPDU packets. 
     position: 7
+    default: True 
   local_switching:
     type: boolean
     description: Configure local switching.
     position: 8
+    default: True 
   peer_ip:
     type: array 
     description: Single or list of IPv4/IPv6 addresses to be configured on the bridge_domain. IPv4, for example 10.0.0.10.

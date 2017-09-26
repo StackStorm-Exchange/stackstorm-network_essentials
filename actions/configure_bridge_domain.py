@@ -53,7 +53,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
 
             if device.os_type == 'nos':
                 self.logger.error('Operation is not supported on this device')
-                return
+                raise ValueError('Operation is not supported on this device')
             if logical_interface_number is not None:
                 if intf_type is None:
                     self.logger.exception('Missing args `intf_type` while configuring '
@@ -67,7 +67,8 @@ class ConfigureBridgeDomain(NosDeviceAction):
             if vlan_id is not None and re.match(re_pat1, device.firmware_version):
                 self.logger.error('Bridge Domain association with router interface'
                                   ' is not supported on this device')
-                return
+                raise ValueError('Bridge Domain association with router interface'
+                                 ' is not supported on this device')
 
             changes['pre_check_bd'] = self._check_bd_presence(device, intf_type,
                                                               bridge_domain_id,
