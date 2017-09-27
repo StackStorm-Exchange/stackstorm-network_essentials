@@ -78,7 +78,9 @@ class Firmware(NosDeviceAction):
                 else:
                     self.logger.info("Firmware download failed, not starting monitoring")
         except Exception, exc:
-            self.logger.error('Not able to connect to switch: %s', exc.message)
+            raise ValueError("Connection failed while logging in to %s due to %s",
+                             self.host, exc.message)
+
 
     def firmware_download_monitor_periodic(self):
         try:
@@ -113,10 +115,12 @@ class Firmware(NosDeviceAction):
 
     def firmware_download_start_action(self, device):
         firmware_version = device.asset.get_os_full_version()
-        self.logger.info("Current firmware:%s", firmware_version)
+        self.logger.info("Firmware version %s before start of firmware download operation",
+                         firmware_version)
 
     def firmware_download_complete_action(self, device):
         self.last_proc_fwdl_entry = 0
         self.fwdl_monitor_timer = None
         firmware_version = device.asset.get_os_full_version()
-        self.logger.info("Latest firmware:%s", firmware_version)
+        self.logger.info("Firmware version %s after firmware download completion",
+                         firmware_version)
