@@ -81,7 +81,6 @@ class Firmware(NosDeviceAction):
             raise ValueError("Connection failed while logging in to %s due to %s",
                              self.host, exc.message)
 
-
     def firmware_download_monitor_periodic(self):
         try:
             with self.pmgr(conn=self.conn, auth=self.auth) as device:
