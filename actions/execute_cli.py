@@ -24,19 +24,19 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, mgmt_ip, username, password, cli_cmd):
+    def run(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
         self.logger.info('successfully connected to %s to find execute CLI %s', self.host, cli_cmd)
-        result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd)
+        result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd)
         self.logger.info('closing connection to %s after executions cli cmds -- all done!',
                          self.host)
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd):
-        opt = {'device_type': 'brocade_vdx'}
+    def execute_cli_command(self, mgmt_ip, username, password, device_type, cli_cmd):
+        opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
         opt['username'] = username
         opt['password'] = password
@@ -44,6 +44,7 @@ class CliCMD(NosDeviceAction):
         opt['global_delay_factor'] = 0.5
         net_connect = None
         cli_output = {}
+
         try:
             net_connect = ConnectHandler(**opt)
             for cmd in cli_cmd:
