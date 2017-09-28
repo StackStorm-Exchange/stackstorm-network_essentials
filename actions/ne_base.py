@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
 # pylint: disable=no-member
 import re
+import socket
 
 import ipaddress
 import pyswitch.device
 import pyswitchlib.asset
 import requests.exceptions
-import socket
-import itertools
 from st2actions.runners.pythonrunner import Action
 
 
