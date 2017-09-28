@@ -1,7 +1,7 @@
 ---
 name: configure_logical_interface
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Create logical interface under the physical/port-channel interface and untag/tag vlan.
 enabled: true
 entry_point: configure_logical_interface.py
