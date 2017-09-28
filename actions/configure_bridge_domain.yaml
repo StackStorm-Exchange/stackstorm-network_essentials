@@ -1,7 +1,7 @@
 ---
 name: configure_bridge_domain
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: Create bridge domain for p2mp/p2p and bind the logical interface.
 enabled: true
 entry_point: configure_bridge_domain.py
