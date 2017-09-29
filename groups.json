@@ -1,0 +1,69 @@
+[
+  {
+    "name": "Manage Fabric Templates",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "network_inventory.fabric_add",
+      "network_inventory.fabric_list",
+      "network_inventory.fabric_delete",
+      "network_inventory.fabric_config_set",
+      "network_inventory.fabric_config_delete"
+    ]
+  },
+  {
+    "name": "Build IP Fabric Infrastructure",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "network_inventory.switch_add",
+      "network_inventory.switch_list",
+      "network_inventory.switch_delete",
+      "network_inventory.switch_update",
+      "network_inventory.topology_generate",
+      "dcfabric.configure_fabric_infra"
+    ]
+  },
+  {
+    "name": "Manage EVPN Tenants and Edge Ports",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "dcfabric.create_l2_tenant_evpn",
+      "dcfabric.create_l3_tenant_evpn",
+      "dcfabric.add_multihomed_endpoint_and_gw_evpn",
+      "dcfabric.add_multihomed_endpoint"
+    ]
+  },
+  {
+    "name": "IP Fabric Validation and Troubleshooting",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "dcfabric.get-flow-trace-ip-fabric",
+      "dcfabric.query_topology",
+      "network_inventory.show_config_bgp",
+      "network_inventory.show_lldp_links",
+      "network_inventory.show_vcs_links"
+    ]
+  },
+  {
+    "name": "Manage VCS Fabric Tenants and Edge Ports",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "network_essentials.configure_mgmt_virtual_ip",
+      "dcfabric.add_multihomed_endpoint",
+      "dcfabric.add_singlehomed_endpoint",
+      "dcfabric.configure_vrrpe_gw",
+      "dcfabric.add_multihomed_endpoint_and_gw",
+      "network_essentials.find_host_ip",
+      "network_essentials.find_mac",
+      "network_essentials.find_my_host_vcs"
+    ]
+  },
+  {
+    "name": "Validate Edge Ports",
+    "suites": ["DCFABRIC"],
+    "actions": [
+      "network_essentials.validate_interface_state",
+      "network_essentials.validate_interface_vlan",
+      "network_essentials.validate_vrrpe_state"
+    ]
+  }
+]
