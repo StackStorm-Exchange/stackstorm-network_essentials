@@ -1,6 +1,6 @@
 ---
 name: configure_bridge_domain
-pack: network_essentials 
+pack: network_essentials
 runner_type: python-script
 description: Create bridge domain for p2mp/p2p and bind the logical interface.
 enabled: true
@@ -30,49 +30,52 @@ parameters:
   bridge_domain_service_type:
     type: string
     enum:
-      - p2mp 
+      - p2mp
       - p2p
-    description: bridge domain service type. 
+    description: bridge domain service type.
     position: 4
     default: p2mp
   vc_id:
-    type: string 
-    description: VC Id under the VPLS Instance. Range <1-4294967295> 
+    type: string
+    description: VC Id under the VPLS Instance. Range <1-4294967295>
     position: 5
   statistics:
     type: boolean
-    description:  Configure Statistics. 
+    description: Configure Statistics.
     position: 6
-    default: True 
+    default: true
   bpdu_drop_enable:
     type: boolean
-    description: Drop BPDU packets. 
+    description: Drop BPDU packets.
     position: 7
-    default: True 
+    default: true
   local_switching:
     type: boolean
     description: Configure local switching.
     position: 8
-    default: True 
+    default: true
   peer_ip:
-    type: array 
-    description: Single or list of IPv4/IPv6 addresses to be configured on the bridge_domain. IPv4, for example 10.0.0.10.
+    type: array
+    description: Single or list of IPv4/IPv6 addresses to be configured on the bridge_domain.
+      IPv4, for example 10.0.0.10.
     position: 9
   pw_profile_name:
     type: string
     description: Pw-profile name (Max Size - 64).
     position: 10
-    default : default 
+    default: default
   intf_type:
-    type: array 
-    description: Logical interface type.Valid Types ['ethernet','port_channel'].
-                 For Example. 'ethernet' --> if all the entries in logical_interface_number are of type ethernet
-                              'port_channel' --> if all the entries in logical_interface_number are of type port_channel
-                              'ethernet,port_channel,ethernet,port_channel' --> If the entries in logical_interface_number are of mixed types.
+    type: array
+    description: Logical interface type.Valid Types ['ethernet','port_channel']. For
+      Example. 'ethernet' --> if all the entries in logical_interface_number are of
+      type ethernet 'port_channel' --> if all the entries in logical_interface_number
+      are of type port_channel 'ethernet,port_channel,ethernet,port_channel' --> If
+      the entries in logical_interface_number are of mixed types.
     position: 11
   logical_interface_number:
-    type: array 
-    description: Physical port or port channel number list.Logical Interace ID. E.g '0/34.11,21.1,0/35.1,22.1'
+    type: array
+    description: Physical port or port channel number list.Logical Interace ID. E.g
+      '0/34.11,21.1,0/35.1,22.1'
     position: 12
   vlan_id:
     type: string

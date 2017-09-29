@@ -1,30 +1,36 @@
 ---
 name: find_my_host_vcs
 pack: network_essentials
-description: Find the switch port in a VCS fabric to which a virtual or physical host is connected using host IP
+description: Find the switch port in a VCS fabric to which a virtual or physical host
+  is connected using host IP
 enabled: true
 runner_type: mistral-v2
 entry_point: workflows/find_my_host_vcs.yaml
 parameters:
-    mgmt_ip:
-        type: string
-        description: Virtual management IP address of the VCS fabric
-        required: true
-        position: 2
-    username:
-        type: string
-        description: Login user name to connect to the device
-        default: admin
-        position: 0
-    password:
-        type: string
-        description: Login password to connect to the device
-        default: password
-        secret: true
-        position: 1
-    ip_address:
-        type: string
-        description: Host IP address
-        required: true
-        position: 3
-    
+  mgmt_ip:
+    type: string
+    description: Virtual management IP address of the VCS fabric
+    required: true
+    position: 2
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 0
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 1
+  ip_address:
+    type: string
+    description: Host IP address
+    required: true
+    position: 3
+
+tags:
+  - name: group
+    value: Manage VCS Fabric Tenants and Edge Ports
+  - name: suite
+    value: DCFABRIC

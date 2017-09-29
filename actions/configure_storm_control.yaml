@@ -1,6 +1,6 @@
 ---
-name: configure_storm_control 
-pack: network_essentials 
+name: configure_storm_control
+pack: network_essentials
 runner_type: run-python
 description: Configure Storm/BUM control on an interface
 enabled: true
@@ -35,64 +35,67 @@ parameters:
     required: true
     position: 3
   intf_name:
-    type: string 
+    type: string
     description: Interface name physical port or port channel number. E.g:0/1 or 7
     required: true
     position: 4
   broadcast_limit_type:
     type: string
-    description: Broadcast rate limit format 
+    description: Broadcast rate limit format
     enum:
-     - limit-bps 
-     - limit-percent
+      - limit-bps
+      - limit-percent
     position: 5
   broadcast_limit_value:
     type: string
-    description: If broadcast_limit_type=limit-bps,Valid Values are <0-100000000000> else <0-100> 
+    description: If broadcast_limit_type=limit-bps,Valid Values are <0-100000000000>
+      else <0-100>
     position: 6
   broadcast_limit_action:
     type: string
-    description: Broadcast Action 
+    description: Broadcast Action
     enum:
-     - shutdown
-     - monitor
+      - shutdown
+      - monitor
     default: shutdown
     position: 7
   multicast_limit_type:
     type: string
-    description: Multicast rate limit format 
+    description: Multicast rate limit format
     enum:
-     - limit-bps 
-     - limit-percent
+      - limit-bps
+      - limit-percent
     position: 8
   multicast_limit_value:
     type: string
-    description: If multicast_limit_type=limit-bps,Valid Values are <0-100000000000> else <0-100> 
+    description: If multicast_limit_type=limit-bps,Valid Values are <0-100000000000>
+      else <0-100>
     position: 9
   multicast_limit_action:
     type: string
-    description: Multicast Action 
+    description: Multicast Action
     enum:
-     - shutdown
-     - monitor
+      - shutdown
+      - monitor
     default: shutdown
     position: 10
   unknown_unicast_limit_type:
     type: string
-    description: Unknown Unicast rate limit format 
+    description: Unknown Unicast rate limit format
     enum:
-     - limit-bps 
-     - limit-percent
+      - limit-bps
+      - limit-percent
     position: 11
   unknown_unicast_limit_value:
     type: string
-    description: If unknown_unicast_limit_type=limit-bps,Valid Values are <0-100000000000> else <0-100> 
+    description: If unknown_unicast_limit_type=limit-bps,Valid Values are <0-100000000000>
+      else <0-100>
     position: 12
   unknown_unicast_limit_action:
     type: string
-    description: Unknown Unicast Action 
+    description: Unknown Unicast Action
     enum:
-     - shutdown
-     - monitor
+      - shutdown
+      - monitor
     default: shutdown
     position: 13

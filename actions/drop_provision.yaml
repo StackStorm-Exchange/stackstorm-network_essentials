@@ -1,110 +1,122 @@
 ---
 name: drop_provision
 pack: network_essentials
-description: This workflow accomplishes the task of stopping traffic on a specified interface by first creating and then applying a deny ACL with specific network attributes on that interface.
+description: This workflow accomplishes the task of stopping traffic on a specified
+  interface by first creating and then applying a deny ACL with specific network attributes
+  on that interface.
 enabled: true
 runner_type: mistral-v2
 entry_point: workflows/drop_provision.yaml
 parameters:
-    mgmt_ip:
-        type: string
-        description: device ip address
-        required: true
-        position: 0
-    username:
-        type: string
-        description: login username
-        default: admin
-        position: 1
-    password:
-        type: string
-        description: login password
-        default: password
-        secret: true
-        position: 2
-    acl_name:
-        type: string
-        description:  access list name (max 63)
-        required: true
-        position: 3
-    intf_type:
-        type: string
-        enum:
-          - gigabitethernet
-          - tengigabitethernet
-          - fortygigabitethernet
-          - hundredgigabitethernet
-          - ethernet
-        default: tengigabitethernet
-        description: Interface type gigabitethernet or tengigabitethernet, etc
-        required: true
-        position: 4
-    intf_name:
-        type: array
-        description: interface name as array (182/0/97)
-        required: true
-        position: 5
-    protocol_type:
-        type: string
-        description: Protocol Number Custom value between 0 and 255, tcp, udp, icmp or ip
-        required: false
-        position: 6
-    source:
-        type: string
-        description: The source MAC in HHHH.HHHH.HHHH format or source IPv4 or IPv6 address, including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
-        required: true
-        default: any
-        position: 7
-    src_mac_addr_mask:
-        type: string
-        description: the src_mac_addr_mask - the mask for source MAC in HHHH.HHHH.HHHH format.
-        position: 8
-    destination:
-        type: string
-        description: The destination MAC in HHHH.HHHH.HHHH format or destination IPv4 or IPv6 address, including tcp and udp port numbers. { any | D_IPaddress mask | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
-        required: false
-        position: 9
-    dst_mac_addr_mask:
-        type: string
-        description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH format.
-        position: 10
-    dscp:
-        type: string
-        description: DSCP value to match against. Can be either a numerical value or DSCP name
-        required: false
-        position: 11
-    vlan_id:
-        type: integer
-        description: VLAN interface to which the ACL is bound
-        required: false
-        position: 12
-    ethertype:
-        type: string
-        description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
-        required: false
-        default: arp
-        position: 13
-    address_type:
-        type: string
-        enum:
-           - ip
-           - ipv6
-           - mac
-        description: the address type IPv4 IPv6 or MAC used to create the acl.
-        required: true
-        position: 14
-    intf:
-        type: string
-        description: interface name as string (182/0/97)
-        required: true
-        position: 15
-    acl_exists:
-        type: boolean
-        description: Indicates is the acl already exists.
-        default: False
-        position: 16
-    seq_id:
-        type: integer
-        description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
-        required: false
-        position: 17
+  mgmt_ip:
+    type: string
+    description: device ip address
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: access list name (max 63)
+    required: true
+    position: 3
+  intf_type:
+    type: string
+    enum:
+      - gigabitethernet
+      - tengigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - ethernet
+    default: tengigabitethernet
+    description: Interface type gigabitethernet or tengigabitethernet, etc
+    required: true
+    position: 4
+  intf_name:
+    type: array
+    description: interface name as array (182/0/97)
+    required: true
+    position: 5
+  protocol_type:
+    type: string
+    description: Protocol Number Custom value between 0 and 255, tcp, udp, icmp or
+      ip
+    required: false
+    position: 6
+  source:
+    type: string
+    description: The source MAC in HHHH.HHHH.HHHH format or source IPv4 or IPv6 address,
+      including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress
+      } [ source-operator [ S_port-numbers ] ]
+    required: true
+    default: any
+    position: 7
+  src_mac_addr_mask:
+    type: string
+    description: the src_mac_addr_mask - the mask for source MAC in HHHH.HHHH.HHHH
+      format.
+    position: 8
+  destination:
+    type: string
+    description: The destination MAC in HHHH.HHHH.HHHH format or destination IPv4
+      or IPv6 address, including tcp and udp port numbers. { any | D_IPaddress mask
+      | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
+    required: false
+    position: 9
+  dst_mac_addr_mask:
+    type: string
+    description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH
+      format.
+    position: 10
+  dscp:
+    type: string
+    description: DSCP value to match against. Can be either a numerical value or DSCP
+      name
+    required: false
+    position: 11
+  vlan_id:
+    type: integer
+    description: VLAN interface to which the ACL is bound
+    required: false
+    position: 12
+  ethertype:
+    type: string
+    description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536
+      and 65535.
+    required: false
+    default: arp
+    position: 13
+  address_type:
+    type: string
+    enum:
+      - ip
+      - ipv6
+      - mac
+    description: the address type IPv4 IPv6 or MAC used to create the acl.
+    required: true
+    position: 14
+  intf:
+    type: string
+    description: interface name as string (182/0/97)
+    required: true
+    position: 15
+  acl_exists:
+    type: boolean
+    description: Indicates is the acl already exists.
+    default: false
+    position: 16
+  seq_id:
+    type: integer
+    description: Sequence number of the rule, if not specified, the rule is added
+      at the end of the list. Valid range is 0 to 4294967290
+    required: false
+    position: 17

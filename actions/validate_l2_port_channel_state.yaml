@@ -2,7 +2,8 @@
 name: validate_L2_port_channel_state
 pack: network_essentials
 runner_type: run-python
-description: Validate the port channel state by verifying the sync state of all member ports is 1.
+description: Validate the port channel state by verifying the sync state of all member
+  ports is 1.
 enabled: true
 entry_point: validate_l2_port_channel_state.py
 parameters:
