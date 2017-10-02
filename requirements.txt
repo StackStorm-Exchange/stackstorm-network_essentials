@@ -1,4 +1,4 @@
-six=1.11.0
+netmiko==1.4.3
 pyswitchlib
 requests==2.18.4
-netmiko==1.4.3
+six=1.11.0
