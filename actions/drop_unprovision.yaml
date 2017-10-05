@@ -1,65 +1,68 @@
 ---
 name: drop_unprovision
 pack: network_essentials
-description: This workflow accomplishes the task of allowing traffic back on a specified interface by first deleting the deny ACL currently on that interface. If may also delete the acl, if it is empty.
+description: This workflow accomplishes the task of allowing traffic back on a specified
+  interface by first deleting the deny ACL currently on that interface. If may also
+  delete the acl, if it is empty.
 enabled: true
 runner_type: mistral-v2
 entry_point: workflows/drop_unprovision.yaml
 parameters:
-    mgmt_ip:
-        type: string
-        description: device ip address
-        required: true
-        position: 0
-    username:
-        type: string
-        description: login username
-        default: admin
-        position: 1
-    password:
-        type: string
-        description: login password
-        default: password
-        secret: true
-        position: 2
-    acl_name:
-        type: string
-        description:  access list name (max 63)
-        required: true
-        position: 3
-    intf_type:
-        type: string
-        enum:
-          - gigabitethernet
-          - tengigabitethernet
-          - fortygigabitethernet
-          - hundredgigabitethernet
-          - ethernet
-        default: tengigabitethernet
-        description: Interface type gigabitethernet or tengigabitethernet, etc
-        required: true
-        position: 4
-    intf_name:
-        type: array
-        description: interface name as array (182/0/97)
-        required: true
-        position: 5
-    address_type:
-        type: string
-        enum:
-           - ip
-           - ipv6
-           - mac
-        description: the address type IPv4 IPv6 or MAC used to create the acl.
-        required: true
-        position: 6
-    delete_acl:
-        type: boolean
-        description: Indicates whether the acl should be deleted.
-        default: False
-        position: 7
-    seq_id:
-        type: integer
-        description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
-        required: false
-        position: 8
+  mgmt_ip:
+    type: string
+    description: device ip address
+    required: true
+    position: 0
+  username:
+    type: string
+    description: login username
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: login password
+    default: password
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: access list name (max 63)
+    required: true
+    position: 3
+  intf_type:
+    type: string
+    enum:
+      - gigabitethernet
+      - tengigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - ethernet
+    default: tengigabitethernet
+    description: Interface type gigabitethernet or tengigabitethernet, etc
+    required: true
+    position: 4
+  intf_name:
+    type: array
+    description: interface name as array (182/0/97)
+    required: true
+    position: 5
+  address_type:
+    type: string
+    enum:
+      - ip
+      - ipv6
+      - mac
+    description: the address type IPv4 IPv6 or MAC used to create the acl.
+    required: true
+    position: 6
+  delete_acl:
+    type: boolean
+    description: Indicates whether the acl should be deleted.
+    default: false
+    position: 7
+  seq_id:
+    type: integer
+    description: Sequence number of the rule, if not specified, the rule is added
+      at the end of the list. Valid range is 0 to 4294967290
+    required: false
+    position: 8

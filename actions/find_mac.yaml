@@ -27,3 +27,8 @@ parameters:
     description: Single MAC or comma separated list of MACs to be found
     required: true
     position: 3
+tags:
+  - name: group
+    value: Manage VCS Fabric Tenants and Edge Ports
+  - name: suite
+    value: DCFABRIC

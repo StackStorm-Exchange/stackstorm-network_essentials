@@ -34,17 +34,20 @@ parameters:
       - loopback
       - ethernet
     default: tengigabitethernet
-    description: Interface type, can be a physical port, port channel, VE or management interface
+    description: Interface type, can be a physical port, port channel, VE or management
+      interface
     required: true
     position: 3
   intf_name:
     type: array
-    description: Interface names, can be comma separated physical ports, port channel numbers or VEs. Examples are 224/0/1, 224/0/2 or 4, 5, 6 or 80, 81.
+    description: Interface names, can be comma separated physical ports, port channel
+      numbers or VEs. Examples are 224/0/1, 224/0/2 or 4, 5, 6 or 80, 81.
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+    description: RBridge ID of the VDX switch under which VE will be configured, only
+      needed for VDX device.
     required: false
     position: 5
   acl_name:

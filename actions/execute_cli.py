@@ -15,6 +15,7 @@ from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetMikoTimeoutException, \
     NetMikoAuthenticationException
 from paramiko.ssh_exception import SSHException
+import sys
 
 from ne_base import NosDeviceAction
 
@@ -29,10 +30,9 @@ class CliCMD(NosDeviceAction):
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
-        self.logger.info('successfully connected to %s to find execute CLI %s', self.host, cli_cmd)
-        result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd)
-        self.logger.info('closing connection to %s after executions cli cmds -- all done!',
-                         self.host)
+        op_result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd)
+        if op_result is not None:
+            result = op_result
         return result
 
     def execute_cli_command(self, mgmt_ip, username, password, device_type, cli_cmd):
@@ -47,25 +47,31 @@ class CliCMD(NosDeviceAction):
 
         try:
             net_connect = ConnectHandler(**opt)
+            self.logger.info('successfully connected to %s to find execute CLI %s', self.host,
+                             cli_cmd)
             for cmd in cli_cmd:
                 cmd = cmd.strip()
                 cli_output[cmd] = (net_connect.send_command(cmd))
                 self.logger.info('successfully executed cli %s', cmd)
+            self.logger.info('closing connection to %s after executions cli cmds -- all done!',
+                             self.host)
             return cli_output
         except (NetMikoTimeoutException, NetMikoAuthenticationException,
                 ) as e:
             reason = e.message
-            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            self.logger.error('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            sys.exit(-1)
         except SSHException as e:
             reason = e.message
-            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            self.logger.error('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            sys.exit(-1)
         except Exception as e:
             reason = e.message
             # This is in case of I/O Error, which could be due to
             # connectivity issue or due to pushing commands faster than what
             #  the switch can handle
-            raise ValueError('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            self.logger.error('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            sys.exit(-1)
         finally:
             if net_connect is not None:
                 net_connect.disconnect()
-            return cli_output
