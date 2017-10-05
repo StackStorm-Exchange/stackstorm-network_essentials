@@ -42,17 +42,36 @@ class CreatePortChannel(NosDeviceAction):
                 if mode != "standard":
                     self.logger.info('SLXOS only supports port-channel type as standard')
                     sys.exit(-1)
+            if device.os_type == 'NI':
+                mode = "standard"
+                if protocol == "on":
+                    protocol = "static"
+                elif protocol == "active":
+                    protocol = "dynamic"
+                else:
+                    self.logger.info('NI/MLX doesnt support port-channel protocol %s', protocol)
+                    sys.exit(-1)
+
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
                                                                  port_channel_id,
                                                                  port_channel_desc)
             if changes['pre_validation']:
-                changes['port_channel_configs'] = self._create_port_channel(device,
-                                                                    intf_name=ports,
-                                                                    intf_type=intf_type,
-                                                                    portchannel_num=port_channel_id,
-                                                                    channel_type=mode,
-                                                                    mode_type=protocol,
-                                                                    intf_desc=port_channel_desc)
+                if device.os_type == 'NI':
+                    changes['port_channel_configs'] = self._create_port_channel_mlx(device,
+                                                              intf_name=ports,
+                                                              intf_type=intf_type,
+                                                              portchannel_num=port_channel_id,
+                                                              channel_type=mode,
+                                                              mode_type=protocol,
+                                                              intf_desc=port_channel_desc)
+                else:
+                    changes['port_channel_configs'] = self._create_port_channel(device,
+                                                              intf_name=ports,
+                                                              intf_type=intf_type,
+                                                              portchannel_num=port_channel_id,
+                                                              channel_type=mode,
+                                                              mode_type=protocol,
+                                                              intf_desc=port_channel_desc)
             self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
             changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
             changes['fabric_trunk_disable'] = self._disable_trunk(device, intf_type, ports)
@@ -63,7 +82,6 @@ class CreatePortChannel(NosDeviceAction):
 
     def _check_requirements(self, device, intf_name, intf_type, portchannel_num, intf_desc):
         """ Verify if the port channel already exists """
-
         for each in intf_name:
             r1 = pyswitch.utilities.valid_interface(int_type=intf_type, name=each)
             if not r1:
@@ -78,10 +96,17 @@ class CreatePortChannel(NosDeviceAction):
             valid_desc = self.check_int_description(intf_description=intf_desc)
             if not valid_desc:
                 raise ValueError('Invalid interface description %s', intf_desc)
+        else:
+            if device.os_type == 'NI':
+                raise ValueError('Port-channel name/description cannot be NULL for MLX %d',
+                        portchannel_num)
 
         result = device.interface.port_channels
         tmp1 = "-" + portchannel_num
         port_chan = "port-channel" + tmp1
+        # For NI/MLX Portchannel name/descr is mandatory
+        if device.os_type == 'NI':
+            port_chan = intf_desc
 
         # Verify if the port channel to interface mapping is already existing
         for port_chann in result:
@@ -187,6 +212,27 @@ class CreatePortChannel(NosDeviceAction):
             self.logger.info('Admin state setting on port-channel %s is successful',
                              portchannel_num)
 
+        return True
+
+    def _create_port_channel_mlx(self, device, intf_name, intf_type, portchannel_num,
+                             channel_type, mode_type, intf_desc):
+        """ Configuring the port channel with member ports
+        """
+        try:
+            device.interface.create_port_channel(intf_name, intf_type,
+                                           portchannel_num,
+                                           mode_type,
+                                           intf_desc)
+            self.logger.info('Configuring port channel %s with type as %s'
+                             ' on interfaces %s is done',
+                             portchannel_num, mode_type, intf_name)
+        except (ValueError, KeyError) as e:
+            error_message = str(e.message)
+            self.logger.error(error_message)
+            self.logger.error('Port channel creation with id %s desc %s failed',
+                             portchannel_num,
+                             intf_desc)
+            sys.exit(-1)
         return True
 
     def _disable_isl(self, device, intf_type, intf_name):

@@ -56,11 +56,24 @@ class AutoPickPortChannel(NosDeviceAction):
         except Exception as e:
             raise ValueError(e)
         for res in result:
-            port_channel_name = res['interface-name']
-            port_channel_num = port_channel_name.split("-")
-            po_array.append(port_channel_num[-1])
+            port_channel_num = res['aggregator_id']
+            po_array.append(port_channel_num)
         po_array = [int(i) for i in po_array]
-        for num in range(1, 6144):
+        lag_id_max = self._get_lag_id_max(device)
+        for num in range(1, lag_id_max):
             if num not in po_array:
                 break
         return num
+
+    def _get_lag_id_max(self, device):
+        """
+        Get the maximum port-channel id that can be configured
+        """
+        if device.os_type == 'nos':
+            return 6144
+        elif device.os_type == 'slxos':
+            return 1024
+        elif device.os_type == 'NI':
+            return 256
+        else:
+            raise ValueError('Not a supported os_type %s' % (device.os_type))
