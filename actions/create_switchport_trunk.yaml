@@ -1,10 +1,11 @@
 ---
-name: create_switchport_trunk 
+name: create_switchport_trunk
 pack: network_essentials
 runner_type: python-script
-description: Configure port channel or a physical interface as a Trunk or Trunk-no-default-native interface.
+description: Configure port channel or a physical interface as a Trunk or Trunk-no-default-native
+  interface.
 enabled: true
-entry_point: create_switchport_trunk.py 
+entry_point: create_switchport_trunk.py
 parameters:
   mgmt_ip:
     type: string
@@ -32,24 +33,30 @@ parameters:
       - hundredgigabitethernet
       - port_channel
     default: tengigabitethernet
-    description: Interface type 
+    description: Interface type
     required: true
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) or Port-channel number <1-6144>. 
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple
+      format (24/1) or Port-channel number <1-6144>.
     required: true
     position: 4
   trunk_no_default_native:
     type: boolean
-    description: Configure the interface mode as trunk-no-default-native or trunk. Default interface mode is configured as `trunk`.
+    description: Configure the interface mode as trunk-no-default-native or trunk.
+      Default interface mode is configured as `trunk`.
     default: false
     position: 5
-  vlan_id: 
+  vlan_id:
     type: string
-    description: For 802.1Q VLANs, single or range of VLANs, for example, 5 or 4-7 or 4,6,9-11 or all; ID must be below 4096.  For service or transport VFs, single ID, range can be from 4096 through 8191.
+    description: For 802.1Q VLANs, single or range of VLANs, for example, 5 or 4-7
+      or 4,6,9-11 or all; ID must be below 4096.  For service or transport VFs, single
+      ID, range can be from 4096 through 8191.
     position: 6
-  c_tag: 
+  c_tag:
     type: string
-    description: Specifies an incoming C-TAG or range of C-TAGs for service or transport VLANs in a Virtual Fabrics context.  For service VF only single ID is allowed, for Transport VFs a range of IDs, for example, 100-200, or 10,20,100-200.
+    description: Specifies an incoming C-TAG or range of C-TAGs for service or transport
+      VLANs in a Virtual Fabrics context.  For service VF only single ID is allowed,
+      for Transport VFs a range of IDs, for example, 100-200, or 10,20,100-200.
     position: 7
