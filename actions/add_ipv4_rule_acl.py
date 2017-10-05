@@ -116,7 +116,6 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         return output
 
     def _parse_(self, protocol_type, statement, key, tail):
-        self.logger.info('parsing the %s statement', key)
         output = {}
         msg = None
         statement_list = re.split(' |,|/', statement)
@@ -177,7 +176,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         return output
 
     def _add_ipv4_acl_(self, device, acl_name, acl_type, seq):
-        self.logger.info('Adding rule on access list- %s with seq %s' % (acl_name, seq))
+        self.logger.info('Adding rule on access list- %s', acl_name)
         result = 'False'
         try:
             if acl_type == 'standard':
