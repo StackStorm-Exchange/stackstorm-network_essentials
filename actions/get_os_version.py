@@ -45,5 +45,8 @@ class GetOsVersion(NosDeviceAction):
         return version
 
     def _get_os(self, device):
-        check_os = device.asset.get_os_full_version()
+        if device.connection_type == 'SNMPCLI':
+            check_os = device.firmware_version
+        else:
+            check_os = device.asset.get_os_full_version()
         return check_os
