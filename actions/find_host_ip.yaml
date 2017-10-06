@@ -27,3 +27,8 @@ parameters:
     description: IPv4 or IPv6 address of the VM or physical host to be found
     required: true
     position: 3
+tags:
+  - name: group
+    value: Manage VCS Fabric Tenants and Edge Ports
+  - name: suite
+    value: DCFABRIC

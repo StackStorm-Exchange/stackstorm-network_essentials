@@ -29,5 +29,6 @@ parameters:
     position: 3
   vlan_desc:
     type: string
-    description: VLAN description without any space. Same description is used when creating multiple VLANs
+    description: VLAN description without any space. Same description is used when
+      creating multiple VLANs
     position: 4

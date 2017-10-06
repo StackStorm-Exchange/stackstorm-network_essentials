@@ -27,3 +27,12 @@ parameters:
     description: CLI commands to execute on the specified VDX device
     required: true
     position: 3
+  device_type:
+    type: string
+    enum:
+      - brocade_vdx
+      - brocade_netiron
+    default: brocade_vdx
+    description: Connecting device type
+    required: false
+    position: 4

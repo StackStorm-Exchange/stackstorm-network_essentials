@@ -6,52 +6,52 @@ description: Download Firmware and Check the status
 enabled: true
 entry_point: firmware.py
 parameters:
-    mgmt_ip:
-        type: string
-        description: Management IP address of the target device
-        required: true
-        position: 0
-    host_ip:
-        type: string
-        description: IP address of the firmware download server
-        required: true
-        position: 1
-    proto_username:
-        type: string
-        description: Username to use for firmwaredownload protocol
-        position: 2
-    proto_password:
-        type: string
-        description: Password to use for firmwaredownload protocol
-        position: 3
-    firmware_path:
-        type: string
-        description: Full firmware path.
-        required: true
-        position: 4
-    username:
-        type: string
-        description: Login user name to connect to the device
-        default: admin
-        position: 5
-    password:
-        type: string
-        description: Login password to connect to the device
-        default: password
-        position: 6
-    protocol_type:
-        type: string
-        enum:
-            - scp
-        description: Protocol to use for firmwaredownload
-        default: scp
-        position: 7
-    disruptive_download:
-        type: boolean
-        description: Should the download be ISSU upgrade or disruptive download
-        default: False
-        position: 8
-    timeout:
-        type: integer
-        description: Action timeout .
-        default: 1800
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  host_ip:
+    type: string
+    description: IP address of the firmware download server
+    required: true
+    position: 1
+  proto_username:
+    type: string
+    description: Username to use for firmwaredownload protocol
+    position: 2
+  proto_password:
+    type: string
+    description: Password to use for firmwaredownload protocol
+    position: 3
+  firmware_path:
+    type: string
+    description: Full firmware path.
+    required: true
+    position: 4
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 5
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    position: 6
+  protocol_type:
+    type: string
+    enum:
+      - scp
+    description: Protocol to use for firmwaredownload
+    default: scp
+    position: 7
+  disruptive_download:
+    type: boolean
+    description: Should the download be ISSU upgrade or disruptive download
+    default: false
+    position: 8
+  timeout:
+    type: integer
+    description: Action timeout .
+    default: 1800

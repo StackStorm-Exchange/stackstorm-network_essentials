@@ -2,7 +2,8 @@
 name: ping_vrf_targets
 pack: network_essentials
 runner_type: run-python
-description: Ping target IPs from the switch using the specified VRF, uses the default VRF if VRF is not provided
+description: Ping target IPs from the switch using the specified VRF, uses the default
+  VRF if VRF is not provided
 enabled: true
 entry_point: ping_vrf_targets.py
 parameters:
@@ -31,17 +32,19 @@ parameters:
     type: string
     description: VRF name
     required: false
-    default: 'default-vrf'
+    default: default-vrf
     position: 4
   timeout_value:
     type: integer
-    description: Timeout parameter for the ping command. Specifies the time (in seconds) to wait for a response.
+    description: Timeout parameter for the ping command. Specifies the time (in seconds)
+      to wait for a response.
     required: false
     default: 1
     position: 5
   count:
     type: integer
-    description: Count parameter for the ping command. Specifies the number of transmissions (pings).
+    description: Count parameter for the ping command. Specifies the number of transmissions
+      (pings).
     required: false
     default: 4
     position: 6

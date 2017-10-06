@@ -2,9 +2,10 @@
 name: get_next_available_network_id
 pack: network_essentials
 runner_type: run-python
-description: Returns the next lowest available VF ID (4096-8191) on VDX platform and bridge-domain ID on SLX platforms. 
+description: Returns the next lowest available VF ID (4096-8191) on VDX platform and
+  bridge-domain ID on SLX platforms.
 enabled: true
-entry_point: get_next_available_network_id.py 
+entry_point: get_next_available_network_id.py
 parameters:
   mgmt_ip:
     type: string
@@ -24,6 +25,8 @@ parameters:
     position: 2
   length_of_the_range:
     type: string
-    description: Returns the lowest available Single/Range of VF values. Max Length = 4095.For example 10 or 1-25 or 1-25,26,28.For example, if length_of_the_range=2, returns 4096,4097. length_of_the_range=1-3, returns 4096,4097,4098.
+    description: Returns the lowest available Single/Range of VF values. Max Length
+      = 4095.For example 10 or 1-25 or 1-25,26,28.For example, if length_of_the_range=2,
+      returns 4096,4097. length_of_the_range=1-3, returns 4096,4097,4098.
     default: '1'
     position: 3

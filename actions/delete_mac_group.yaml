@@ -1,6 +1,6 @@
 ---
-name: delete_mac_group 
-pack: network_essentials 
+name: delete_mac_group
+pack: network_essentials
 runner_type: run-python
 description: Delete Mac Groups.
 enabled: true
@@ -24,6 +24,7 @@ parameters:
     position: 2
   mac_group_id:
     type: string
-    description: Single Mac Group id/range of Mac Group id/batch wise values. Valid Values [1,500]. For example 10 or 1-10 or 1,2-10,15
+    description: Single Mac Group id/range of Mac Group id/batch wise values. Valid
+      Values [1,500]. For example 10 or 1-10 or 1,2-10,15
     required: true
     position: 3
