@@ -120,7 +120,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         msg = None
         statement_list = re.split(' |,|/', statement)
         map(lambda x: x.strip(",. \n-"), statement_list)
-        if statement_list[0] == 'any' and len(statement_list) == 1:
+        if statement_list[0] == 'any':
             output[key + '_host_any_' + tail] = statement_list.pop(0)
         elif 'host' in statement_list[0]:
             try:
@@ -147,7 +147,6 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             port = statement_list[0]
         except:
             return output
-
         if statement_list[0] in ['lt', 'gt', 'eq', 'range', 'neq']:
             output[key[:1] + 'port'] = port
             statement_list.pop(0)
