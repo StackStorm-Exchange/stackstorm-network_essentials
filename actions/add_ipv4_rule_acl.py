@@ -1,3 +1,4 @@
+import re
 import sys
 from ne_base import NosDeviceAction
 
@@ -15,18 +16,18 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         seq_variables_std = ('seq_id', 'action', 'src_host_any_ip', 'src_host_ip',
                              'src_mask', 'count', 'log')
         seq_variables_ext = ('seq_id', 'action', 'protocol_type', 'src_host_any_ip',
-                             'src_host_ip', 'src_mask', 'src_port', 'src_port_number_eq_neq_tcp',
-                             'src_port_number_lt_tcp', 'src_port_number_gt_tcp',
-                             'src_port_number_eq_neq_udp', 'src_port_number_lt_udp',
-                             'src_port_number_gt_udp', 'src_port_number_range_lower_tcp',
-                             'src_port_number_range_lower_udp', 'src_port_number_range_higher_tcp',
-                             'src_port_number_range_higher_udp', 'dst_host_any_ip', 'dst_host_ip',
-                             'dst_mask', 'dst_port', 'dst_port_number_eq_neq_tcp',
-                             'dst_port_number_lt_tcp', 'dst_port_number_gt_tcp',
-                             'dst_port_number_eq_neq_udp', 'dst_port_number_lt_udp',
-                             'dst_port_number_gt_udp', 'dst_port_number_range_lower_tcp',
-                             'dst_port_number_range_lower_udp', 'dst_port_number_range_higher_tcp',
-                             'dst_port_number_range_higher_udp', 'dscp', 'urg', 'ack', 'push',
+                             'src_host_ip', 'src_mask', 'sport', 'sport_number_eq_neq_tcp',
+                             'sport_number_lt_tcp', 'sport_number_gt_tcp',
+                             'sport_number_eq_neq_udp', 'sport_number_lt_udp',
+                             'sport_number_gt_udp', 'sport_number_range_lower_tcp',
+                             'sport_number_range_lower_udp', 'sport_number_range_higher_tcp',
+                             'sport_number_range_higher_udp', 'dst_host_any_ip', 'dst_host_ip',
+                             'dst_mask', 'dport', 'dport_number_eq_neq_tcp',
+                             'dport_number_lt_tcp', 'dport_number_gt_tcp',
+                             'dport_number_eq_neq_udp', 'dport_number_lt_udp',
+                             'dport_number_gt_udp', 'dport_number_range_lower_tcp',
+                             'dport_number_range_lower_udp', 'dport_number_range_higher_tcp',
+                             'dport_number_range_higher_udp', 'dscp', 'urg', 'ack', 'push',
                              'fin', 'rst', 'sync', 'vlan_id', 'count', 'log')
         try:
             acl_type = self._get_acl_type_(device, acl_name)['type']
@@ -69,16 +70,17 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                 self.logger.error('Cannot get seq_id')
                 raise ValueError('Cannot get seq_id')
         self.logger.info('seq_id for the rule is %s', seq_id)
-        src_dict = self._parse_(protocol_type, source, 'src')
+        src_dict = self._parse_(protocol_type, source, 'src', 'ip')
         if acl_type == 'extended':
-            dst_dict = self._parse_(protocol_type, destination, 'dst')
+            dst_dict = self._parse_(protocol_type, destination, 'dst', 'ip')
         for variable in seq_dict:
-            if 'src' in variable:
+            if 'src' in variable or 'sport' in variable or 'sport_number_eq_neq_tcp' in variable:
                 try:
                     seq_dict[variable] = src_dict[variable]
                 except:
                     pass
-            elif 'dst' in variable:
+            elif 'dst' in variable or 'dport' in variable or 'dport_number_eq_neq_tcp' in \
+                    variable:
                 try:
                     seq_dict[variable] = dst_dict[variable]
                 except:
@@ -92,6 +94,12 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         seq_dict['fin'] = 'False'
         seq_dict['rst'] = 'False'
         seq_dict['sync'] = 'False'
+
+        if dscp is not None and (' ' in dscp or ',' in dscp):
+            dscp_vals = re.split(' |,', dscp)
+            seq_dict['dscp'] = dscp_vals[0].strip()
+            seq_dict['dscp-force'] = dscp_vals[1].strip()
+
         for v in seq_variables:
             seq.append(seq_dict[v])
         try:
@@ -107,56 +115,31 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                          'all done!', self.host)
         return output
 
-    def _parse_(self, protocol_type, statement, key):
-        self.logger.info('parsing the %s statement', key)
+    def _parse_(self, protocol_type, statement, key, tail):
         output = {}
         msg = None
-        src_ip = None
-        src_mask = None
-        srcmask = False
-        srchost = False
-        statement_list = statement.split(" ")
+        statement_list = re.split(' |,|/', statement)
         map(lambda x: x.strip(",. \n-"), statement_list)
-        host = map(lambda x: x.replace(",", ' '), statement_list)
-        if " " in str(host):
-            src_host = [i.split(" ")[0] for i in host]
-            src_ip = [i.split(" ")[1] for i in host]
-            if "/" in str(src_ip):
-                src_ip = [i.split("/")[0] for i in src_ip]
-                src_mask = [i.split("/")[1] for i in src_ip]
-
-        if "/" in str(statement_list):
-            src_ip = [i.split("/")[0] for i in statement_list]
-            src_mask = [i.split("/")[1] for i in statement_list]
-        if statement_list[0] == 'any' and len(statement_list) == 1:
-            output[key + '_host_any_ip'] = statement_list.pop(0)
+        if statement_list[0] == 'any':
+            output[key + '_host_any_' + tail] = statement_list.pop(0)
         elif 'host' in statement_list[0]:
             try:
-                output[key + '_host_any_ip'] = src_host[0]
-                if self._validate_ip_(str(src_ip[0])):
-                    output[key + '_host_ip'] = src_ip[0]
+                output[key + '_host_any_' + tail] = statement_list.pop(0)
+                host_ip = statement_list.pop(0)
+                if self._validate_ip_(host_ip):
+                    output[key + '_host_ip'] = host_ip
                 else:
                     msg = 'host ip in {} statement is invalid'.format(key)
-                if src_mask:
-                    output[key + '_mask'] = src_mask[0]
             except:
                 msg = 'host ip missing in {} statement'.format(key)
-            srchost = True
-        elif src_ip:
-            if self._validate_ip_(str(src_ip[0])):
-                if "." in src_mask[0]:
-                    output[key + '_host_any_ip'] = src_ip[0]
-                    output[key + '_mask'] = src_mask[0]
-                else:
-                    output[key + '_host_any_ip'] = src_ip[0] + '/' + src_mask[0]
-                srcmask = True
-            else:
-                msg = 'Incorrect {} statement'.format(key)
         elif self._validate_ip_(statement_list[0]):
-            output[key + '_host_any_ip'] = statement_list.pop(0)
+            output[key + '_host_any_' + tail] = statement_list.pop(0)
+            try:
+                output[key + '_mask'] = statement_list.pop(0)
+            except:
+                msg = 'IP address mask missing in {} statement'.format(key)
         else:
             msg = 'Incorrect {} statement'.format(key)
-
         if msg is not None:
             self.logger.error(msg)
             raise ValueError(msg)
@@ -165,26 +148,24 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         except:
             return output
         if statement_list[0] in ['lt', 'gt', 'eq', 'range', 'neq']:
-            output[key + '_port'] = port
+            output[key[:1] + 'port'] = port
             statement_list.pop(0)
             if port in ['eq', 'neq']:
                 port = 'eq_neq'
             if port != 'range':
                 try:
-                    output[key + '_port_number_' + port +
+                    output[key[:1] + 'port_number_' + port +
                            '_' + protocol_type] = statement_list.pop(0)
                 except:
                     msg = '{} port number {} missing'.format(key, port)
             else:
                 try:
-                    output[key + '_port_number_' + port + '_lower_' +
+                    output[key[:1] + 'port_number_' + port + '_lower_' +
                            protocol_type] = statement_list.pop(0)
-                    output[key + '_port_number_' + port + '_higher_' +
+                    output[key[:1] + 'port_number_' + port + '_higher_' +
                            protocol_type] = statement_list.pop(0)
                 except:
                     msg = '{} port numbers range missing'.format(key)
-        elif srcmask or srchost:
-            return output
         else:
             msg = 'Incorrect {} statement'.format(key)
 
@@ -194,8 +175,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         return output
 
     def _add_ipv4_acl_(self, device, acl_name, acl_type, seq):
-        self.logger.info('Adding rule on access list- %s',
-                         acl_name)
+        self.logger.info('Adding rule on access list- %s', acl_name)
         result = 'False'
         try:
             if acl_type == 'standard':
