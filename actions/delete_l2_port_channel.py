@@ -52,8 +52,10 @@ class DeletePortChannel(NosDeviceAction):
                     self.logger.info('Deleting port channel %s ', portchannel_num)
                     device.interface.remove_port_channel(port_int=str(portchannel_num))
                     is_po_present = False
-        except Exception:
-            self.logger.info('Failed to get/delete port-channel %s', portchannel_num)
+        except Exception as e:
+            error_message = str(e.message)
+            self.logger.error(error_message)
+            self.logger.error('Failed to get/delete port-channel %s', portchannel_num)
             return False
 
         if not is_po_present:
