@@ -120,3 +120,8 @@ parameters:
       at the end of the list. Valid range is 0 to 4294967290
     required: false
     position: 17
+  rule_action:
+    type: string
+    description: Action performed by ACL rule
+    required: true
+    position: 18
