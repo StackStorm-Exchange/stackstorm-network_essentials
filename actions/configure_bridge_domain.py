@@ -48,20 +48,23 @@ class ConfigureBridgeDomain(NosDeviceAction):
         changes = {}
         with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
-                'successfully connected to %s to configure bridge domain',
+                'Successfully connected to %s to configure bridge domain',
                 self.host)
 
             if device.os_type == 'nos':
                 self.logger.error('Operation is not supported on this device')
                 raise ValueError('Operation is not supported on this device')
-            if logical_interface_number is not None:
-                if intf_type is None:
-                    self.logger.exception('Missing args `intf_type` while configuring '
-                                          'logical_interface_number')
-                    raise ValueError('Missing args `intf_type` while configuring '
-                                     'logical_interface_number')
-                elif len(logical_interface_number) > 1 and len(intf_type) == 1:
-                    intf_type = intf_type * len(logical_interface_number)
+            if logical_interface_number is not None and intf_type is None:
+                self.logger.error('Missing mandatory args `intf_type`')
+                raise ValueError('Missing mandatory args `intf_Type`')
+
+            int_type = []
+            tmp_intf = intf_type[:]
+            if len(logical_interface_number.split(',')) > 1 and len(intf_type.split(',')) == 1:
+                for e in range(1, len(logical_interface_number.split(',')) + 1):
+                    int_type.append(tmp_intf)
+            else:
+                int_type = intf_type.split(',')
 
             re_pat1 = '\d+r'
             if vlan_id is not None and re.match(re_pat1, device.firmware_version):
@@ -83,9 +86,9 @@ class ConfigureBridgeDomain(NosDeviceAction):
                                                                      pw_profile_name)
                 if logical_interface_number is not None:
                     changes['bd_lif_config'] = self._configure_lif(device, bridge_domain_id,
-                                                                   bridge_domain_service_type,
-                                                                   logical_interface_number,
-                                                                   intf_type)
+                                                               bridge_domain_service_type,
+                                                               logical_interface_number.split(','),
+                                                               int_type)
                 if peer_ip is not None:
                     changes['bd_peer_config'] = self._configure_peer_ip(device,
                                                                         bridge_domain_id,
@@ -109,16 +112,6 @@ class ConfigureBridgeDomain(NosDeviceAction):
             for peerip in peer_ip:
                 if peerip is not None and not self.is_valid_ip(peerip):
                     raise ValueError('Invalid IP address %s', peerip)
-
-        if intf_type is not None:
-            for each_intf in intf_type:
-                if each_intf not in device.interface.valid_int_types:
-                    self.logger.error('Interface type %s is not valid. '
-                                      'Interface type must be one of %s',
-                                      each_intf, device.interface.valid_int_types)
-                    raise ValueError('Interface type is not valid. '
-                                     'Interface type must be one of %s'
-                                     % device.interface.valid_int_types)
 
         bd_check = device.interface.bridge_domain(bridge_domain=bridge_domain_id,
                                      bridge_domain_service_type=bridge_domain_service_type,
