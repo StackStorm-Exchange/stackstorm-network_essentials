@@ -51,7 +51,6 @@ class set_l2_mtu(NosDeviceAction):
             except (TypeError, AttributeError, ValueError) as e:
                 self.logger.error(
                     'Cannot set L2 mtu on interface %s %s due to %s',
-                    intf_type, intf, e.message)
+                    intf_type, intf, str(e.message))
                 result = False
-                raise ValueError(e.message)
         return result
