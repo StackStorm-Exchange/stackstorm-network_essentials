@@ -21,6 +21,7 @@ network_essentials.drop_provision:
         - intf
         - acl_exists
         - seq_id
+        - rule_action
     tasks:
         start:
             action: core.local
@@ -58,6 +59,7 @@ network_essentials.drop_provision:
                 dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
                 ethertype: <% $.ethertype %>
                 vlan: <% $.vlan_id %>
+                action: <% $.rule_action %>
             on-success:
                 - apply_acl: <% $.acl_exists = true %>
                 - create_switchport_access: <% $.acl_exists = false %>
@@ -69,7 +71,7 @@ network_essentials.drop_provision:
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
                 seq_id: <% $.seq_id %>
-                action: "deny"
+                action: <% $.rule_action %>
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
                 destination: <% $.destination %>
@@ -86,7 +88,7 @@ network_essentials.drop_provision:
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
                 seq_id: <% $.seq_id %>
-                action: "deny"
+                action: <% $.rule_action %>
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
                 destination: <% $.destination %>
