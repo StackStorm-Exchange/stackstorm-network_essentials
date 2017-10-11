@@ -15,6 +15,7 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 import re
+import itertools
 
 
 class ConfigureLogicalInterface(NosDeviceAction):
@@ -48,10 +49,16 @@ class ConfigureLogicalInterface(NosDeviceAction):
             self._platform_checks(device, vlan_id, inner_vlan_id, vlan_type)
             lif_name = logical_interface_number.split(',')
             if vlan_id is not None:
-                vlan_id = vlan_id.split(',')
+                vlan_id = list(itertools.chain.from_iterable(range(int(ranges[0]),
+                                  int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
+                                  for el in (miniRange.split('-')
+                                  for miniRange in vlan_id.split(',')))))
             if inner_vlan_id is not None:
-                inner_vlan_id = inner_vlan_id.split(',')
-
+                inner_vlan_id = list(itertools.chain.from_iterable(range(int(ranges[0]),
+                                  int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
+                                  for el in (miniRange.split('-')
+                                  for miniRange in inner_vlan_id.split(',')))))
+                
             changes['valid_lif'], lif_list = self._check_interface_presence(device, intf_type,
                                                                             intf_name, lif_name)
             if vlan_type == 'double_tagged':
