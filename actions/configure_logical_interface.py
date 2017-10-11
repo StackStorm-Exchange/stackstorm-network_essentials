@@ -58,7 +58,6 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                   int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
                                   for el in (miniRange.split('-')
                                   for miniRange in inner_vlan_id.split(',')))))
-            
             changes['valid_lif'], lif_list = self._check_interface_presence(device, intf_type,
                                                                             intf_name, lif_name)
             if vlan_type == 'double_tagged':
