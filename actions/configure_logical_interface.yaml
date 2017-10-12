@@ -38,7 +38,7 @@ parameters:
     required: true
     position: 4
   logical_interface_number:
-    type: array
+    type: string 
     description: Interface name physical port or port channel number. E.g:0/1.1 or
       7.1
     required: true
@@ -52,11 +52,11 @@ parameters:
     description: vlan tag type
     position: 6
   vlan_id:
-    type: array
+    type: string
     description: Single/List of VLANIDs. Vlan id range <1-4090>
     position: 7
   inner_vlan_id:
-    type: array
+    type: string
     description: Configure Single/List of Inner VLAN for the logical interface.vlan
       id range <1-4090>
     position: 8
