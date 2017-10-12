@@ -1,6 +1,7 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 import re
+import sys
 
 
 class set_l2_system_mtu(NosDeviceAction):
@@ -44,4 +45,5 @@ class set_l2_system_mtu(NosDeviceAction):
         except (TypeError, AttributeError, ValueError) as e:
             self.logger.error('Cannot set L2 mtu on device due to %s',
                               e.message)
+            sys.exit(-1)
         return True
