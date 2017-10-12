@@ -1,0 +1,45 @@
+---
+name: autopick_lif_id
+pack: network_essentials
+runner_type: python-script
+description: Returns the next lowest available Logical Interface ID on SLX platforms.
+enabled: true
+entry_point: autopick_lif_id.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - port_channel
+    default: ethernet
+    description: Interface type
+    position: 3
+  intf_name:
+    type: string
+    description: Interface Port number or Port channel number. Examples for SLX are
+      1/13, 1/14
+    required: true
+    position: 4
+  length_of_the_range:
+    type: string
+    description: Returns the lowest available Single/Range of Logical Interface values. 
+      For example 1/1.1 or 1/1.1,1/1.2 or 1.1 or 1.1,1.2.
+    default: '1'
+    position: 5
+
