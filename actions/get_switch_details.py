@@ -41,8 +41,8 @@ class GetSwitchDetails(NosDeviceAction):
             changes['switch_details'] = self._get_switch_details(device,
                                                                  mgmt_ip)
             self.logger.info('closing connection to %s after '
-                             'getting switch details - \
-                             all done!', self.host)
+                             'getting switch details -'
+                             'all done!', self.host)
 
     def _get_switch_details(self, device, host):
         """get the switch details.
@@ -50,19 +50,18 @@ class GetSwitchDetails(NosDeviceAction):
         sw_info = {}
         rb_list = []
         sw_list = []
-        if not device.suports_rbridge:
-            self.logger.error('This operation is supported only on NOS')
-            raise ValueError('This operation is supported only on NOS')
+        if device.os_type == 'nos':
+            sw_info['os_type'] = 'nos'
+            vcs_info = device.vcs.vcs_nodes
+            for vcs in vcs_info:
+                rb_list.append(vcs['node-rbridge-id'])
+                if vcs['node-is-principal'] == "true":
+                    sw_info['principal_ip'] = vcs['node-switch-ip']
+                    continue
 
-        vcs_info = device.vcs.vcs_nodes
-
-        for vcs in vcs_info:
-            rb_list.append(vcs['node-rbridge-id'])
-            if vcs['node-is-principal'] == "true":
-                sw_info['principal_ip'] = vcs['node-switch-ip']
-                continue
-
-            sw_list.append(vcs['node-switch-ip'])
+                sw_list.append(vcs['node-switch-ip'])
+        else:
+            sw_info['os_type'] = 'slxos'
 
         sw_info['rbridge_id'] = rb_list
         sw_info['switch_ip'] = sw_list
