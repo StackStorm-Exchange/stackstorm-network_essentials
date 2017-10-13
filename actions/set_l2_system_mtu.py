@@ -1,5 +1,7 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import re
+import sys
 
 
 class set_l2_system_mtu(NosDeviceAction):
@@ -33,12 +35,15 @@ class set_l2_system_mtu(NosDeviceAction):
                          mtu_size)
 
         try:
-            device.system.system_l2_mtu(mtu=mtu_size)
+            ret = device.system.system_l2_mtu(mtu=mtu_size)
+
+            if re.search(r'Reload required.', ret):
+                self.logger.info('WARNING %s', ret)
 
             self.logger.info('Successfully  set  mtu_size %i on the device',
                              mtu_size)
         except (TypeError, AttributeError, ValueError) as e:
             self.logger.error('Cannot set L2 mtu on device due to %s',
                               e.message)
-            raise ValueError(e.message)
+            sys.exit(-1)
         return True
