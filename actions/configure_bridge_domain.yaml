@@ -65,15 +65,15 @@ parameters:
     position: 10
     default: default
   intf_type:
-    type: array
-    description: Logical interface type.Valid Types ['ethernet','port_channel']. For
+    type: string
+    description: Logical interface type.Valid Types 'ethernet','port_channel'. For
       Example. 'ethernet' --> if all the entries in logical_interface_number are of
       type ethernet 'port_channel' --> if all the entries in logical_interface_number
       are of type port_channel 'ethernet,port_channel,ethernet,port_channel' --> If
       the entries in logical_interface_number are of mixed types.
     position: 11
   logical_interface_number:
-    type: array
+    type: string 
     description: Physical port or port channel number list.Logical Interace ID. E.g
       '0/34.11,21.1,0/35.1,22.1'
     position: 12

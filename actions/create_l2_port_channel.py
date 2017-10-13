@@ -73,9 +73,11 @@ class CreatePortChannel(NosDeviceAction):
                                                               mode_type=protocol,
                                                               intf_desc=port_channel_desc)
             self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
-            changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
-            changes['fabric_trunk_disable'] = self._disable_trunk(device, intf_type, ports)
-            changes['fabric_neighbor_discovery'] = self._fabric_neighbor(device, intf_type, ports)
+            if device.os_type == 'nos':
+                changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
+                changes['fabric_trunk_disable'] = self._disable_trunk(device, intf_type, ports)
+                changes['fabric_neighbor_discovery'] = self._fabric_neighbor(device,
+                                                            intf_type, ports)
             self.logger.info('closing connection to %s after'
                              ' configuring port channel -- all done!', self.host)
         return changes
@@ -114,18 +116,18 @@ class CreatePortChannel(NosDeviceAction):
                 if port_chann['aggregator_type'] == 'standard':
                     for interfaces in port_chann['interfaces']:
                         if interfaces['interface-name'] in intf_name:
-                            self.logger.info(
+                            self.logger.error(
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
                                 portchannel_num, interfaces['interface-name'])
-                            return False
+                            sys.exit(-1)
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
-                        self.logger.info('Interface %s is already mapped to a'
+                        self.logger.error('Interface %s is already mapped to a'
                                          ' different port channel %s',
                                          interfaces['interface-name'], port_chann['interface-name'])
-                        return False
+                        sys.exit(-1)
         return True
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,

@@ -13,6 +13,7 @@
 # limitations under the License.
 from ne_base import NosDeviceAction
 from pyswitch.device import Device
+import sys
 
 
 class DeletePortChannel(NosDeviceAction):
@@ -49,17 +50,17 @@ class DeletePortChannel(NosDeviceAction):
             for po in poChannel:
                 poNo = po['aggregator_id']
                 if poNo == str(portchannel_num):
-                    self.logger.info('Deleting port channel %s ', portchannel_num)
+                    self.logger.info('Deleting port channel %s', portchannel_num)
                     device.interface.remove_port_channel(port_int=str(portchannel_num))
                     is_po_present = False
         except Exception as e:
             error_message = str(e.message)
             self.logger.error(error_message)
             self.logger.error('Failed to get/delete port-channel %s', portchannel_num)
-            return False
+            sys.exit(-1)
 
         if not is_po_present:
             return True
         else:
-            self.logger.info('port-channel %s does not exist in the switch', portchannel_num)
-            return False
+            self.logger.error('port-channel %s does not exist in the switch', portchannel_num)
+            sys.exit(-1)
