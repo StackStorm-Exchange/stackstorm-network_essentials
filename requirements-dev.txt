@@ -5,6 +5,7 @@ flake8>=2.3.0,<2.4
 pylint==1.5.5
 pylint-plugin-utils>=0.2.3,<0.3
 pyyaml<4.0,>=3.11
+ruamel.yaml>=0.15
 ipython
 six
 unittest2

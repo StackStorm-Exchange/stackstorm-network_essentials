@@ -2,7 +2,8 @@
 name: set_l3_system_mtu
 pack: network_essentials
 runner_type: python-script
-description: Set L3 system MTU on the VCS fabric or vLag pair. Only supported on VDX devices.
+description: Set L3 system MTU on the VCS fabric or vLag pair. Only supported on VDX
+  devices.
 enabled: true
 entry_point: set_l3_system_mtu.py
 parameters:
@@ -24,7 +25,8 @@ parameters:
     position: 2
   mtu_size:
     type: integer
-    description: MTU size in bytes <Number:1300-9100> for IPV4, <Number:1280-9100> for IPV6
+    description: MTU size in bytes <Number:1300-9100> for IPV4, <Number:1280-9100>
+      for IPV6
     required: true
     position: 3
   afi:

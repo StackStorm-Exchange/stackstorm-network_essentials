@@ -4,7 +4,7 @@ pack: network_essentials
 runner_type: python-script
 description: Create a VE, assign IP addresses and VRF on multiple switches.
 enabled: true
-entry_point: create_ve.py 
+entry_point: create_ve.py
 parameters:
   mgmt_ip:
     type: string
@@ -24,21 +24,24 @@ parameters:
     position: 2
   rbridge_id:
     type: array
-    description: Single or list of RBridge IDs separated by comma, for example, 1 or 1,2, 4.  This parameter is only applicable for VDX switches.
+    description: Single or list of RBridge IDs separated by comma, for example, 1
+      or 1,2, 4.  This parameter is only applicable for VDX switches.
     required: false
     position: 3
   vlan_id:
     type: string
-    description: Interface VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF is enabled.
+    description: Interface VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090
+      only if VF is enabled.
     required: true
     position: 4
   ip_address:
-    type: array 
-    description: Single or list of IPv4/IPv6 addresses to be configured on the VE. IPv4/subnet-length or IPv6/prefix-length, for example 10.0.0.10/22, 30.0.0.10/22.
+    type: array
+    description: Single or list of IPv4/IPv6 addresses to be configured on the VE.
+      IPv4/subnet-length or IPv6/prefix-length, for example 10.0.0.10/22, 30.0.0.10/22.
     position: 5
   vrf_name:
     type: string
-    description: VRF name. For example vrf32 or 32 
+    description: VRF name. For example vrf32 or 32
     position: 6
   ipv6_use_link_local_only:
     type: boolean

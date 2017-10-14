@@ -2,12 +2,13 @@
 name: validate_vrrpe_state
 pack: network_essentials
 runner_type: python-script
-description: Validate VRRPe state on multiple switches to ensure one VRRPe master is elected and other switches are in backup mode. 
+description: Validate VRRPe state on multiple switches to ensure one VRRPe master
+  is elected and other switches are in backup mode.
 enabled: true
 entry_point: validate_vrrpe_state.py
 parameters:
   mgmt_ip:
-    type: array 
+    type: array
     description: Management IP address of the target device
     required: true
     position: 0
@@ -24,11 +25,17 @@ parameters:
     position: 2
   vlan_id:
     type: string
-    description: VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF is enabled.
+    description: VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF
+      is enabled.
     required: true
     position: 3
   vrrpe_group:
     type: string
-    description: Virtual extender group ID. <NUMBER:1-255>  
+    description: Virtual extender group ID. <NUMBER:1-255>
     required: true
     position: 4
+tags:
+  - name: group
+    value: Validate Edge Ports
+  - name: suite
+    value: DCFABRIC

@@ -2,9 +2,9 @@
 name: get_next_available_vf_id
 pack: network_essentials
 runner_type: run-python
-description: Returns the next lowest available VF ID (4096-8191) on the device. 
+description: Returns the next lowest available VF ID (4096-8191) on the device.
 enabled: true
-entry_point: get_next_available_vf_id.py 
+entry_point: get_next_available_vf_id.py
 parameters:
   mgmt_ip:
     type: string

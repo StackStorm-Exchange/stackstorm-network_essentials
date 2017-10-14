@@ -38,12 +38,14 @@ parameters:
     position: 3
   intf_name:
     type: array
-    description: Interface names, can be comma separated physical ports, port channel numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9
+    description: Interface names, can be comma separated physical ports, port channel
+      numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9
     required: true
     position: 4
   mtu_size:
     type: integer
-    description: For SLX IPV4/IPV6 MTU size in bytes <Number:1300-9194>. For VDX IPV4 <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes.
+    description: For SLX IPV4/IPV6 MTU size in bytes <Number:1300-9194>. For VDX IPV4
+      <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes.
     required: true
     position: 5
   afi:

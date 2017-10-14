@@ -2,7 +2,8 @@
 name: validate_interface_state
 pack: network_essentials
 runner_type: python-script
-description: Validate L1 and L2 state for port channel, physical, ve, loopback interface is UP.
+description: Validate L1 and L2 state for port channel, physical, ve, loopback interface
+  is UP.
 enabled: true
 entry_point: validate_interface_state.py
 parameters:
@@ -39,7 +40,8 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface name physical port, port channel number, ve, loopback. Examples are 224/0/1 or 7
+    description: Interface name physical port, port channel number, ve, loopback.
+      Examples are 224/0/1 or 7
     required: true
     position: 4
   intf_state:
@@ -52,5 +54,11 @@ parameters:
     position: 5
   rbridge_id:
     type: array
-    description: Single or list of RBridge IDs separated by comma, for example, 1 or 1,2, 4.  This parameter is only applicable for VDX switches. 
+    description: Single or list of RBridge IDs separated by comma, for example, 1
+      or 1,2, 4.  This parameter is only applicable for VDX switches.
     position: 6
+tags:
+  - name: group
+    value: Validate Edge Ports
+  - name: suite
+    value: DCFABRIC

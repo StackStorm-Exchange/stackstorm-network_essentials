@@ -29,7 +29,8 @@ parameters:
     position: 3
   seq_id:
     type: integer
-    description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+    description: Sequence number of the rule, if not specified, the rule is added
+      at the end of the list. Valid range is 0 to 4294967290
     required: false
     position: 4
   action:
@@ -43,23 +44,27 @@ parameters:
     default: permit
   protocol_type:
     type: string
-    description: Type of IP packets to be filtered based on protocol. Valid values are <0-255> or key words tcp, udp, icmp or ip
+    description: Type of IP packets to be filtered based on protocol. Valid values
+      are <0-255> or key words tcp, udp, icmp or ip
     required: false
     position: 6
   source:
     type: string
-    description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
+      } [ source-operator [ S_port-numbers ] ]
     required: true
     position: 7
     default: any
   destination:
     type: string
-    description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+    description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) |
+      host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
     required: false
     position: 8
   dscp:
     type: string
-    description: Matches the specified value against the DSCP value of the packet to filter.  Allowed values are 0 through 63.
+    description: Matches the specified value against the DSCP value of the packet
+      to filter.  Allowed values are 0 through 63.
     required: false
     position: 9
   vlan_id:

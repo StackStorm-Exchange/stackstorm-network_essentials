@@ -2,7 +2,8 @@
 name: set_intf_admin_state
 pack: network_essentials
 runner_type: python-script
-description: Enable or disable a single physical port, port-channel, loopback or VE interface on a device.  Optionally set the interface description.
+description: Enable or disable a single physical port, port-channel, loopback or VE
+  interface on a device.  Optionally set the interface description.
 enabled: true
 entry_point: set_intf_admin_state.py
 parameters:
@@ -39,12 +40,14 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface names, port channel numbers or VEs. Examples are 224/0/1, 224/0/2, 52/0/15-16 or 7, 8, 9
+    description: Interface names, port channel numbers or VEs. Examples are 224/0/1,
+      224/0/2, 52/0/15-16 or 7, 8, 9
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch.  This parameter is only applicable for VDX switches.
+    description: RBridge ID of the VDX switch.  This parameter is only applicable
+      for VDX switches.
     position: 7
   enabled:
     type: boolean

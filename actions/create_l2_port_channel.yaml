@@ -1,10 +1,10 @@
 ---
-name: create_l2_port_channel 
+name: create_l2_port_channel
 pack: network_essentials
 runner_type: python-script
 description: Create an L2 port channel (LAG or vLAG) in Static or LACP mode
 enabled: true
-entry_point: create_l2_port_channel.py 
+entry_point: create_l2_port_channel.py
 parameters:
   mgmt_ip:
     type: string
@@ -24,7 +24,7 @@ parameters:
     position: 2
   intf_type:
     type: string
-    enum: 
+    enum:
       - tengigabitethernet
       - gigabitethernet
       - fortygigabitethernet
@@ -36,12 +36,13 @@ parameters:
     position: 3
   ports:
     type: array
-    description: Single or list of ports that are members of the port channel. Examples for VDX, SLX are  24/0/1, 24/0/2 or 1/13, 1/14
+    description: Single or list of ports that are members of the port channel. Examples
+      for VDX, SLX are  24/0/1, 24/0/2 or 1/13, 1/14
     required: true
     position: 4
   port_channel_id:
     type: string
-    description: Port channel interface number.<NUMBER:1-6144> 
+    description: Port channel interface number.<NUMBER:1-6144>
     required: true
     position: 5
   mode:

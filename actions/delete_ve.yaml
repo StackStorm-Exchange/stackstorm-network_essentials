@@ -4,7 +4,7 @@ pack: network_essentials
 runner_type: python-script
 description: Delete a VE on multiple switches
 enabled: true
-entry_point: delete_ve.py 
+entry_point: delete_ve.py
 parameters:
   mgmt_ip:
     type: string
@@ -24,10 +24,12 @@ parameters:
     position: 2
   rbridge_id:
     type: array
-    description: RBridge IDs of the VDX switches, for example 51 or 51,52. This parameter is only applicable for VDX switches.
+    description: RBridge IDs of the VDX switches, for example 51 or 51,52. This parameter
+      is only applicable for VDX switches.
     position: 3
   vlan_id:
     type: string
-    description: VLAN ID. Allowed range for SLX <NUMBER:1-4090>, for VDX <NUMBER:1-4090/8191> greater than 4090 only if VF is enabled
+    description: VLAN ID. Allowed range for SLX <NUMBER:1-4090>, for VDX <NUMBER:1-4090/8191>
+      greater than 4090 only if VF is enabled
     required: true
     position: 4
