@@ -6,40 +6,42 @@ description: Create an Access Control List
 enabled: true
 entry_point: create_acl.py
 parameters:
-    mgmt_ip:
-        type: string
-        description: Management IP address of the target device
-        required: true
-        position: 0
-    username:
-        type: string
-        description: Login user name to connect to the device
-        default: admin
-        position: 1
-    password:
-        type: string
-        description: Login password to connect to the device
-        default: password
-        position: 2
-    address_type:
-        type: string
-        enum:
-            - ip
-            - ipv6
-            - mac
-        description: ACL address type, ip or ipv6 or mac
-        default: ip
-        position: 3
-    acl_type:
-        type: string
-        enum:
-            - standard
-            - extended
-        description: ACL type, extended or standard
-        required: true
-        position: 4
-    acl_name:
-        type: string
-        description: Unique name for ACL, can be up to 63 characters long, and must begin with a-z, A-Z or 0-9. You can also use underscore (_) or hyphen (-) in an ACL name, but not as the first character.
-        required: true
-        position: 5
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    position: 2
+  address_type:
+    type: string
+    enum:
+      - ip
+      - ipv6
+      - mac
+    description: ACL address type, ip or ipv6 or mac
+    default: ip
+    position: 3
+  acl_type:
+    type: string
+    enum:
+      - standard
+      - extended
+    description: ACL type, extended or standard
+    required: true
+    position: 4
+  acl_name:
+    type: string
+    description: Unique name for ACL, can be up to 63 characters long, and must begin
+      with a-z, A-Z or 0-9. You can also use underscore (_) or hyphen (-) in an ACL
+      name, but not as the first character.
+    required: true
+    position: 5

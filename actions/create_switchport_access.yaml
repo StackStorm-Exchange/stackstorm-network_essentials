@@ -32,20 +32,25 @@ parameters:
       - hundredgigabitethernet
       - port_channel
     default: tengigabitethernet
-    description: Interface type 
+    description: Interface type
     required: true
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple format (24/1) 
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple
+      format (24/1)
     required: true
     position: 4
   vlan_id:
-    type: string 
-    description: VLAN ID to be configure on the interface. For 802.1Q VLANs, ID must be below 4096, for service or transport VFs valid range is from 4096 through 8191.
+    type: string
+    description: VLAN ID to be configure on the interface. For 802.1Q VLANs, ID must
+      be below 4096, for service or transport VFs valid range is from 4096 through
+      8191.
     required: true
     position: 5
   mac_group_id:
-    type: array 
-    description: ID of previously created MAC group to be used in MAC-based VLAN classification at the access port.  Applicable only when Virtual Fabric is enabled.  This is a fabric-wide ID, valid values are 1 through 500.
+    type: array
+    description: ID of previously created MAC group to be used in MAC-based VLAN classification
+      at the access port.  Applicable only when Virtual Fabric is enabled.  This is
+      a fabric-wide ID, valid values are 1 through 500.
     position: 6

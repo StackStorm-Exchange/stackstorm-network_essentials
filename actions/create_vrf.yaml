@@ -2,9 +2,10 @@
 name: create_vrf
 pack: network_essentials
 runner_type: python-script
-description: Create Virtual Routing and Forwarding (VRF) instance on the switch for L3 tenants.
+description: Create Virtual Routing and Forwarding (VRF) instance on the switch for
+  L3 tenants.
 enabled: true
-entry_point: create_vrf.py 
+entry_point: create_vrf.py
 parameters:
   mgmt_ip:
     type: string
@@ -29,7 +30,8 @@ parameters:
     position: 3
   rbridge_id:
     type: array
-    description: RBridge ID of the switch. This parameter is only applicable for VDX switches.
+    description: RBridge ID of the switch. This parameter is only applicable for VDX
+      switches.
     required: false
     position: 4
   afi:

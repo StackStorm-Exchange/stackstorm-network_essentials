@@ -2,9 +2,10 @@
 name: create_vrrpe
 pack: network_essentials
 runner_type: python-script
-description: Create a VRRPe session on multiple switches by creating VRRPe group and assigning virtual IP
+description: Create a VRRPe session on multiple switches by creating VRRPe group and
+  assigning virtual IP
 enabled: true
-entry_point: create_vrrpe.py 
+entry_point: create_vrrpe.py
 parameters:
   mgmt_ip:
     type: string
@@ -24,7 +25,8 @@ parameters:
     position: 2
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch.  This parameter is only applicable for VDX switches. 
+    description: RBridge ID of the VDX switch.  This parameter is only applicable
+      for VDX switches.
     required: false
     position: 3
   ve_name:
@@ -34,7 +36,7 @@ parameters:
     position: 4
   vrid:
     type: string
-    description: Virtual group ID 
+    description: Virtual group ID
     required: true
     position: 5
   virtual_ip:
