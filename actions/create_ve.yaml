@@ -48,3 +48,9 @@ parameters:
     description: IPv6 link local
     default: false
     position: 7
+  skip_vlan_config:
+    type: boolean
+    description: Skip Vlan to VE mapping for SLXOS platforms.
+    default: false
+    position: 8
+
