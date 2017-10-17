@@ -13,6 +13,7 @@
 # limitations under the License.
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import sys
 
 
 class DeleteVlan(NosDeviceAction):
@@ -53,7 +54,7 @@ class DeleteVlan(NosDeviceAction):
             for vlan in vlan_list:
                 device.interface.del_vlan_int(vlan)
         except (KeyError, ValueError) as e:
-            self.logger.info('VLAN %s deletion failed due to %s' % (vlan, e.message))
-            raise ValueError('VLAN deletion failed')
+            self.logger.error('VLAN %s deletion failed due to %s' % (vlan, e.message))
+            sys.exit(-1)
 
         return True
