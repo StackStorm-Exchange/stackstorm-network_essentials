@@ -14,6 +14,7 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import sys
 
 
 class CreateVlan(NosDeviceAction):
@@ -61,7 +62,7 @@ class CreateVlan(NosDeviceAction):
             self.logger.info('Creating Vlans')
             device.interface.add_vlan_int(vlan_id_list=vlan_list, desc=intf_desc)
         except (KeyError, ValueError) as e:
-            self.logger.info('VLAN creation failed due to %s' % (e.message))
-            raise ValueError('VLAN creation failed')
+            self.logger.error('VLAN creation failed due to %s' % (e.message))
+            sys.exit(-1)
 
         return True
