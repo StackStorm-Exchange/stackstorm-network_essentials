@@ -46,25 +46,76 @@ class NosDeviceAction(Action):
         self.conn = (host, '22')
         self.auth = self._get_auth(host=host, user=user, passwd=passwd)
 
+    def _lookup_st2_store(self, key, decrypt=False):
+        """
+           API to retrieve from st2 store lookup
+        """
+        lookup_key = self._get_lookup_key(host=self.host, lookup=key)
+        user_kv = self.action_service.get_value(name=lookup_key, local=False,
+                                                decrypt=decrypt)
+        if not user_kv:
+            lookup_key = self._get_user_default_lookup_key(lookup=key)
+            user_kv = self.action_service.get_value(name=lookup_key, local=False,
+                                                    decrypt=decrypt)
+        return user_kv
+
+    def _get_snmp_credentials(self, host):
+
+        """
+           API to retrieve snmp credentials from st2 store
+        """
+
+        snmpconfig = {}
+
+        ver_kv = self._lookup_st2_store('snmpver')
+        if not ver_kv:
+            snmpconfig['version'] = 0
+        elif ver_kv == 'v2':
+            snmpconfig['version'] = 2
+        elif ver_kv == 'v3':
+            snmpconfig['version'] = 3
+        else:
+            snmpconfig['version'] = 0
+
+        port_kv = self._lookup_st2_store('snmpport')
+        if not port_kv:
+            snmpconfig['snmpport'] = 161
+        else:
+            snmpconfig['snmpport'] = int(port_kv)
+
+        v2c_kv = self._lookup_st2_store('snmpv2c', decrypt=True)
+        if not v2c_kv:
+            snmpconfig['snmpv2c'] = 'public'
+        else:
+            snmpconfig['snmpv2c'] = v2c_kv
+
+        return snmpconfig
+
     def _get_auth(self, host, user, passwd):
+
         if not user:
-            lookup_key = self._get_lookup_key(host=self.host, lookup='user')
-            user_kv = self.action_service.get_value(
-                name=lookup_key, local=False)
-            if not user_kv:
-                raise Exception('username for %s not found.' % host)
-            user = user_kv
+            user = self._lookup_st2_store('user')
+            if not user:
+                user = 'admin'
+
         if not passwd:
-            lookup_key = self._get_lookup_key(host=self.host, lookup='passwd')
-            passwd_kv = self.action_service.get_value(
-                name=lookup_key, local=False, decrypt=True)
-            if not passwd_kv:
-                raise Exception('password for %s not found.' % host)
-            passwd = passwd_kv
-        return (user, passwd)
+            passwd = self._lookup_st2_store('passwd', decrypt=True)
+            if not passwd:
+                passwd = 'password'
+
+        enablepass = self._lookup_st2_store('enablepass', decrypt=True)
+        if not enablepass:
+            enablepass = None
+
+        snmpconfig = self._get_snmp_credentials(host=host)
+
+        return (user, passwd, enablepass, snmpconfig)
 
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
+
+    def _get_user_default_lookup_key(self, lookup):
+        return 'switch.USER.DEFAULT.%s' % (lookup)
 
     def get_device(self):
         try:
