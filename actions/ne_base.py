@@ -69,7 +69,7 @@ class NosDeviceAction(Action):
 
         ver_kv = self._lookup_st2_store('snmpver')
         if not ver_kv:
-            snmpconfig['version'] = 0
+            snmpconfig['version'] = 2 
         elif ver_kv == 'v2':
             snmpconfig['version'] = 2
         elif ver_kv == 'v3':
