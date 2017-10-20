@@ -6,22 +6,44 @@ network_essentials.drop_provision:
         - mgmt_ip
         - username
         - password
+        - address_type
+        - acl_type
         - acl_name
+        - rbridge_id
         - intf_type
         - intf_name
+        - acl_direction
+        - traffic_type
+        - acl_rules
+        - seq_id
+        - action
         - protocol_type
         - source
+        - srchost
         - src_mac_addr_mask
         - destination
+        - dsthost
         - dst_mac_addr_mask
         - dscp
+        - drop_precedence_force
+        - urg
+        - ack
+        - push
+        - fin
+        - rst
+        - sync
         - vlan_id
+        - vlan_tag_format
+        - vlan
         - ethertype
-        - address_type
-        - intf
+        - arp_guard
+        - pcp
+        - count
+        - log
+        - mirror
+        - copy_sflow
         - acl_exists
-        - seq_id
-        - rule_action
+
     tasks:
         start:
             action: core.local
@@ -29,22 +51,30 @@ network_essentials.drop_provision:
                 cmd: "echo 'drop_provision START'"
             on-success:
                 - create_acl: <% $.acl_exists = false %>
-                - add_or_remove_l2_acl_rule: <% $.acl_exists = true and $.address_type = 'mac' %>
-                - add_ipv4_rule_acl: <% $.acl_exists = true and $.address_type = 'ip' %>
-                - add_ipv6_rule_acl: <% $.acl_exists = true and $.address_type = 'ipv6' %>
+                - add_or_remove_l2_acl_rule: <% $.acl_exists = true and $.address_type = 'mac' and not $.vlan_tag_format and not $.acl_rules %>
+                - add_or_remove_l2_acl_rule_with_vlan_tag: <% $.acl_exists = true and $.address_type = 'mac' and $.vlan_tag_format and not $.acl_rules %>
+                - add_ipv4_rule_acl: <% $.acl_exists = true and $.address_type = 'ip' and not $.acl_rules %>
+                - add_ipv6_rule_acl: <% $.acl_exists = true and $.address_type = 'ipv6' and not $.acl_rules %>
+                - add_mac_rule_acl_bulk: <% $.acl_exists = true and $.address_type = 'mac' and $.acl_rules %>
+                - add_ipv4_rule_acl_bulk: <% $.acl_exists = true and $.address_type = 'ip' and $.acl_rules %>
+                - add_ipv6_rule_acl_bulk: <% $.acl_exists = true and $.address_type = 'ipv6' and $.acl_rules %>
         create_acl:
             action: network_essentials.create_acl
             input:
                 mgmt_ip: <% $.mgmt_ip %>
                 username: <% $.username %>
                 password: <% $.password %>
-                acl_type: 'extended'
-                acl_name: <% $.acl_name %>
                 address_type: <% $.address_type %>
+                acl_type: <% $.acl_type %>
+                acl_name: <% $.acl_name %>
             on-success:
-                - add_or_remove_l2_acl_rule: <% $.address_type = 'mac' %>
-                - add_ipv4_rule_acl: <% $.address_type = 'ip' %>
-                - add_ipv6_rule_acl: <% $.address_type = 'ipv6' %>
+                - add_or_remove_l2_acl_rule: <% $.address_type = 'mac' and not $.vlan_tag_format and not $.acl_rules %>
+                - add_or_remove_l2_acl_rule_with_vlan_tag: <% $.address_type = 'mac' and $.vlan_tag_format and not $.acl_rules %>
+                - add_ipv4_rule_acl: <% $.address_type = 'ip' and not $.acl_rules %>
+                - add_ipv6_rule_acl: <% $.address_type = 'ipv6' and not $.acl_rules %>
+                - add_mac_rule_acl_bulk: <% $.address_type = 'mac' and $.acl_rules %>
+                - add_ipv4_rule_acl_bulk: <% $.address_type = 'ip' and $.acl_rules %>
+                - add_ipv6_rule_acl_bulk: <% $.address_type = 'ipv6' and $.acl_rules %>
         add_or_remove_l2_acl_rule:
             action: network_essentials.add_or_remove_l2_acl_rule
             input:
@@ -53,15 +83,66 @@ network_essentials.drop_provision:
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
                 seq_id: <% $.seq_id %>
+                action: <% $.action %>
                 source: <% $.source %>
+                srchost: <% $.srchost %>
                 src_mac_addr_mask: <% $.src_mac_addr_mask %>
                 dst: <% $.destination %>
+                dsthost: <% $.dsthost %>
                 dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
+                vlan: <% $.vlan %>
                 ethertype: <% $.ethertype %>
-                vlan: <% $.vlan_id %>
-                action: <% $.rule_action %>
+                arp_guard: <% $.arp_guard %>
+                pcp: <% $.pcp %>
+                drop_precedence_force: <% $.drop_precedence_force %>
+                count: <% $.count %>
+                log: <% $.log %>
+                mirror: <% $.mirror %>
+                copy_sflow: <% $.copy_sflow %>
             on-success:
-                - apply_acl: <% $.acl_exists = true %>
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_or_remove_l2_acl_rule_with_vlan_tag:
+            action: network_essentials.add_or_remove_l2_acl_rule
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                action: <% $.action %>
+                source: <% $.source %>
+                srchost: <% $.srchost %>
+                src_mac_addr_mask: <% $.src_mac_addr_mask %>
+                dst: <% $.destination %>
+                dsthost: <% $.dsthost %>
+                dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
+                vlan_tag_format: <% $.vlan_tag_format %>
+                vlan: <% $.vlan %>
+                ethertype: <% $.ethertype %>
+                arp_guard: <% $.arp_guard %>
+                pcp: <% $.pcp %>
+                drop_precedence_force: <% $.drop_precedence_force %>
+                count: <% $.count %>
+                log: <% $.log %>
+                mirror: <% $.mirror %>
+                copy_sflow: <% $.copy_sflow %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_mac_rule_acl_bulk:
+            action: network_essentials.add_mac_rule_acl_bulk
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                acl_rules: <% $.acl_rules %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
                 - create_switchport_access: <% $.acl_exists = false %>
         add_ipv4_rule_acl:
             action: network_essentials.add_ipv4_rule_acl
@@ -71,14 +152,38 @@ network_essentials.drop_provision:
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
                 seq_id: <% $.seq_id %>
-                action: <% $.rule_action %>
+                action: <% $.action %>
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
                 destination: <% $.destination %>
                 dscp: <% $.dscp %>
+                drop_precedence_force: <% $.drop_precedence_force %>
+                urg: <% $.urg %>
+                ack: <% $.ack %>
+                push: <% $.push %>
+                fin: <% $.fin %>
+                rst: <% $.rst %>
+                sync: <% $.sync %>
                 vlan_id: <% $.vlan_id %>
+                count: <% $.count %>
+                log: <% $.log %>
+                mirror: <% $.mirror %>
+                copy_sflow: <% $.copy_sflow %>
             on-success:
-                - apply_acl: <% $.acl_exists = true %>
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_ipv4_rule_acl_bulk:
+            action: network_essentials.add_ipv4_rule_acl_bulk
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                acl_rules: <% $.acl_rules %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
                 - create_switchport_access: <% $.acl_exists = false %>
         add_ipv6_rule_acl:
             action: network_essentials.add_ipv6_rule_acl
@@ -88,28 +193,56 @@ network_essentials.drop_provision:
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
                 seq_id: <% $.seq_id %>
-                action: <% $.rule_action %>
+                action: <% $.action %>
                 protocol_type: <% $.protocol_type %>
                 source: <% $.source %>
                 destination: <% $.destination %>
                 dscp: <% $.dscp %>
+                drop_precedence_force: <% $.drop_precedence_force %>
+                urg: <% $.urg %>
+                ack: <% $.ack %>
+                push: <% $.push %>
+                fin: <% $.fin %>
+                rst: <% $.rst %>
+                sync: <% $.sync %>
                 vlan_id: <% $.vlan_id %>
+                count: <% $.count %>
+                log: <% $.log %>
+                mirror: <% $.mirror %>
+                copy_sflow: <% $.copy_sflow %>
             on-success:
-                - apply_acl: <% $.acl_exists = true %>
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
+                - create_switchport_access: <% $.acl_exists = false %>
+        add_ipv6_rule_acl_bulk:
+            action: network_essentials.add_ipv6_rule_acl_bulk
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                acl_rules: <% $.acl_rules %>
+            on-success:
+                - apply_acl: <% $.acl_exists = true and not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.acl_exists = true and $.traffic_type %>
                 - create_switchport_access: <% $.acl_exists = false %>
         create_switchport_access:
+            with-items: 
+                - intf in <% $.intf_name %>
             action: network_essentials.create_switchport_access
             input:
                 mgmt_ip: <% $.mgmt_ip %>
                 username: <% $.username %>
                 password: <% $.password %>
-                intf_name: <% $.intf %>
                 intf_type: <% $.intf_type %>
+                intf_name: <% $.intf %>
                 vlan_id: '1'
             on-success:
-                - apply_acl
+                - apply_acl: <% not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.traffic_type %>
             on-error:
-                - apply_acl
+                - apply_acl: <% not $.traffic_type %>
+                - apply_acl_with_traffic: <% $.traffic_type %>
         apply_acl:
             action: network_essentials.apply_acl
             input:
@@ -117,8 +250,26 @@ network_essentials.drop_provision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
-                intf_name: <% $.intf_name %>
+                rbridge_id: <% $.rbridge_id %>
                 intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                acl_direction: <% $.acl_direction %>
+            on-success:
+                - end
+            on-error:
+                - end
+        apply_acl_with_traffic:
+            action: network_essentials.apply_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                rbridge_id: <% $.rbridge_id %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name %>
+                acl_direction: <% $.acl_direction %>
+                traffic_type: <% $.traffic_type %> 
             on-success:
                 - end
             on-error:

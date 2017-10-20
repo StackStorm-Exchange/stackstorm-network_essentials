@@ -1,37 +1,20 @@
-import re
-import sys
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import re
 
 
-class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
-
-    """
-    standard rule elements -->
-        seq_id, action, source, srchost, src_mac_addr_mask, count, log, copy_sflow
-    extended rule elements -->
-        seq_id, action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
-        vlan_tag_format, vlan, ethertype, arp_guard, pcp, drop_precedence_force,
-        count, log, mirror, copy_sflow
-    """
-
-    def run(self, delete, mgmt_ip, username, password, acl_name, seq_id,
-            action, source, srchost, src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
-            vlan_tag_format, vlan, ethertype, arp_guard, pcp, drop_precedence_force,
-            count, log, mirror, copy_sflow):
+class Add_Mac_Rule_Acl_Bulk(NosDeviceAction):
+    def run(self, mgmt_ip, username, password, acl_name, acl_rules):
         """Run helper methods to add an L2 ACL rule to an existing ACL
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        return self.switch_operation(delete, acl_name, seq_id, action, source, srchost,
-                                     src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask,
-                                     vlan_tag_format, vlan, ethertype, arp_guard, pcp,
-                                     drop_precedence_force, count, log, mirror, copy_sflow)
+        return self.switch_operation(acl_name, acl_rules)
 
     @log_exceptions
-    def switch_operation(self, delete, acl_name, seq_id, action, source, srchost,
-                         src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask, vlan_tag_format,
-                         vlan, ethertype, arp_guard, pcp, drop_precedence_force, count, log,
-                         mirror, copy_sflow):
+    def switch_operation(self, acl_name, acl_rules):
+        seqs_list = []
+        seq_id_next = 10
+        seq_id_fetched = False
         with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
             acl = device.acl.get_acl_type(acl_name)
             address_type = acl['protocol']
@@ -40,52 +23,51 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                              acl_type, address_type)
 
             if address_type is not 'mac':
-                raise ValueError('ACL not compatible for L2 acl rule')
+                raise ValueError('ACL not compatible for adding L2 acl rule')
 
             if acl_type == 'standard':
                 seq_variables = device.acl.seq_variables_mac_std
             elif acl_type == 'extended':
                 seq_variables = device.acl.seq_variables_mac_ext
 
-            if delete:
-                if not seq_id:
-                    self.logger.error("Enter a valid seq_id to remove")
-                    sys.exit(-1)
-                seq_dict = device.acl.get_seq(acl_name, seq_id, acl_type, address_type)
-                if not seq_dict:
-                    self.logger.info("ACL %s has no rule with seq_id %s" % (acl_name, seq_id))
-                    return None
-
-                # replacing the '-' in seq_variables with '_'
-                for key, _ in seq_dict.iteritems():
-                    seq_dict[key.replace('-', '_')] = seq_dict.pop(key)
-
-                return self._delete_mac_acl_rule(device,
-                                                 acl_name=acl_name,
-                                                 acl_type=acl_type,
-                                                 address_type=address_type,
-                                                 seq_dict=seq_dict)
-
-            else:
+            for rule in acl_rules:
+                seq_id = rule.pop('seq_id', None)
+                action = rule.pop('action', 'deny')
+                source = rule.pop('source', 'any')
+                srchost = rule.pop('srchost', None)
+                src_mac_addr_mask = rule.pop('src_mac_addr_mask', None)
+                dst = rule.pop('dst', 'any')
+                dsthost = rule.pop('dsthost', None)
+                dst_mac_addr_mask = rule.pop('dst_mac_addr_mask', None)
+                vlan_tag_format = rule.pop('vlan_tag_format', None)
+                vlan = rule.pop('vlan', None)
+                ethertype = rule.pop('ethertype', None)
+                arp_guard = rule.pop('arp_guard', False)
+                pcp = rule.pop('pcp', None)
+                drop_precedence_force = rule.pop('drop_precedence_force', None)
+                count = rule.pop('count', False)
+                log = rule.pop('log', False)
+                mirror = rule.pop('mirror', False)
+                copy_sflow = rule.pop('copy_sflow', False)
                 if acl_type == 'extended' and not any([dst, dsthost, dst_mac_addr_mask]):
-                    self.logger.error('Destination required in extended access list')
-                    sys.exit(-1)
+                    raise ValueError('Destination required in extended access list')
                 elif acl_type == 'standard' and any([dsthost, dst_mac_addr_mask]):
-                    self.logger.error('Destination cannot be given for standard access list')
-                    sys.exit(-1)
-
+                    raise ValueError('Destination cannot be given for standard access list')
+                any([action, count, log, mirror])
                 try:
                     seq_dict = {key: None for key in seq_variables}
                 except:
-                    self.logger.error('Cannot get seq_variables')
                     raise ValueError('Cannot get seq_variables')
 
                 seq_dict['user_seq_id'] = seq_id
                 if seq_id is None:
-                    self.logger.info('seq_id not provided, getting the seq_id')
-                    seq_id = device.acl.get_seq_id(acl_name, acl_type, address_type)
-                    if seq_id is None:
-                        raise ValueError('Cannot get seq_id')
+                    if not seq_id_fetched:
+                        seq_id = device.acl.get_seq_id(acl_name, acl_type, address_type)
+                        seq_id_fetched = True
+                    if seq_id is None or seq_id < seq_id_next:
+                        seq_id = seq_id_next
+                if seq_id >= seq_id_next:
+                    seq_id_next = (seq_id + 10) // 10 * 10
                 self.logger.info('seq_id for the rule is %s', seq_id)
 
                 valid_src = self.validate_src_dst(source, srchost, src_mac_addr_mask, key='src')
@@ -100,14 +82,11 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                     try:
                         ethertype_id = (int(ethertype))
                     except ValueError as verr:
-                        self.logger.error("The ethertype value %s is invalid, could not convert to"
-                                          " integer due to %s", ethertype, verr.message)
-                        sys.exit(-1)
+                        raise ValueError("The ethertype value %s is invalid, could not convert to"
+                                         " integer due to %s" % (ethertype, verr.message))
                     if ethertype_id < 1536 or ethertype_id > 65535:
-                        self.logger.error("The ethertype value %s is invalid, "
-                                          "valid value is 1536-65535", ethertype)
-                        sys.exit(-1)
-
+                        raise ValueError("The ethertype value %s is invalid, "
+                                         "valid value is 1536-65535" % ethertype)
                 seq_dict['vlan'] = seq_dict['vlan-id-mask'] = None
                 seq_dict['outer-vlan'] = seq_dict['outer-vlan-id-mask'] = None
                 seq_dict['inner-vlan'] = seq_dict['inner-vlan-id-mask'] = None
@@ -181,12 +160,14 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                    not re.match("^[0-2]$", seq_dict['drop-precedence-force']):
                         raise ValueError("Invalid \'drop-precedence-force\' value,"
                                          " 0-2 only supported")
+                seqs_list.append(seq_dict)
 
-                return self._add_l2_acl_rule(device,
-                                             acl_name=acl_name,
-                                             acl_type=acl_type,
-                                             address_type=address_type,
-                                             seq_dict=seq_dict)
+            return self._add_mac_acl_rules(device,
+                                           acl_name=acl_name,
+                                           acl_type=acl_type,
+                                           address_type=address_type,
+                                           seq_vars=seq_variables,
+                                           seqs_list=seqs_list)
 
     def validate_src_dst(self, src_dst, src_dst_host, mac_addr_mask, key):
         if src_dst != "any" and src_dst != "host":
@@ -219,20 +200,16 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                 return False
         return True
 
-    def _add_l2_acl_rule(self, device, acl_name, acl_type, address_type, seq_dict):
-        self.logger.info('Adding rule on ACL %s at seq_id %s', acl_name, str(seq_dict['seq_id']))
-        output = device.acl.add_acl_rule(acl_name=acl_name,
-                                         acl_type=acl_type,
-                                         address_type=address_type,
-                                         seqs_list=[seq_dict])
-        self.logger.info(output)
-        return True
-
-    def _delete_mac_acl_rule(self, device, acl_name, acl_type, address_type, seq_dict):
-        self.logger.info('Deleting rule on ACL %s at seq_id %s', acl_name, str(seq_dict['seq_id']))
-        output = device.acl.remove_acl_rule(acl_name=acl_name,
-                                            acl_type=acl_type,
-                                            address_type=address_type,
-                                            seqs_list=[seq_dict])
-        self.logger.info(output)
-        return True
+    def _add_mac_acl_rules(self, device, acl_name, acl_type, address_type, seq_vars, seqs_list):
+        result = {}
+        for seq_dict in seqs_list:
+            self.logger.info('Adding rule on ACL %s at seq_id %s',
+                             acl_name, str(seq_dict['seq_id']))
+            output = device.acl.add_acl_rule(acl_name=acl_name,
+                                             acl_type=acl_type,
+                                             address_type=address_type,
+                                             seq_vars=seq_vars,
+                                             seqs_list=[seq_dict])
+            self.logger.info(output)
+            result['Seq-%s' % str(seq_dict['seq_id'])] = True
+        return result

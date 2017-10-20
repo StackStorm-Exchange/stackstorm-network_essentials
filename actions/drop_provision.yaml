@@ -8,120 +8,311 @@ enabled: true
 runner_type: mistral-v2
 entry_point: workflows/drop_provision.yaml
 parameters:
-  mgmt_ip:
-    type: string
-    description: device ip address
-    required: true
-    position: 0
-  username:
-    type: string
-    description: login username
-    default: admin
-    position: 1
-  password:
-    type: string
-    description: login password
-    default: password
-    secret: true
-    position: 2
-  acl_name:
-    type: string
-    description: access list name (max 63)
-    required: true
-    position: 3
-  intf_type:
-    type: string
-    enum:
-      - gigabitethernet
-      - tengigabitethernet
-      - fortygigabitethernet
-      - hundredgigabitethernet
-      - ethernet
-    default: tengigabitethernet
-    description: Interface type gigabitethernet or tengigabitethernet, etc
-    required: true
-    position: 4
-  intf_name:
-    type: array
-    description: interface name as array (182/0/97)
-    required: true
-    position: 5
-  protocol_type:
-    type: string
-    description: Protocol Number Custom value between 0 and 255, tcp, udp, icmp or
-      ip
-    required: false
-    position: 6
-  source:
-    type: string
-    description: The source MAC in HHHH.HHHH.HHHH format or source IPv4 or IPv6 address,
-      including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress
-      } [ source-operator [ S_port-numbers ] ]
-    required: true
-    default: any
-    position: 7
-  src_mac_addr_mask:
-    type: string
-    description: the src_mac_addr_mask - the mask for source MAC in HHHH.HHHH.HHHH
-      format.
-    position: 8
-  destination:
-    type: string
-    description: The destination MAC in HHHH.HHHH.HHHH format or destination IPv4
-      or IPv6 address, including tcp and udp port numbers. { any | D_IPaddress mask
-      | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
-    required: false
-    position: 9
-  dst_mac_addr_mask:
-    type: string
-    description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH
-      format.
-    position: 10
-  dscp:
-    type: string
-    description: DSCP value to match against. Can be either a numerical value or DSCP
-      name
-    required: false
-    position: 11
-  vlan_id:
-    type: integer
-    description: VLAN interface to which the ACL is bound
-    required: false
-    position: 12
-  ethertype:
-    type: string
-    description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536
-      and 65535.
-    required: false
-    default: arp
-    position: 13
-  address_type:
-    type: string
-    enum:
-      - ip
-      - ipv6
-      - mac
-    description: the address type IPv4 IPv6 or MAC used to create the acl.
-    required: true
-    position: 14
-  intf:
-    type: string
-    description: interface name as string (182/0/97)
-    required: true
-    position: 15
-  acl_exists:
-    type: boolean
-    description: Indicates is the acl already exists.
-    default: false
-    position: 16
-  seq_id:
-    type: integer
-    description: Sequence number of the rule, if not specified, the rule is added
-      at the end of the list. Valid range is 0 to 4294967290
-    required: false
-    position: 17
-  rule_action:
-    type: string
-    description: Action performed by ACL rule
-    required: true
-    position: 18
+    mgmt_ip:
+        type: string
+        description: device ip address
+        required: true
+        position: 0
+    username:
+        type: string
+        description: login username
+        default: admin
+        position: 1
+    password:
+        type: string
+        description: login password
+        default: password
+        secret: true
+        position: 2
+    address_type:
+        type: string
+        enum:
+            - ip
+            - ipv6
+            - mac
+        description: ACL address type, ip or ipv6 or mac
+        default: ip
+        position: 3
+    acl_type:
+        type: string
+        enum:
+            - standard
+            - extended
+        description: ACL type, extended or standard
+        required: true
+        position: 4
+    acl_name:
+        type: string
+        description:  access list name (max 63)
+        required: true
+        position: 5
+    rbridge_id:
+        type: string
+        description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+        position: 6
+    intf_type:
+        type: string
+        enum:
+          - gigabitethernet
+          - tengigabitethernet
+          - fortygigabitethernet
+          - hundredgigabitethernet
+          - port_channel
+          - ve
+          - loopback
+          - ethernet
+        default: tengigabitethernet
+        description: Interface type gigabitethernet or tengigabitethernet, etc
+        required: true
+        position: 7
+    intf_name:
+        type: array
+        description: interface name as array (182/0/97)
+        required: true
+        position: 8
+    acl_direction:
+        type: string
+        description: Direction of ACL binding on the specified interface
+        required: true
+        position: 9
+        enum:
+          - in
+          - out
+        default: in
+    traffic_type:
+        type: string
+        description: Traffic type for the ACL being applied
+        position: 10
+        enum:
+          - switched
+          - routed
+    seq_id:
+        type: integer
+        description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+        position: 11
+    action:
+        type: string
+        description: Action performed by ACL rule
+        position: 12
+        enum:
+          - permit
+          - deny
+          - hard-drop
+        default: permit
+    protocol_type:
+        type: string
+        description: Protocol Number Custom value between 0 and 255, tcp, udp, icmp or ip
+        position: 13
+    source:
+        type: string
+        description: The source MAC in HHHH.HHHH.HHHH format or source IPv4 or IPv6 address, including tcp and udp port numbers. { any | S_IPaddress mask | host S_IPaddress } [ source-operator [ S_port-numbers ] ]
+        required: true
+        default: any
+        position: 14
+    srchost:
+        type: string
+        description: The source MAC in HHHH.HHHH.HHHH format. The value is required only when the source is 'host'.
+        position: 15
+    src_mac_addr_mask:
+        type: string
+        description: the src_mac_addr_mask - the mask for source MAC in HHHH.HHHH.HHHH format.
+        position: 16
+    destination:
+        type: string
+        description: The destination MAC in HHHH.HHHH.HHHH format or destination IPv4 or IPv6 address, including tcp and udp port numbers. { any | D_IPaddress mask | host D_IPaddress } [ destination-operator [ D_port-numbers ] ]
+        position: 17
+    dsthost:
+        type: string
+        description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only when the dst is 'host'
+        position: 18
+    dst_mac_addr_mask:
+        type: string
+        description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH format.
+        position: 19
+    dscp:
+        type: string
+        description: DSCP value to match against. Can be either a numerical value or DSCP name
+        position: 20
+    drop_precedence_force:
+        type: string
+        description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+        position: 21
+    urg:
+        type: string
+        description: Enables urg for the rule
+        position: 22
+    ack:
+        type: string
+        description: Enables ack for the rule
+        position: 23
+    push:
+        type: string
+        description: Enables push for the rule
+        position: 24
+    fin:
+        type: string
+        description: Enables fin for the rule
+        position: 25
+    rst:
+        type: string
+        description: Enables rst for the rule
+        position: 26
+    sync:
+        type: string
+        description: Enables sync for the rule
+        position: 27
+    vlan_id:
+        type: integer
+        description: VLAN interface to which the ACL is bound
+        position: 28
+    vlan_tag_format:
+        type: string
+        description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+        enum:
+           - untagged
+           - single-tagged
+           - double-tagged
+        position: 29
+    vlan:
+        type: string
+        description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
+        position: 30
+    ethertype:
+        type: string
+        description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+        required: false
+        position: 31
+    arp_guard:
+        type: string
+        description: Enables arp-guard for the rule
+        position: 32
+    pcp:
+        type: string
+        description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+        position: 33
+    count:
+        type: string
+        description: Enables statistics for the rule
+        position: 34
+    log:
+        type: string
+        description: Enables logging for the rule (Available for permit or deny only)
+        position: 35
+    mirror:
+        type: string
+        description: Enables mirror for the rule
+        position: 36
+    copy_sflow:
+        type: string
+        description: Enables copy-sflow for the rule
+        position: 37
+    acl_exists:
+        type: boolean
+        description: Indicates is the acl already exists.
+        default: False
+        position: 38
+    acl_rules:
+        type: array
+        description: "A list of ACL sequence rules as acl_rules='[{\"source\": \"<src-address-mask>\", \"seq_id\": 10}, {\"source\": \"<src-address-mask>\", \"seq_id\": 20}]'"
+        position: 39
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            seq_id:
+              type: integer
+              description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+            action:
+              type: string
+              description: Action performed by ACL rule
+              enum:
+                - permit
+                - deny
+                - hard-drop
+              default: permit
+            protocol_type:
+              type: string
+              description: Type of IP packets to be filtered based on protocol. Valid values are <0-255> or key words tcp, udp, icmp or ip
+            source:
+              type: string
+              description: Source address filters { any | S_IPaddress/mask | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+              required: true
+              default: any
+            srchost:
+              type: string
+              description: The source MAC in HHHH.HHHH.HHHH format. The value is required only when the source is 'host'.
+            src_mac_addr_mask:
+              type: string
+              description: Mask for the source MAC in HHHH.HHHH.HHHH format.
+            destination:
+              type: string
+              description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+            dst:
+              type: string
+              description: Destination filter, can be 'any' or 'host', or the actual MAC of the destination in HHHH.HHHH.HHHH format.
+              default: any
+            dsthost:
+              type: string
+              description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only when the dst is 'host'
+            dst_mac_addr_mask:
+              type: string
+              description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
+            dscp:
+              type: string
+              description: Matches the specified value against the DSCP and DSCP-Force values of the packet to filter. Format {<dscp>[,<dscp-force>]}
+            drop_precedence_force:
+              type: string
+              description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+            urg:
+              type: string
+              description: Enables urg for the rule
+            ack:
+              type: string
+              description: Enables ack for the rule
+            push:
+              type: string
+              description: Enables push for the rule
+            fin:
+              type: string
+              description: Enables fin for the rule
+            rst:
+              type: string
+              description: Enables rst for the rule
+            sync:
+              type: string
+              description: Enables sync for the rule
+            vlan_id:
+              type: integer
+              description: VLAN interface to which the ACL is bound
+            vlan_tag_format:
+              type: string
+              description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+              enum:
+                 - untagged
+                 - single-tagged
+                 - double-tagged
+            vlan:
+              type: string
+              description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
+            ethertype:
+              type: string
+              description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+            arp_guard:
+              type: string
+              description: Enables arp-guard for the rule
+            pcp:
+              type: string
+              description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+            count:
+              type: string
+              description: Enables statistics for the rule
+            log:
+              type: string
+              description: Enables logging for the rule (Available for permit or deny only)
+            mirror:
+              type: string
+              description: Enables mirror for the rule
+            copy_sflow:
+              type: string
+              description: Enables copy-sflow for the rule
+

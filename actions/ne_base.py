@@ -359,6 +359,13 @@ class NosDeviceAction(Action):
 
         return rbridge_id
 
+    def _validate_ip_network(self, addr):
+        try:
+            ipaddress.ip_network(addr)
+            return True
+        except socket.error:
+            return False
+
     def _validate_ip_(self, addr):
         try:
             socket.inet_aton(addr)

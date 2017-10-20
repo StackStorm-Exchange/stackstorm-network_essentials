@@ -1,0 +1,35 @@
+---
+name: delete_rule_acl_bulk
+pack: network_essentials
+runner_type: run-python
+description: Delete ACL rule from an existing ACL
+enabled: true
+entry_point: delete_rule_acl_bulk.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: Name of the access list
+    required: true
+    position: 3
+  seq_ids:
+    type: array
+    description: "A list of ACL rules sequence ids separated by comma, Examples 30 or 20,30,50"
+    required: true
+    position: 4
+

@@ -8,61 +8,70 @@ enabled: true
 runner_type: mistral-v2
 entry_point: workflows/drop_unprovision.yaml
 parameters:
-  mgmt_ip:
-    type: string
-    description: device ip address
-    required: true
-    position: 0
-  username:
-    type: string
-    description: login username
-    default: admin
-    position: 1
-  password:
-    type: string
-    description: login password
-    default: password
-    secret: true
-    position: 2
-  acl_name:
-    type: string
-    description: access list name (max 63)
-    required: true
-    position: 3
-  intf_type:
-    type: string
-    enum:
-      - gigabitethernet
-      - tengigabitethernet
-      - fortygigabitethernet
-      - hundredgigabitethernet
-      - ethernet
-    default: tengigabitethernet
-    description: Interface type gigabitethernet or tengigabitethernet, etc
-    required: true
-    position: 4
-  intf_name:
-    type: array
-    description: interface name as array (182/0/97)
-    required: true
-    position: 5
-  address_type:
-    type: string
-    enum:
-      - ip
-      - ipv6
-      - mac
-    description: the address type IPv4 IPv6 or MAC used to create the acl.
-    required: true
-    position: 6
-  delete_acl:
-    type: boolean
-    description: Indicates whether the acl should be deleted.
-    default: false
-    position: 7
-  seq_id:
-    type: integer
-    description: Sequence number of the rule, if not specified, the rule is added
-      at the end of the list. Valid range is 0 to 4294967290
-    required: false
-    position: 8
+    mgmt_ip:
+        type: string
+        description: device ip address
+        required: true
+        position: 0
+    username:
+        type: string
+        description: login username
+        default: admin
+        position: 1
+    password:
+        type: string
+        description: login password
+        default: password
+        secret: true
+        position: 2
+    acl_name:
+        type: string
+        description:  access list name (max 63)
+        required: true
+        position: 3
+    seq_ids:
+        type: array
+        description: "A list of ACL rules sequence ids separated by comma, Examples 30 or 20,30,50"
+        position: 4
+    rbridge_id:
+        type: string
+        description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+        position: 5
+    intf_type:
+        type: string
+        enum:
+          - gigabitethernet
+          - tengigabitethernet
+          - fortygigabitethernet
+          - hundredgigabitethernet
+          - port_channel
+          - ve
+          - loopback
+          - ethernet
+        default: tengigabitethernet
+        description: Interface type gigabitethernet or tengigabitethernet, etc
+        position: 6
+    intf_name:
+        type: array
+        description: interface name as array (182/0/97)
+        position: 7
+    acl_direction:
+        type: string
+        description: Direction of ACL binding on the specified interface
+        position: 8
+        enum:
+          - in
+          - out
+        default: in
+    traffic_type:
+        type: string
+        description: Traffic type for the ACL being applied
+        position: 9
+        enum:
+          - switched
+          - routed
+    delete_acl:
+        type: boolean
+        description: Indicates whether the acl should be deleted.
+        default: False
+        position: 10
