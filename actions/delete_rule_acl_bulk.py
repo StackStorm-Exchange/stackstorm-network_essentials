@@ -13,7 +13,8 @@ class Delete_Rule_Acl(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, acl_name, seq_ids):
         seqs_list = []
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             acl = device.acl.get_acl_type(acl_name)
             address_type = acl['protocol']
             acl_type = acl['type']

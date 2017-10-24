@@ -32,7 +32,8 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                          src_mac_addr_mask, dst, dsthost, dst_mac_addr_mask, vlan_tag_format,
                          vlan, ethertype, arp_guard, pcp, drop_precedence_force, count, log,
                          mirror, copy_sflow):
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             acl = device.acl.get_acl_type(acl_name)
             address_type = acl['protocol']
             acl_type = acl['type']

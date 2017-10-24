@@ -41,7 +41,7 @@ class CreateVe(NosDeviceAction):
                          vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         changes = {}
 
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create'
                              ' Ve', self.host)
             if device.os_type == 'nos':

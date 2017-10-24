@@ -12,7 +12,8 @@ class DeleteAcl(NosDeviceAction):
 
     @log_exceptions
     def switch_operation(self, acl_name):
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             try:
                 acl = device.acl.get_acl_type(acl_name)
                 address_type = acl['protocol']

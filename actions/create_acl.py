@@ -13,7 +13,8 @@ class CreateAcl(NosDeviceAction):
 
     @log_exceptions
     def switch_operation(self, address_type, acl_type, acl_name):
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             return self._create_acl(device, address_type, acl_type, acl_name)
 
     def _create_acl(self, device, address_type, acl_type, acl_name):

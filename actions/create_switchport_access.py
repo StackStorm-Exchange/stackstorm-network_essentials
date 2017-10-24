@@ -29,7 +29,7 @@ class CreateSwitchPort(NosDeviceAction):
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create switchport on Interface',
                              self.host)
 

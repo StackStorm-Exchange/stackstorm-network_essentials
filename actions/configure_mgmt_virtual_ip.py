@@ -38,7 +38,7 @@ class ConfigVcsVirtualIp(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, mgmt_vip):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to configure VCS virtual IP',
                 self.host)

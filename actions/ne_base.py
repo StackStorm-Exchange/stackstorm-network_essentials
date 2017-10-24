@@ -37,6 +37,7 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.auth_snmp = None
         self.asset = pyswitchlib.asset.Asset
         self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
@@ -44,7 +45,7 @@ class NosDeviceAction(Action):
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
         self.conn = (host, '22')
-        self.auth = self._get_auth(host=host, user=user, passwd=passwd)
+        self.auth_snmp = self._get_auth(host=host, user=user, passwd=passwd)
 
     def _lookup_st2_store(self, key, decrypt=False):
         """
@@ -119,7 +120,7 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
             self.logger.info('successfully connected to %s',
                              self.host)
             return device

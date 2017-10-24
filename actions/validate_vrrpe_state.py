@@ -37,7 +37,7 @@ class validate_vrrpe_state(NosDeviceAction):
             user = each_host[1]
             passwd = each_host[2]
             self.setup_connection(host=host, user=user, passwd=passwd)
-            device = self.pmgr(conn=self.conn, auth=self.auth)
+            device = self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp)
             changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id, vrid=vrrpe_group)
             if changes['pre_check']:
                 roles = self._fetch_vrrpe_state(device, vlan_id, vrid=vrrpe_group)

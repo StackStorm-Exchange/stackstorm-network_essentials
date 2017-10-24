@@ -30,7 +30,7 @@ class DeleteVrrpe(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        with Device(conn=self.conn, auth=self.auth) as device:
+        with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
             self.logger.info('successfully connected to %s to Delete VRRPe group',
                              self.host)
