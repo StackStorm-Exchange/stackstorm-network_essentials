@@ -31,7 +31,7 @@ class DeletePortChannel(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        with Device(conn=self.conn, auth=self.auth) as device:
+        with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to delete l2 port channel',
                              self.host)
             changes['port_channel_configs'] = self._delete_l2_port_channel(device,

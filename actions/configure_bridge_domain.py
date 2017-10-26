@@ -46,7 +46,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
                          bridge_domain_service_type, vc_id, statistics, bpdu_drop_enable,
                          local_switching, peer_ip, intf_type, pw_profile_name, vlan_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'Successfully connected to %s to configure bridge domain',
                 self.host)

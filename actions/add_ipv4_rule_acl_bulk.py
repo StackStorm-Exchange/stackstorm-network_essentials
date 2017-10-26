@@ -15,7 +15,8 @@ class Add_Ipv4_Rule_Acl_Bulk(NosDeviceAction):
         seqs_list = []
         seq_id_next = 10
         seq_id_fetched = False
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             acl = device.acl.get_acl_type(acl_name)
             address_type = acl['protocol']
             acl_type = acl['type']

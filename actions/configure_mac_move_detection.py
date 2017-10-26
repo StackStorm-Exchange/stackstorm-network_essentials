@@ -29,7 +29,7 @@ class ConfigureMacMoveDetection(NosDeviceAction):
         if move_threshold > 500 or move_threshold < 5:
             raise ValueError('Mac Move Threshold is Invalid. Not in <5-500> range')
         move_threshold = str(move_threshold)
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s', self.host)
             changes['conv-arp'] = self._configure_mac_move_detection(device,
                                                                   limit=move_threshold)

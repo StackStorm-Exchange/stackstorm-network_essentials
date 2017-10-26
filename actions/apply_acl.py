@@ -27,7 +27,8 @@ class Apply_Acl(NosDeviceAction):
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
 
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             address_type = device.acl.get_acl_type(acl_name)['protocol']
             for intf in interface_list:
                 if not self.validate_interface(intf_type, str(intf),

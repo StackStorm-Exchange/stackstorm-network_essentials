@@ -42,7 +42,7 @@ class CreateSwitchPort(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_name, intf_type, vlan_id, c_tag, trunk_no_default_native):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'Successfully connected to %s to create switchport on Interface', self.host)
 

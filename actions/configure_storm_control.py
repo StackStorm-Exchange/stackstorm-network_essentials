@@ -46,7 +46,7 @@ class ConfigureStormControl(NosDeviceAction):
                          ult, ulv, ula):
 
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to Attach Input/Output Policy Map'
                 ' to an interface', self.host)

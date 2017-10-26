@@ -38,7 +38,7 @@ class ValidateL2PortChannelState(NosDeviceAction):
         """connect to switch and perform desired action"""
         validation = {}
 
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to validate'
                              ' l2 port channel', self.host)
 

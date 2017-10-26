@@ -30,7 +30,7 @@ class DeleteVe(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        with Device(conn=self.conn, auth=self.auth) as device:
+        with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             if device.os_type == 'nos' and rbridge_id is None:
                 rbridge_id = self.vlag_pair(device)
             self.validate_supports_rbridge(device, rbridge_id=rbridge_id)

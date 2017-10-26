@@ -32,7 +32,7 @@ class DeleteVrf(NosDeviceAction):
         if len(vrf_name) > 32:
             raise ValueError('vrf_name length is greater than 32', vrf_name)
 
-        with Device(conn=self.conn, auth=self.auth) as device:
+        with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to delete vrf',
                              self.host)
             changes['vrf'] = self._delete_vrf(device, vrf_name=vrf_name, rbridge_id=rbridge_id)

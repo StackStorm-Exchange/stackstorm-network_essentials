@@ -41,7 +41,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
     def switch_operation(self, logical_interface_number, vlan_type,
                          vlan_id, inner_vlan_id, intf_type, intf_name):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'Successfully connected to %s to configure logical interface',
                 self.host)

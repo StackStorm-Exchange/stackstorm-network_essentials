@@ -14,12 +14,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 2
 
