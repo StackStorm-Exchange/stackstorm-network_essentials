@@ -12,24 +12,22 @@ class DeleteAcl(NosDeviceAction):
 
     @log_exceptions
     def switch_operation(self, acl_name):
-        with self.pmgr(conn=self.conn,
-                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
-            try:
-                acl = device.acl.get_acl_type(acl_name)
-                address_type = acl['protocol']
-                acl_type = acl['type']
-                self.logger.info('Successfully identified the acl_type as %s (%s)',
-                                 acl_type, address_type)
-                return self._delete_acl(device, address_type, acl_type, acl_name)
-            except ValueError as e:
-                if 'Failed to identify acl_type' in e.message:
-                    self.logger.info("ACL %s does not exist", acl_name)
-                else:
-                    raise
+        params_config = locals()
+        params_config.pop('self', None)
 
-    def _delete_acl(self, device, address_type, acl_type, acl_name):
-        self.logger.info('Deleting ACL %s', acl_name)
-        output = device.acl.delete_acl(address_type=address_type,
-                                       acl_type=acl_type, acl_name=acl_name)
-        self.logger.info(output)
-        return True
+        self.logger.info('Deleteng {} ACL'.format(acl_name))
+
+        try:
+            with self.pmgr(conn=self.conn, auth=self.auth,
+                           connection_type='NETCONF') as device:
+
+                output = device.acl.delete_acl(**params_config)
+
+                self.logger.info(output)
+                return True
+
+        except Exception as err:
+            self.logger.error('FAILED: Deleting ACL {}.'
+                              'Reason: {}'.format(acl_name, err))
+
+        return False
