@@ -19,6 +19,7 @@ import socket
 from st2actions.runners.pythonrunner import Action
 from pyswitch.snmp.snmpconnector import SnmpConnector as SNMPDevice
 from pyswitch.snmp.snmpconnector import SNMPError as SNMPError
+from pyswitch.snmp.SnmpMib import SnmpMib as MIB
 
 
 class RegisterDeviceCredentials(Action):
@@ -73,7 +74,15 @@ class RegisterDeviceCredentials(Action):
 
         """
            Method to validate user input for device credentials
+           Input Params:
+                host       : Device management IP address
+                user       : Username for ssh/cli login
+                passwd     : Password for ssh/cli login
+                enable_pass: Privilege Exec Password
+
+           Return Value:
         """
+
         if host == 'USER.DEFAULT':
             if not self.snmpconfig:
                 self.logger.error("SNMP credentials are mandatory if mgmt_ip is USER.DEFAULT")
@@ -105,9 +114,16 @@ class RegisterDeviceCredentials(Action):
         return
 
     def _validate_snmp_credentials(self, host):
+
         """
            Method to validate snmp credentials
+           Input Params:
+                host: Device management IP address
+           Return Value:
+                True - if snmp credential is successful
+                False - if snmp credential is not successful
         """
+
         if not self.snmpconfig:
             self.logger.error("This device requires SNMP credentials")
             sys.exit(-1)
@@ -117,7 +133,7 @@ class RegisterDeviceCredentials(Action):
             snmp = SNMPDevice(host=host, port=config['snmpport'],
                               version=config['snmpver'],
                               community=config['snmpv2c'])
-            snmp.get('1.3.6.1.2.1.1.2.0')
+            snmp.get(MIB.mib_oid_map['sysObjectId'])
         except SNMPError as error:
             self.logger.error("SNMP Engine Error: %s", error)
             self.logger.error("Verify your SNMP credentials")
@@ -128,6 +144,13 @@ class RegisterDeviceCredentials(Action):
 
         """
             Method to validate ssh cli connection and obtain os_version
+            Input Params:
+                 host       : Device management IP address
+                 user       : Username for ssh/cli login
+                 passwd     : Password for ssh/cli login
+
+            Return Value:
+                 "ni", "slx", "nos", "unknown"
         """
 
         client = paramiko.SSHClient()

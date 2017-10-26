@@ -63,7 +63,9 @@ class NosDeviceAction(Action):
     def _get_snmp_credentials(self, host):
 
         """
-           API to retrieve snmp credentials from st2 store
+           API to retrieve snmp credentials from st2 store.
+           SNMP port, SNMP community and SNMP version are
+           retrieved here.
         """
 
         snmpconfig = {}
@@ -93,6 +95,11 @@ class NosDeviceAction(Action):
         return snmpconfig
 
     def _get_auth(self, host, user, passwd):
+
+        """
+           Method to retrieve username, password,
+           enable password and snmp credentials.
+        """
 
         if not user:
             user = self._lookup_st2_store('user')
