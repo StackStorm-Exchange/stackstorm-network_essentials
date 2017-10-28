@@ -14,6 +14,7 @@
 from ne_base import NosDeviceAction
 import pyswitch.utilities
 from pyswitch.device import Device
+import sys
 
 
 class DeleteVe(NosDeviceAction):
@@ -24,7 +25,7 @@ class DeleteVe(NosDeviceAction):
            2.Delete ve
     """
 
-    def run(self, mgmt_ip, username, password, vlan_id, rbridge_id):
+    def run(self, mgmt_ip, username, password, vlan_id, ve_id, rbridge_id):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -37,15 +38,23 @@ class DeleteVe(NosDeviceAction):
 
             self.logger.info('successfully connected to %s to Delete Ve',
                              self.host)
+            if device.interface.is_ve_id_required():
+                if ve_id is None:
+                    self.logger.error('VE interface id is required for VE deletion on MLX platform')
+                    sys.exit(-1)
+            else:
+                # TBD change this for SLX as ve_id and vlan_id need not be same
+                ve_id = vlan_id
             changes['pre_check'] = self._check_req(device, rbridge_id=rbridge_id,
-                                                   vlan_id=vlan_id)
+                                                   vlan_id=vlan_id, ve_id=ve_id)
             if changes['pre_check']:
-                changes['Ve'] = self._delete_ve(device, ve_name=vlan_id, rbridge_id=rbridge_id)
+                changes['Ve'] = self._delete_ve(device, ve_name=ve_id, vlan_id=vlan_id,
+                                                rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after'
                          ' Deleting Ve -- all done!', self.host)
         return changes
 
-    def _check_req(self, device, rbridge_id, vlan_id):
+    def _check_req(self, device, rbridge_id, vlan_id, ve_id):
 
         if device.os_type == 'nos':
             valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
@@ -55,19 +64,21 @@ class DeleteVe(NosDeviceAction):
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
 
-        if device.os_type == 'slxos':
-            ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
-            if ve_id != vlan_id:
-                self.logger.info('vlan_id %s is mapped to a different router interface ve %s',
-                                 vlan_id, ve_id)
-                return False
+        if device.interface.is_vlan_rtr_ve_config_req():
+            curr_ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
+            if curr_ve_id is None:
+                self.logger.error('No VE %s exists for VLAN %s', ve_id, vlan_id)
+                sys.exit(-1)
+            elif ve_id != curr_ve_id:
+                self.logger.error('vlan_id %s is mapped to a different router interface ve %s',
+                                 vlan_id, curr_ve_id)
+                sys.exit(-1)
 
         return True
 
-    def _delete_ve(self, device, ve_name, rbridge_id):
+    def _delete_ve(self, device, ve_name, vlan_id, rbridge_id):
         """ Deleting Ve"""
 
-        is_ve_present = True
         user_ve = str(ve_name)
 
         if rbridge_id and device.os_type == 'nos':
@@ -79,19 +90,24 @@ class DeleteVe(NosDeviceAction):
                 if user_ve in tmp_dut_ve:
                     self.logger.info('Deleting Ve %s from rbridge_id %s ', user_ve, rb)
                     device.interface.create_ve(rbridge_id=rb, enable=False, ve_name=user_ve)
-                    is_ve_present = False
+                    return True
+                else:
+                    self.logger.info('Ve %s does not exist in the switch', user_ve)
+                    return False
         else:
-            tmp_ve_name = device.interface.create_ve(get=True, ve_name=user_ve)
-            tmp_dut_ve = [str(item) for item in tmp_ve_name]
-            if user_ve in tmp_dut_ve:
-                self.logger.info('Deleting router interface %s to vlan %s mapping and Ve %s',
-                                 ve_name, ve_name, user_ve)
-                device.interface.vlan_router_ve(delete=True, vlan_id=ve_name, ve_config=ve_name)
-                device.interface.create_ve(enable=False, ve_name=user_ve)
-                is_ve_present = False
-
-        if not is_ve_present:
-            return True
-        else:
-            self.logger.info('Ve %s does not exist in the switch', user_ve)
-            return False
+            try:
+                tmp_ve_name = device.interface.create_ve(get=True, ve_name=user_ve)
+                tmp_dut_ve = [str(item) for item in tmp_ve_name]
+                if user_ve in tmp_dut_ve:
+                    self.logger.info('Deleting router interface %s to vlan %s mapping and Ve %s',
+                                     ve_name, ve_name, user_ve)
+                    device.interface.vlan_router_ve(delete=True, vlan_id=vlan_id, ve_config=ve_name)
+                    device.interface.create_ve(enable=False, ve_name=user_ve)
+                    return True
+                else:
+                    self.logger.info('Ve %s does not exist in the switch', user_ve)
+                    return False
+            except (ValueError, KeyError) as e:
+                self.logger.error('Invalid input value while deleting Ve %s %s'
+                                % (ve_name, e.message))
+                sys.exit(-1)
