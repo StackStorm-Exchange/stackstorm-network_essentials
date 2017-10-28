@@ -46,15 +46,33 @@ class RegisterDeviceCredentials(Action):
         self.devcredentials = None
 
     def run(self, mgmt_ip, username, password, enable_password, snmp_port,
-            snmp_version, snmp_v2c):
+            snmp_version, snmp_v2c, snmpv3_user, snmpv3_auth,
+            auth_pass, snmpv3_priv, priv_pass):
 
         devprefix = self._get_lookup_prefix(mgmt_ip)
         self.devcredentials = self.action_service.list_values(local=False, prefix=devprefix)
 
-        if snmp_version == 'v2' or snmp_version == 'v3':
+        if snmp_version == 'v2':
             self.snmpconfig['snmpver'] = snmp_version
             self.snmpconfig['snmpv2c'] = snmp_v2c
             self.snmpconfig['snmpport'] = snmp_port
+            self.snmpconfig['v3user'] = None
+            self.snmpconfig['v3priv'] = None
+            self.snmpconfig['v3auth'] = None
+            self.snmpconfig['authpass'] = None
+            self.snmpconfig['privpass'] = None
+        elif snmp_version == 'v3':
+            self.snmpconfig['snmpv2c'] = None
+            self.snmpconfig['snmpver'] = snmp_version
+            self.snmpconfig['snmpport'] = snmp_port
+            self.snmpconfig['v3user'] = snmpv3_user
+            if snmpv3_priv == 'aes':
+                self.snmpconfig['v3priv'] = 'aes128'
+            else:
+                self.snmpconfig['v3priv'] = snmpv3_priv
+            self.snmpconfig['v3auth'] = snmpv3_auth
+            self.snmpconfig['authpass'] = auth_pass
+            self.snmpconfig['privpass'] = priv_pass
 
         self._validate_input_credentials(mgmt_ip, username, password, enable_password)
 
@@ -100,6 +118,27 @@ class RegisterDeviceCredentials(Action):
                     self.logger.error("SNMP v2 community missing ( --snmp_v2c= )")
                     sys.exit(-1)
             elif self.snmpconfig['snmpver'] == 'v3':
+                auth = self.snmpconfig['v3auth']
+                priv = self.snmpconfig['v3priv']
+                print "priv: ", priv, self.snmpconfig['privpass']
+                if auth != "noauth":
+                    if not self.snmpconfig['authpass']:
+                        self.logger.error("Auth passphrase missing (--auth_pass= )")
+                        sys.exit(-1)
+                if auth == 'noauth':
+                    if self.snmpconfig['authpass']:
+                        self.logger.error("param (--auth_pass) should be\
+                                           empty if snmpv3_auth  is noauth")
+                        sys.exit(-1)
+                if priv == 'nopriv':
+                    if self.snmpconfig['privpass']:
+                        self.logger.error("param (--priv_pass) should be\
+                                           empty if snmpv3_priv  is noauth")
+                        sys.exit(-1)
+                if priv != "nopriv":
+                    if not self.snmpconfig['privpass']:
+                        self.logger.error("Priv passphrase missing (--priv_pass= )")
+                        sys.exit(-1)
                 pass
 
         if user and passwd:
@@ -129,10 +168,34 @@ class RegisterDeviceCredentials(Action):
             sys.exit(-1)
 
         config = self.snmpconfig
+
+        if 'snmpver' in config:
+            if config['snmpver'] == 'v2':
+                version = 2
+                v2c = config['snmpv2c']
+                user = ''
+                authproto = ''
+                privproto = ''
+                authpass = ''
+                privpass = ''
+            elif config['snmpver'] == 'v3':
+                version = 3
+                v2c = ''
+                user = config['v3user']
+                authproto = config['v3auth']
+                privproto = config['v3priv']
+                authpass = config['authpass']
+                privpass = config['privpass']
+
         try:
             snmp = SNMPDevice(host=host, port=config['snmpport'],
-                              version=config['snmpver'],
-                              community=config['snmpv2c'])
+                              version=version,
+                              community=v2c,
+                              username=user,
+                              authproto=authproto,
+                              authkey=authpass,
+                              privproto=privproto,
+                              privkey=privpass)
             snmp.get(MIB.mib_oid_map['sysObjectId'])
         except SNMPError as error:
             self.logger.error("SNMP Engine Error: %s", error)
@@ -208,6 +271,11 @@ class RegisterDeviceCredentials(Action):
             snmpport = self.snmpconfig['snmpport']
             snmpver = self.snmpconfig['snmpver']
             snmpv2c = self.snmpconfig['snmpv2c']
+            v3user = self.snmpconfig['v3user']
+            v3auth = self.snmpconfig['v3auth']
+            authpass = self.snmpconfig['authpass']
+            v3priv = self.snmpconfig['v3priv']
+            privpass = self.snmpconfig['privpass']
 
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
@@ -241,9 +309,43 @@ class RegisterDeviceCredentials(Action):
                 if snmpport != int(item.value):
                     self.action_service.set_value(name=lookup_key, value=snmpport,
                                                   local=False)
+            elif lookup_key == self._get_lookup_key(host, 'v3user') and v3user:
+                if v3user != item.value:
+                    self.action_service.set_value(name=lookup_key,
+                                                  value=v3user, local=False)
+            elif lookup_key == self._get_lookup_key(host, 'v3auth') and v3auth:
+                if v3auth != item.value:
+                    self.action_service.set_value(name=lookup_key,
+                                                  value=v3auth, local=False)
+            elif lookup_key == self._get_lookup_key(host, 'v3priv') and v3priv:
+                if v3priv != item.value:
+                    self.action_service.set_value(name=lookup_key,
+                                                  value=v3priv, local=False)
+            elif lookup_key == self._get_lookup_key(host, 'authpass') and authpass:
+                self.action_service.set_value(name=lookup_key, value=authpass,
+                                              local=False, encrypt=True)
+            elif lookup_key == self._get_lookup_key(host, 'privpass') and privpass:
+                self.action_service.set_value(name=lookup_key, value=privpass,
+                                              local=False, encrypt=True)
             else:
                 # lookup key found but user input is not present hence removing
                 self.action_service.delete_value(name=item.name, local=False)
+
+    def _store_value(self, host, key, value, encrypt=False):
+        """
+          Wrapper method to set the value in keystore
+          Input Params:
+               host  : Device ip or special host
+               key   : key string to form lookup_key
+               value : value to set
+               encrypt:
+                    True - Encrypt values while storing
+                    False - Don't encrypt values
+          Return values:
+        """
+        lookup_key = self._get_lookup_key(host=host, lookup=key)
+        self.action_service.set_value(name=lookup_key, value=value,
+                                      local=False, encrypt=encrypt)
 
     def _register_device(self, host, user, passwd, enable_pass=None):
         """
@@ -251,39 +353,41 @@ class RegisterDeviceCredentials(Action):
         """
 
         if user:
-            lookup_key = self._get_lookup_key(host=host, lookup='user')
-            self.action_service.set_value(name=lookup_key, value=user, local=False)
+            self._store_value(host=host, key='user', value=user)
 
         if passwd:
-            lookup_key = self._get_lookup_key(host=host, lookup='passwd')
-            self.action_service.set_value(name=lookup_key, value=passwd,
-                                          local=False, encrypt=True)
+            self._store_value(host=host, key='passwd', value=passwd, encrypt=True)
 
         if enable_pass:
-            lookup_key = self._get_lookup_key(host=host, lookup='enablepass')
-            self.action_service.set_value(name=lookup_key, value=enable_pass,
-                                          local=False, encrypt=True)
+            self._store_value(host=host, key='enablepass', value=enable_pass, encrypt=True)
 
-        lookup_key = self._get_lookup_key(host=host, lookup='ostype')
-        self.action_service.set_value(name=lookup_key, value=self.ostype, local=False)
+        self._store_value(host=host, key='ostype', value=self.ostype)
 
+        snmp_ver = 'None'
         if self.ostype == 'ni' or host == 'USER.DEFAULT':
             if self.snmpconfig:
                 snmp_port = self.snmpconfig['snmpport']
                 snmp_ver = self.snmpconfig['snmpver']
                 snmp_v2c = self.snmpconfig['snmpv2c']
+                v3user = self.snmpconfig['v3user']
+                v3auth = self.snmpconfig['v3auth']
+                authpass = self.snmpconfig['authpass']
+                v3priv = self.snmpconfig['v3priv']
+                privpass = self.snmpconfig['privpass']
 
             if snmp_ver or snmp_ver != 'None':
-                lookup_key = self._get_lookup_key(host=host, lookup='snmpver')
-                self.action_service.set_value(name=lookup_key, value=snmp_ver, local=False)
-
-                lookup_key = self._get_lookup_key(host=host, lookup='snmpport')
-                self.action_service.set_value(name=lookup_key, value=snmp_port, local=False)
+                self._store_value(host=host, key='snmpver', value=snmp_ver)
+                self._store_value(host=host, key='snmpport', value=snmp_port)
 
             if snmp_ver == 'v2' and snmp_v2c != '':
-                lookup_key = self._get_lookup_key(host=host, lookup='snmpv2c')
-                self.action_service.set_value(name=lookup_key, value=snmp_v2c,
-                                              local=False, encrypt=True)
+                self._store_value(host=host, key='snmpv2c', value=snmp_v2c, encrypt=True)
+
+            if snmp_ver == 'v3':
+                self._store_value(host=host, key='v3user', value=v3user)
+                self._store_value(host=host, key='v3auth', value=v3auth)
+                self._store_value(host=host, key='v3priv', value=v3priv)
+                self._store_value(host=host, key='authpass', value=authpass, encrypt=True)
+                self._store_value(host=host, key='privpass', value=privpass, encrypt=True)
+
         else:
-            lookup_key = self._get_lookup_key(host=host, lookup='snmpver')
-            self.action_service.set_value(name=lookup_key, value='None', local=False)
+            self._store_value(host=host, key='snmpver', value='None')
