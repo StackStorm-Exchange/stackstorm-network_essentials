@@ -71,8 +71,14 @@ class RegisterDeviceCredentials(Action):
             else:
                 self.snmpconfig['v3priv'] = snmpv3_priv
             self.snmpconfig['v3auth'] = snmpv3_auth
-            self.snmpconfig['authpass'] = auth_pass
-            self.snmpconfig['privpass'] = priv_pass
+            if auth_pass:
+                self.snmpconfig['authpass'] = auth_pass
+            else:
+                self.snmpconfig['authpass'] = ''
+            if priv_pass:
+                self.snmpconfig['privpass'] = priv_pass
+            else:
+                self.snmpconfig['privpass'] = ''
 
         self._validate_input_credentials(mgmt_ip, username, password, enable_password)
 
@@ -120,7 +126,6 @@ class RegisterDeviceCredentials(Action):
             elif self.snmpconfig['snmpver'] == 'v3':
                 auth = self.snmpconfig['v3auth']
                 priv = self.snmpconfig['v3priv']
-                print "priv: ", priv, self.snmpconfig['privpass']
                 if auth != "noauth":
                     if not self.snmpconfig['authpass']:
                         self.logger.error("Auth passphrase missing (--auth_pass= )")
