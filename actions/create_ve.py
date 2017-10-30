@@ -297,11 +297,11 @@ class CreateVe(NosDeviceAction):
         afi_status = device.interface.vrf_afi(
             get=True, rbridge_id=rbridge_id, vrf_name=vrf_name)
         if not afi_status[afi]:
-            self.logger.error('To configure the ipv6 address on the Ve on '
-                              'rbridge_id %s, VRF Address Family-ipv6 has '
+            self.logger.error('To configure the ipv4/ipv6 address on the Ve on '
+                              'rbridge_id %s, VRF Address Family-ipv4/ipv6 has '
                               'to be configured on VRF %s',
                               rbridge_id, vrf_name)
-            return False
+            sys.exit(-1)
         return True
 
     def _check_requirements_vrf(self, device, ve_name, vrf_name,
