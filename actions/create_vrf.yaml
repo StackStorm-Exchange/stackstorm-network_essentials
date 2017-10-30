@@ -43,6 +43,6 @@ parameters:
     default: ipv4
   rd:
     type: string
-    description: Route Distinguisher <ASN:nn or    VPN Route Distinguisher> 
+    description: Route Distinguisher <ASN:nn or VPN Route Distinguisher>, it is mandatory for MLX
     required: false
     position: 6
