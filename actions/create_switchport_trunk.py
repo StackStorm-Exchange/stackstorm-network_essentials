@@ -14,6 +14,7 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import itertools
 
 
 class CreateSwitchPort(NosDeviceAction):
@@ -41,7 +42,7 @@ class CreateSwitchPort(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_name, intf_type, vlan_id, c_tag, trunk_no_default_native):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'Successfully connected to %s to create switchport on Interface', self.host)
 
@@ -162,7 +163,10 @@ class CreateSwitchPort(NosDeviceAction):
         if return_code is not None:
             result = device.interface.switchport_list
             if vlan_id is not None and vlan_action == 'add':
-                vlan_range = (list(self.expand_vlan_range(vlan_id)))
+                vlan_range = list(itertools.chain.from_iterable(range(int(ranges[0]),
+                                  int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
+                                  for el in (miniRange.split('-')
+                                  for miniRange in vlan_id.split(',')))))
             for intf in result:
                 if intf['interface-name'] == intf_name:
                     if not trunk_no_default_native and intf['mode'] == 'trunk'\

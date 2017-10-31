@@ -19,7 +19,7 @@ class set_l3_mtu(NosDeviceAction):
         changes = []
         ip_version = int(re.search(r'ipv([\d.]+)', afi).group(1))
         intf_type = intf_type.lower()
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to set mtu',
                              self.host)
 

@@ -30,19 +30,19 @@ class CreateVe(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, rbridge_id, vlan_id, ve_id, ip_address,
-            vrf_name, ipv6_use_link_local_only):
+            vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         return self.switch_operation(rbridge_id, vlan_id, ve_id, ip_address,
-                                     vrf_name, ipv6_use_link_local_only)
+                                     vrf_name, ipv6_use_link_local_only, skip_vlan_config)
 
     @log_exceptions
-    def switch_operation(self, rbridge_id, vlan_id, ve_id, ip_address,
-                         vrf_name, ipv6_use_link_local_only):
+    def switch_operation(self, rbridge_id, vlan_id, ip_address,
+                         vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         changes = {}
 
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create'
                              ' Ve', self.host)
             if device.os_type == 'nos':
@@ -105,7 +105,8 @@ class CreateVe(NosDeviceAction):
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
-                                                ve_name=ve_id)
+                                                ve_name=ve_id,
+                                                skip_vlan_config=skip_vlan_config)
                         changes['vrf_configs'] =\
                             self._create_vrf_forwarding(device,
                                                         vrf_name=vrf_name,
@@ -140,7 +141,8 @@ class CreateVe(NosDeviceAction):
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
-                                                ve_name=ve_id)
+                                                ve_name=ve_id,
+                                                skip_vlan_config=skip_vlan_config)
                         changes['vrf_configs'] =\
                             self._create_vrf_forwarding(device,
                                                         vrf_name=vrf_name,
@@ -167,7 +169,8 @@ class CreateVe(NosDeviceAction):
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
-                                                ve_name=ve_id)
+                                                ve_name=ve_id,
+                                                skip_vlan_config=skip_vlan_config)
                         changes['assign_ip'] =\
                             self._assign_ip_to_ve(device,
                                                   rbridge_id=rbridge_id,
@@ -186,8 +189,9 @@ class CreateVe(NosDeviceAction):
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
                                             vlan_id=vlan_id,
-                                            ve_name=ve_id)
-                self._admin_state(device, ve_name=ve_id,
+                                            ve_name=ve_id,
+                                            skip_vlan_config=skip_vlan_config)
+                self._admin_state(device, ve_name=vlan_id,
                                   rbridge_id=rbridge_id)
                 if ipv6_use_link_local_only:
                     ve_exists =\
@@ -199,8 +203,9 @@ class CreateVe(NosDeviceAction):
                         changes['create_ve'] = \
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
-                                            ve_name=ve_id)
-                    self._ipv6_link_local(device, name=ve_id,
+                                            ve_name=ve_id,
+                                            skip_vlan_config=skip_vlan_config)
+                    self._ipv6_link_local(device, name=vlan_id,
                                           rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after creating Ve'
                              ' -- all done!', self.host)
@@ -363,14 +368,15 @@ class CreateVe(NosDeviceAction):
                 return False
         return True
 
-    def _create_ve(self, device, rbridge_id, vlan_id, ve_name):
+    def _create_ve(self, device, rbridge_id, vlan_id, ve_name, skip_vlan_config):
         """ Configuring the VE"""
 
         try:
             self.logger.info('Creating VE %s on rbridge-id %s',
                              ve_name, rbridge_id)
-            device.interface.add_vlan_int(vlan_id)
-            if device.interface.is_vlan_rtr_ve_config_req():
+            if not skip_vlan_config:
+                device.interface.add_vlan_int(vlan_id)
+            if device.interface.is_vlan_rtr_ve_config_req() and not skip_vlan_config:
                 device.interface.vlan_router_ve(vlan_id=vlan_id, ve_config=ve_name)
             device.interface.create_ve(enable=True, ve_name=ve_name,
                                        rbridge_id=rbridge_id)

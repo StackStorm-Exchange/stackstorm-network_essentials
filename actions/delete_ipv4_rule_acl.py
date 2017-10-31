@@ -1,5 +1,5 @@
-import sys
 from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class Delete_Ipv4_Rule_Acl(NosDeviceAction):
@@ -8,82 +8,40 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
 
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        device = self.get_device()
-        seq = []
-        output = {}
-        seq_variables_std = ('seq-id', 'action', 'src-host-any-sip', 'src-host-ip', 'src-mask',
-                             'count', 'log')
-        seq_variables_ext = ('seq-id', 'action', 'protocol-type', 'src-host-any-sip',
-                             'src-host-ip', 'src-mask', 'sport', 'sport-number-eq-neq-tcp',
-                             'sport-number-lt-tcp', 'sport-number-gt-tcp',
-                             'sport-number-eq-neq-udp', 'sport-number-lt-udp',
-                             'sport-number-gt-udp', 'sport-number-range-lower-tcp',
-                             'sport-number-range-lower-udp', 'sport-number-range-higher-tcp',
-                             'sport-number-range-higher-udp', 'dst-host-any-dip', 'dst-host-ip',
-                             'dst-mask', 'dport', 'dport-number-eq-neq-tcp',
-                             'dport-number-lt-tcp', 'dport-number-gt-tcp',
-                             'dport-number-eq-neq-udp', 'dport-number-lt-udp',
-                             'dport-number-gt-udp', 'dport-number-range-lower-tcp',
-                             'dport-number-range-lower-udp', 'dport-number-range-higher-tcp',
-                             'dport-number-range-higher-udp', 'dscp', 'urg', 'ack', 'push',
-                             'fin', 'rst', 'sync', 'vlan', 'count', 'log')
+        return self.switch_operation(acl_name, seq_id)
 
-        try:
-            acl_type = self._get_acl_type_(device, acl_name)['type']
-            self.logger.info('successfully identified the acl_type as %s', acl_type)
-        except:
-            self.logger.error('Failed to get access list. Check is ACL %s exists', acl_name)
-            raise ValueError('Failed to get access list. Check if ACL exists')
+    @log_exceptions
+    def switch_operation(self, acl_name, seq_id):
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
+            acl = device.acl.get_acl_type(acl_name)
+            address_type = acl['protocol']
+            acl_type = acl['type']
+            self.logger.info('Successfully identified the acl_type as %s (%s)',
+                             acl_type, address_type)
 
-        if acl_type == 'standard':
-            seq_variables = seq_variables_std
-        elif acl_type == 'extended':
-            seq_variables = seq_variables_ext
+            if address_type is not 'ip':
+                raise ValueError('ACL not compatible for IPV4 acl rule')
 
-        seq_dict = self._get_seq_(device,
-                                  acl_name=acl_name,
-                                  acl_type=acl_type,
-                                  seq_id=seq_id)
-        if seq_dict is None:
-            self.logger.error('There is no rule present in seq no %s. '
-                              'Please check the seq_id.', seq_id)
-            sys.exit(-1)
-        for v in seq_variables:
-            try:
-                seq.append(seq_dict[v])
-            except:
-                seq.append(None)
+            if not seq_id:
+                raise ValueError("Enter a valid seq_id to remove")
+            seq_dict = device.acl.get_seq(acl_name, seq_id, acl_type, address_type)
+            if not seq_dict:
+                self.logger.info("ACL %s has no rule with seq_id %s" % (acl_name, seq_id))
+                return None
 
-        try:
-            changes = self._delete_ipv4_acl_(device,
-                                             acl_name=acl_name,
-                                             acl_type=acl_type,
-                                             seq=tuple(seq))
-        except Exception as msg:
-            self.logger.error(msg)
-            raise ValueError(msg)
-        output['result'] = changes
-        self.logger.info('closing connection to %s after adding rule access-list--all done!',
-                         self.host)
-        return output
+            return self._delete_ipv4_acl_rule(device,
+                                              acl_name=acl_name,
+                                              acl_type=acl_type,
+                                              address_type=address_type,
+                                              seq_dict=seq_dict)
 
-    def _delete_ipv4_acl_(self, device, acl_name, acl_type, seq):
+    def _delete_ipv4_acl_rule(self, device, acl_name, acl_type, address_type, seq_dict):
         self.logger.info('Deleting rule on access list- %s at seq_id %s',
-                         acl_name, seq[0])
-        result = 'False'
-        try:
-            if acl_type == 'standard':
-                delete_acl = device.ip_access_list_standard_seq_delete
-            elif acl_type == 'extended':
-                delete_acl = device.ip_access_list_extended_seq_delete
-            aply = list(delete_acl(acl_name, seq))
-            result = str(aply[0])
-            if str(aply[0]) == 'False':
-                self.logger.error('Cannot delete rule on %s due to %s', acl_name,
-                                  str(aply[1][0][self.host]['response']['json']['output']))
-            else:
-                self.logger.info('Successfully deleted rule on %s on seq_id %s', acl_name, seq[0])
-        except (AttributeError, ValueError) as e:
-            self.logger.error('Cannot delete rule on %s due to %s', acl_name, e.message)
-            raise ValueError(e.message)
-        return result
+                         acl_name, str(seq_dict['seq_id']))
+        output = device.acl.remove_acl_rule(acl_name=acl_name,
+                                            acl_type=acl_type,
+                                            address_type=address_type,
+                                            seqs_list=[seq_dict])
+        self.logger.info(output)
+        return True

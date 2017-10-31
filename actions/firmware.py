@@ -39,7 +39,7 @@ class Firmware(NosDeviceAction):
     def switch_operation(self, host_ip, protocol_type, proto_username, proto_password,
                          disruptive_download, firmware_path):
         try:
-            with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
                 self.logger.info('successfully connected to %s to download firmware', self.host)
                 self.firmware_download_start_action(device)
                 fwdl_status_dictlist = device.firmware.download_firmware(
@@ -83,7 +83,7 @@ class Firmware(NosDeviceAction):
 
     def firmware_download_monitor_periodic(self):
         try:
-            with self.pmgr(conn=self.conn, auth=self.auth) as device:
+            with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
                 self.fwdl_monitor_timer = None
                 fwdl_status_list = device.firmware.firmware_download_monitor()
                 for fwdl_status in fwdl_status_list:

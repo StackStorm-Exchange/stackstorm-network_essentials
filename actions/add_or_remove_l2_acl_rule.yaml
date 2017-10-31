@@ -19,12 +19,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 2
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 3
   acl_name:
@@ -77,23 +75,52 @@ parameters:
     type: string
     description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
     position: 12
-  ethertype:
+  vlan_tag_format:
     type: string
-    description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536
-      and 65535.
-    default: arp
+    description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+    enum:
+       - untagged
+       - single-tagged
+       - double-tagged
     position: 13
   vlan:
-    type: integer
-    description: VLAN ID - custom value between 1 and 4096.
+    type: string
+    description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
     position: 14
+  ethertype:
+    type: string
+    description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+    position: 15
+  arp_guard:
+    type: string
+    description: Enables arp-guard for the rule
+    default: 'False'
+    position: 16
+  pcp:
+    type: string
+    description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+    position: 17
+  drop_precedence_force:
+    type: string
+    description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+    position: 18
   count:
     type: string
     description: Enables the packet count
     default: 'False'
-    position: 15
+    position: 19
   log:
     type: string
     description: Enables the logging
     default: 'False'
-    position: 16
+    position: 20
+  mirror:
+    type: string
+    description: Enables mirror for the rule
+    default: 'False'
+    position: 21
+  copy_sflow:
+    type: string
+    description: Enables copy-sflow for the rule
+    default: 'False'
+    position: 22

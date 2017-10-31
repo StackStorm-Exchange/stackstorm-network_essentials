@@ -17,7 +17,7 @@ class set_l2_mtu(NosDeviceAction):
         output = {}
         changes = []
         intf_type = intf_type.lower()
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to set mtu',
                              self.host)
 
