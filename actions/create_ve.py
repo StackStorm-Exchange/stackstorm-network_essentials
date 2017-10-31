@@ -191,7 +191,7 @@ class CreateVe(NosDeviceAction):
                                             vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
-                self._admin_state(device, ve_name=vlan_id,
+                self._admin_state(device, ve_name=ve_id,
                                   rbridge_id=rbridge_id)
                 if ipv6_use_link_local_only:
                     ve_exists =\
@@ -205,7 +205,7 @@ class CreateVe(NosDeviceAction):
                                             rbridge_id=rbridge_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
-                    self._ipv6_link_local(device, name=vlan_id,
+                    self._ipv6_link_local(device, name=ve_id,
                                           rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after creating Ve'
                              ' -- all done!', self.host)
