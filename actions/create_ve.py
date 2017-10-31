@@ -38,7 +38,7 @@ class CreateVe(NosDeviceAction):
                                      vrf_name, ipv6_use_link_local_only, skip_vlan_config)
 
     @log_exceptions
-    def switch_operation(self, rbridge_id, vlan_id, ip_address,
+    def switch_operation(self, rbridge_id, vlan_id, ve_id, ip_address,
                          vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         changes = {}
 
