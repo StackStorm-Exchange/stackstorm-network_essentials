@@ -66,10 +66,7 @@ class RegisterDeviceCredentials(Action):
             self.snmpconfig['snmpver'] = snmp_version
             self.snmpconfig['snmpport'] = snmp_port
             self.snmpconfig['v3user'] = snmpv3_user
-            if snmpv3_priv == 'aes':
-                self.snmpconfig['v3priv'] = 'aes128'
-            else:
-                self.snmpconfig['v3priv'] = snmpv3_priv
+            self.snmpconfig['v3priv'] = snmpv3_priv
             self.snmpconfig['v3auth'] = snmpv3_auth
             if auth_pass:
                 self.snmpconfig['authpass'] = auth_pass
