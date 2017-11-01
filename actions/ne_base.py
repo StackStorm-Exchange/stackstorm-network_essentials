@@ -92,6 +92,46 @@ class NosDeviceAction(Action):
         else:
             snmpconfig['snmpv2c'] = v2c_kv
 
+        snmpconfig['authpass'] = ''
+        snmpconfig['privpass'] = ''
+        if snmpconfig['version'] == 3:
+
+            v3_user = self._lookup_st2_store('v3user')
+            if not v3_user:
+                snmpconfig['v3user'] = 'user'
+            else:
+                snmpconfig['v3user'] = v3_user
+
+            v3auth = self._lookup_st2_store('v3auth')
+            if not v3auth or v3auth == 'noauth':
+                snmpconfig['v3auth'] = 'noauth'
+                snmpconfig['authpass'] = ''
+            else:
+                snmpconfig['v3auth'] = v3auth
+                authpass = self._lookup_st2_store('authpass', decrypt=True)
+                if not authpass:
+                    snmpconfig['authpass'] = ''
+                else:
+                    snmpconfig['authpass'] = authpass
+
+            v3priv = self._lookup_st2_store('v3priv')
+            if not v3priv or v3priv == 'nopriv':
+                snmpconfig['v3priv'] = 'nopriv'
+                snmpconfig['privpass'] = ''
+            else:
+                snmpconfig['v3priv'] = v3priv
+                privpass = self._lookup_st2_store('privpass', decrypt=True)
+                if not privpass:
+                    snmpconfig['privpass'] = ''
+                else:
+                    snmpconfig['privpass'] = privpass
+        else:
+            snmpconfig['v3user'] = ''
+            snmpconfig['v3auth'] = 'noauth'
+            snmpconfig['autpass'] = ''
+            snmpconfig['v3priv'] = 'nopriv'
+            snmpconfig['privpass'] = ''
+
         return snmpconfig
 
     def _get_auth(self, host, user, passwd):
