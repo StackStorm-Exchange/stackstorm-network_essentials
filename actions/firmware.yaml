@@ -41,6 +41,8 @@ parameters:
     type: string
     enum:
       - scp
+      - sftp
+      - ftp
     description: Protocol to use for firmwaredownload
     default: scp
     position: 7
