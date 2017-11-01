@@ -45,7 +45,7 @@ parameters:
     position: 5
   mode:
     type: string
-    description: Port channel type
+    description: Port channel type. SLX and MLX supports standard type only.
     enum:
       - standard
       - brocade
@@ -53,7 +53,8 @@ parameters:
     position: 6
   protocol:
     type: string
-    description: Port channel mode
+    description: Port channel mode. For MLX use active for dynamic and modeon
+            for static. 
     enum:
       - active
       - passive
@@ -62,5 +63,5 @@ parameters:
     position: 7
   port_channel_desc:
     type: string
-    description: Port channel interface description without any space
+    description: Port channel interface description
     position: 8
