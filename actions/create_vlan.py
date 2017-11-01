@@ -36,7 +36,8 @@ class CreateVlan(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_desc, vlan_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth, connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             self.logger.info(
                 'Successfully connected to %s to create interface vlans',
                 self.host)

@@ -30,7 +30,7 @@ class ValidateInterfaceState(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_name, intf_state, intf_type, rbridge_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to validate interface state',
                 self.host)

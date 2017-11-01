@@ -14,12 +14,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 2
   vlan_id:
@@ -29,6 +27,6 @@ parameters:
     position: 3
   vlan_desc:
     type: string
-    description: VLAN description without any space. Same description is used when
+    description: VLAN description. Same description is used when
       creating multiple VLANs
     position: 4

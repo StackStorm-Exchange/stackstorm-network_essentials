@@ -27,7 +27,7 @@ class FindMAC(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         results = []
         try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
             self.logger.info('successfully connected to %s to enable interface', self.host)
         except AttributeError as e:
             self.logger.info('Failed to connect to %s due to %s', self.host, e.message)

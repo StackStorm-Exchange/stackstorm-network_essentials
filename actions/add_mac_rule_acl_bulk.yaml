@@ -1,0 +1,124 @@
+---
+name: add_mac_rule_acl_bulk
+pack: network_essentials
+runner_type: run-python
+description: Add an L2 ACL rule to an existing ACL
+enabled: true
+entry_point: add_mac_rule_acl_bulk.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    secret: true
+    position: 2
+  acl_name:
+    type: string
+    description: Name of the access list
+    required: true
+    position: 3
+  acl_rules:
+    type: array
+    description: "A list of ACL sequence rules as acl_rules='[{\"source\": \"HHHH.HHHH.HHHH\", \"seq_id\": 10}, {\"source\": \"HHHH.HHHH.HHHH\", \"seq_id\": 20}]'"
+    required: true
+    position: 4
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        seq_id:
+          type: integer
+          description: Sequence number of the rule.  For add operation, if not specified, the rule is added at the end of the list. 
+          position: 5
+        action:
+          type: string
+          description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+          enum:
+             - deny
+             - permit
+             - hard-drop
+          default: permit
+          position: 6
+        source:
+          type: string
+          description: Source filter, can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format.
+          default: any
+          position: 7
+        srchost:
+          type: string
+          description: The source MAC in HHHH.HHHH.HHHH format. The value is required only when the source is 'host'.
+          position: 8
+        src_mac_addr_mask:
+          type: string
+          description: Mask for the source MAC in HHHH.HHHH.HHHH format.
+          position: 9
+        dst:
+          type: string
+          description: Destination filter, can be 'any' or 'host', or the actual MAC of the destination in HHHH.HHHH.HHHH format.
+          default: any
+          position: 10
+        dsthost:
+          type: string
+          description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only when the dst is 'host'
+          position: 11
+        dst_mac_addr_mask:
+          type: string
+          description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
+          position: 12
+        vlan_tag_format:
+          type: string
+          description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+          enum:
+             - untagged
+             - single-tagged
+             - double-tagged
+          position: 13
+        vlan:
+          type: string
+          description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
+          position: 14
+        ethertype:
+          type: string
+          description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+          position: 15
+        arp_guard:
+          type: string
+          description: Enables arp-guard for the rule
+          default: 'False'
+          position: 16
+        pcp:
+          type: string
+          description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+          position: 17
+        drop_precedence_force:
+          type: string
+          description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+          position: 18
+        count:
+          type: string
+          description: Enables the packet count
+          default: 'False'
+          position: 19
+        log:
+          type: string
+          description: Enables the logging
+          default: 'False'
+          position: 20
+        mirror:
+          type: string
+          description: Enables mirror for the rule
+          default: 'False'
+          position: 21
+        copy_sflow:
+          type: string
+          description: Enables copy-sflow for the rule
+          default: 'False'
+          position: 22

@@ -14,12 +14,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 2
   intf_type:
@@ -47,7 +45,7 @@ parameters:
     position: 5
   mode:
     type: string
-    description: Port channel type
+    description: Port channel type. SLX and MLX supports standard type only.
     enum:
       - standard
       - brocade
@@ -55,7 +53,8 @@ parameters:
     position: 6
   protocol:
     type: string
-    description: Port channel mode
+    description: Port channel mode. For MLX use active for dynamic and modeon
+            for static. 
     enum:
       - active
       - passive
@@ -64,5 +63,5 @@ parameters:
     position: 7
   port_channel_desc:
     type: string
-    description: Port channel interface description without any space
+    description: Port channel interface description
     position: 8

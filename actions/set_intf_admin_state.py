@@ -31,7 +31,7 @@ class SetIntfAdminState(NosDeviceAction):
         changes = {}
 
         intf_type = intf_type.lower()
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to enable interface', self.host)
             # Check is the user input for Interface Name is correct
             interface_list = self.expand_interface_range(intf_type=intf_type, intf_name=intf_name,

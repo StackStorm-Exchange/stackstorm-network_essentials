@@ -37,6 +37,7 @@ class NosDeviceAction(Action):
         self.host = None
         self.conn = None
         self.auth = None
+        self.auth_snmp = None
         self.asset = pyswitchlib.asset.Asset
         self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
@@ -44,31 +45,129 @@ class NosDeviceAction(Action):
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
         self.conn = (host, '22')
-        self.auth = self._get_auth(host=host, user=user, passwd=passwd)
+        self.auth_snmp = self._get_auth(host=host, user=user, passwd=passwd)
+
+    def _lookup_st2_store(self, key, decrypt=False):
+        """
+           API to retrieve from st2 store lookup
+        """
+        lookup_key = self._get_lookup_key(host=self.host, lookup=key)
+        user_kv = self.action_service.get_value(name=lookup_key, local=False,
+                                                decrypt=decrypt)
+        if not user_kv:
+            lookup_key = self._get_user_default_lookup_key(lookup=key)
+            user_kv = self.action_service.get_value(name=lookup_key, local=False,
+                                                    decrypt=decrypt)
+        return user_kv
+
+    def _get_snmp_credentials(self, host):
+
+        """
+           API to retrieve snmp credentials from st2 store.
+           SNMP port, SNMP community and SNMP version are
+           retrieved here.
+        """
+
+        snmpconfig = {}
+
+        ver_kv = self._lookup_st2_store('snmpver')
+        if not ver_kv:
+            snmpconfig['version'] = 2
+        elif ver_kv == 'v2':
+            snmpconfig['version'] = 2
+        elif ver_kv == 'v3':
+            snmpconfig['version'] = 3
+        else:
+            snmpconfig['version'] = 0
+
+        port_kv = self._lookup_st2_store('snmpport')
+        if not port_kv:
+            snmpconfig['snmpport'] = 161
+        else:
+            snmpconfig['snmpport'] = int(port_kv)
+
+        v2c_kv = self._lookup_st2_store('snmpv2c', decrypt=True)
+        if not v2c_kv:
+            snmpconfig['snmpv2c'] = 'public'
+        else:
+            snmpconfig['snmpv2c'] = v2c_kv
+
+        snmpconfig['authpass'] = ''
+        snmpconfig['privpass'] = ''
+        if snmpconfig['version'] == 3:
+
+            v3_user = self._lookup_st2_store('v3user')
+            if not v3_user:
+                snmpconfig['v3user'] = 'user'
+            else:
+                snmpconfig['v3user'] = v3_user
+
+            v3auth = self._lookup_st2_store('v3auth')
+            if not v3auth or v3auth == 'noauth':
+                snmpconfig['v3auth'] = 'noauth'
+                snmpconfig['authpass'] = ''
+            else:
+                snmpconfig['v3auth'] = v3auth
+                authpass = self._lookup_st2_store('authpass', decrypt=True)
+                if not authpass:
+                    snmpconfig['authpass'] = ''
+                else:
+                    snmpconfig['authpass'] = authpass
+
+            v3priv = self._lookup_st2_store('v3priv')
+            if not v3priv or v3priv == 'nopriv':
+                snmpconfig['v3priv'] = 'nopriv'
+                snmpconfig['privpass'] = ''
+            else:
+                snmpconfig['v3priv'] = v3priv
+                privpass = self._lookup_st2_store('privpass', decrypt=True)
+                if not privpass:
+                    snmpconfig['privpass'] = ''
+                else:
+                    snmpconfig['privpass'] = privpass
+        else:
+            snmpconfig['v3user'] = ''
+            snmpconfig['v3auth'] = 'noauth'
+            snmpconfig['autpass'] = ''
+            snmpconfig['v3priv'] = 'nopriv'
+            snmpconfig['privpass'] = ''
+
+        return snmpconfig
 
     def _get_auth(self, host, user, passwd):
+
+        """
+           Method to retrieve username, password,
+           enable password and snmp credentials.
+        """
+
         if not user:
-            lookup_key = self._get_lookup_key(host=self.host, lookup='user')
-            user_kv = self.action_service.get_value(
-                name=lookup_key, local=False)
-            if not user_kv:
-                raise Exception('username for %s not found.' % host)
-            user = user_kv
+            user = self._lookup_st2_store('user')
+            if not user:
+                user = 'admin'
+
         if not passwd:
-            lookup_key = self._get_lookup_key(host=self.host, lookup='passwd')
-            passwd_kv = self.action_service.get_value(
-                name=lookup_key, local=False, decrypt=True)
-            if not passwd_kv:
-                raise Exception('password for %s not found.' % host)
-            passwd = passwd_kv
-        return (user, passwd)
+            passwd = self._lookup_st2_store('passwd', decrypt=True)
+            if not passwd:
+                passwd = 'password'
+
+        enablepass = self._lookup_st2_store('enablepass', decrypt=True)
+        if not enablepass:
+            enablepass = None
+
+        snmpconfig = self._get_snmp_credentials(host=host)
+
+        return (user, passwd, enablepass, snmpconfig)
 
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
 
+    def _get_user_default_lookup_key(self, lookup):
+        return 'switch.USER.DEFAULT.%s' % (lookup)
+
     def get_device(self):
         try:
-            device = self.asset(ip_addr=self.host, auth=self.auth)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
             self.logger.info('successfully connected to %s',
                              self.host)
             return device
@@ -358,6 +457,13 @@ class NosDeviceAction(Action):
             return False
 
         return rbridge_id
+
+    def _validate_ip_network(self, addr):
+        try:
+            ipaddress.ip_network(addr)
+            return True
+        except socket.error:
+            return False
 
     def _validate_ip_(self, addr):
         try:

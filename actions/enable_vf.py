@@ -34,7 +34,7 @@ class VirtualFabric(NosDeviceAction):
     def switch_operation(self, virtual_fabric_enable):
 
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             if device.os_type != 'nos':
                 self.logger.error('VF feature is supported only on VDX platform')
                 raise TypeError('Action is valid only VDX platform')

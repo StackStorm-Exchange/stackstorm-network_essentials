@@ -15,12 +15,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 2
   vrf_name:
@@ -43,3 +41,8 @@ parameters:
       - ipv4
       - ipv6
     default: ipv4
+  rd:
+    type: string
+    description: Route Distinguisher <ASN:nn or VPN Route Distinguisher>, it is mandatory for MLX
+    required: false
+    position: 6

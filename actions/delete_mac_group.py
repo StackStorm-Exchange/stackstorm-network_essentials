@@ -37,7 +37,7 @@ class DeleteMacGroup(NosDeviceAction):
     def switch_operation(self, mac_group_id):
 
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to Delete Mac Groups'
                 ' on the device', self.host)

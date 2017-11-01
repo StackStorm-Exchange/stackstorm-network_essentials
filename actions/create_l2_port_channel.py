@@ -36,7 +36,7 @@ class CreatePortChannel(NosDeviceAction):
         if protocol == "modeon":
             protocol = "on"
 
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
             if device.os_type == 'slxos':
                 if mode != "standard":

@@ -14,12 +14,10 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
-    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
-    default: password
     secret: true
     position: 2
   acl_name:
@@ -31,7 +29,6 @@ parameters:
     type: integer
     description: Sequence number of the rule, if not specified, the rule is added
       at the end of the list. Valid range is 0 to 4294967290
-    required: false
     position: 4
   action:
     type: string
@@ -46,7 +43,6 @@ parameters:
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
-    required: false
     position: 6
   source:
     type: string
@@ -59,7 +55,6 @@ parameters:
     type: string
     description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) |
       host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
-    required: false
     position: 8
   dscp:
     type: string
@@ -67,20 +62,52 @@ parameters:
       to filter.  Allowed values are 0 through 63.
     required: false
     position: 9
+  drop_precedence_force:
+    type: string
+    description: Matches the drop_precedence value of the packet.
+       Allowed values are 0 through 2.
+    position: 10
+  urg:
+    type: string
+    description: Enables urg for the rule
+    position: 11
+  ack:
+    type: string
+    description: Enables ack for the rule
+    position: 12
+  push:
+    type: string
+    description: Enables push for the rule
+    position: 13
+  fin:
+    type: string
+    description: Enables fin for the rule
+    position: 14
+  rst:
+    type: string
+    description: Enables rst for the rule
+    position: 15
+  sync:
+    type: string
+    description: Enables sync for the rule
+    position: 16
   vlan_id:
     type: integer
     description: VLAN interface to which the ACL is bound
-    required: false
-    position: 10
+    position: 17
   count:
     type: string
     description: Enables statistics for the rule
-    default: 'False'
-    required: false
-    position: 11
+    position: 18
   log:
     type: string
     description: Enables logging for the rule (Available for permit or deny only)
-    default: 'False'
-    required: false
-    position: 12
+    position: 19
+  mirror:
+    type: string
+    description: Enables mirror for the rule
+    position: 20
+  copy_sflow:
+    type: string
+    description: Enables copy-sflow for the rule
+    position: 21

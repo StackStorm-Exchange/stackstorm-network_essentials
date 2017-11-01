@@ -15,12 +15,10 @@ parameters:
   username:
     type: array
     description: Login user name to connect to the device
-    default: [admin]
     position: 1
   password:
     type: array
     description: Login password to connect to the device
-    default: [password]
     secret: true
     position: 2
   vlan_id:

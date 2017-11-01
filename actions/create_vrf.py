@@ -25,17 +25,17 @@ class CreateVRF(NosDeviceAction):
            1. Create VRF
     """
 
-    def run(self, mgmt_ip, username, password, vrf_name, rbridge_id, afi):
+    def run(self, mgmt_ip, username, password, vrf_name, rbridge_id, afi, rd):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         changes = {}
 
-        return self.switch_operation(afi, changes, rbridge_id, vrf_name)
+        return self.switch_operation(afi, changes, rbridge_id, vrf_name, rd)
 
     @log_exceptions
-    def switch_operation(self, afi, changes, rbridge_id, vrf_name):
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+    def switch_operation(self, afi, changes, rbridge_id, vrf_name, rd):
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
 
             self.logger.info('successfully connected to %s to Create VRF '
                              'for tenants',
@@ -77,7 +77,7 @@ class CreateVRF(NosDeviceAction):
                 if validate_vrf_afi:
                     changes['Create_address_family'] = self._create_vrf_afi(
                         device, rbridge_id,
-                        vrf_name, afi)
+                        vrf_name, afi, rd)
                 self.logger.info('closing connection to %s after Create VRF '
                                  '- all done!',
                                  self.host)
@@ -108,7 +108,7 @@ class CreateVRF(NosDeviceAction):
             return False
         return True
 
-    def _create_vrf_afi(self, device, rbridge_id, vrf_name, afi):
+    def _create_vrf_afi(self, device, rbridge_id, vrf_name, afi, rd):
         """ Create Address Family """
         try:
             self.logger.info(
@@ -116,7 +116,7 @@ class CreateVRF(NosDeviceAction):
                 afi,
                 vrf_name)
             device.interface.vrf_afi(
-                vrf_name=vrf_name, rbridge_id=rbridge_id, afi=afi)
+                vrf_name=vrf_name, rbridge_id=rbridge_id, afi=afi, rd=rd)
         except (ValueError, KeyError) as e:
             error_message = str(e.message)
             self.logger.error(error_message)

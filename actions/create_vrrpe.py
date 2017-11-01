@@ -42,7 +42,7 @@ class CreateVrrpe(NosDeviceAction):
     def switch_operation(self, rbridge_id, ve_name, virtual_ip,
                          vrid):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to Enable'
                              ' VRRPE Configs', self.host)
 
