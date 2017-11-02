@@ -17,17 +17,13 @@ class DeleteAcl(NosDeviceAction):
 
         self.logger.info('Deleteng {} ACL'.format(acl_name))
 
-        try:
-            with self.pmgr(conn=self.conn, auth=self.auth,
-                           connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn, auth=self.auth,
+                       auth_snmp=self.auth_snmp) as device:
 
-                output = device.acl.delete_acl(**params_config)
+            output = device.acl.delete_acl(**params_config)
 
-                self.logger.info(output)
-                return True
+            self.logger.info(output)
+            return True
 
-        except Exception as err:
-            self.logger.error('FAILED: Deleting ACL {}.'
-                              'Reason: {}'.format(acl_name, err))
 
         return False

@@ -21,16 +21,12 @@ class CreateAcl(NosDeviceAction):
         self.logger.info('Creating %s ACL %s of type %s',
                          address_type, acl_name, acl_type)
 
-        try:
 
-            with self.pmgr(conn=self.conn, auth=self.auth,
-                           connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn, auth=self.auth,
+                       auth_snmp=self.auth_snmp) as device:
 
-                output = device.acl.create_acl(**params_config)
-                self.logger.info(output)
-                return True
+            output = device.acl.create_acl(**params_config)
+            self.logger.info(output)
+            return True
 
-        except Exception as err:
-            self.logger.error('FAILED: Creating ACL {} of type {}.'
-                              'Reason: {}'.format(acl_name, acl_type, err))
         return False

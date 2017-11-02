@@ -15,6 +15,9 @@ class Apply_Acl(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_type, intf_name,
                          rbridge_id, acl_name, acl_direction, traffic_type):
+        parameters = locals()
+        parameters.pop('self', None)
+
         interface_list = []
         intf_type = intf_type.lower()
 
@@ -27,34 +30,21 @@ class Apply_Acl(NosDeviceAction):
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
 
-        with self.pmgr(conn=self.conn,
-                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
-            address_type = device.acl.get_acl_type(acl_name)['protocol']
+        with self.pmgr(conn=self.conn, auth=self.auth,
+                       auth_snmp=self.auth_snmp) as device:
+
             for intf in interface_list:
                 if not self.validate_interface(intf_type, str(intf),
                                                rbridge_id=rbridge_id,
                                                os_type=device.os_type):
                     raise ValueError("Input is not a valid Interface")
 
-            return self._apply_acl(device, address_type=address_type,
-                                   intf_type=intf_type,
-                                   intf_name=interface_list,
-                                   rbridge_id=rbridge_id,
-                                   acl_name=acl_name,
-                                   acl_direction=acl_direction,
-                                   traffic_type=traffic_type)
-
-    def _apply_acl(self, device, address_type, intf_type, intf_name, rbridge_id,
-                   acl_name, acl_direction, traffic_type):
-        result = {}
-        for intf in intf_name:
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
-                             acl_name, intf_type, intf)
+                         acl_name, intf_type, intf)
 
-            output = device.acl.apply_acl(rbridge_id=rbridge_id, address_type=address_type,
-                                          intf_type=intf_type, intf=intf,
-                                          acl_name=acl_name, acl_direction=acl_direction,
-                                          traffic_type=traffic_type)
+            output = device.acl.apply_acl(**parameters)
             self.logger.info(output)
-            result[intf] = True
-        return result
+
+            return True
+
+        return False

@@ -44,26 +44,21 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
 
         self.logger.info('add_or_remove_l2_acl_rule Operation: Initiated')
 
-        try:
-            with self.pmgr(conn=self.conn, auth=self.auth,
-                           connection_type='NETCONF') as device:
+        with self.pmgr(conn=self.conn, auth=self.auth,
+                       auth_snmp=self.auth_snmp) as device:
 
-                if delete:
-                    self.logger.info('Deleting Rule from L2 ACL: {}'
-                                     .format(acl_name))
+            if delete:
+                self.logger.info('Deleting Rule from L2 ACL: {}'
+                                 .format(acl_name))
 
-                    output = device.acl.delete_l2_acl_rule(**parameters)
-                else:
-                    self.logger.info('Adding Rule to L2 ACL: {}'
-                                     .format(acl_name))
+                output = device.acl.delete_l2_acl_rule(**parameters)
+            else:
+                self.logger.info('Adding Rule to L2 ACL: {}'
+                                 .format(acl_name))
 
-                    output = device.acl.add_l2_acl_rule(**parameters)
+                output = device.acl.add_l2_acl_rule(**parameters)
 
-                self.logger.info(output)
-                return True
-
-        except Exception as err:
-            self.logger.error('add_or_remove_l2_acl_rule Operation: Failed.'
-                              ' Reason: {}'.format(err))
+            self.logger.info(output)
+            return True
 
         return False
