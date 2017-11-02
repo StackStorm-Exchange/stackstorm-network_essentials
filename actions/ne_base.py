@@ -22,7 +22,7 @@ import pynos.utilities
 import pyswitchlib.asset
 import requests.exceptions
 import socket
-from st2actions.runners.pythonrunner import Action
+from st2common.runners.base_action import Action
 
 
 class NosDeviceAction(Action):

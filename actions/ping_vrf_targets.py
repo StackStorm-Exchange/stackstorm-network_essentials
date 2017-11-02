@@ -15,7 +15,7 @@ import re
 import json
 from ipaddress import ip_address
 from ipaddress import ip_interface
-from st2actions.runners.pythonrunner import Action
+from st2common.runners.base_action import Action
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetMikoTimeoutException, \
     NetMikoAuthenticationException
