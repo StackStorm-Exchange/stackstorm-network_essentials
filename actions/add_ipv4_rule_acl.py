@@ -1,15 +1,14 @@
-import re
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
 
 class Add_Ipv4_Rule_Acl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, acl_name, seq_id,
-            action, protocol_type, source, destination, dscp, drop_precedence_force,
-            urg, ack, push, fin, rst, sync, vlan_id, count, log, mirror, copy_sflow,
-            dscp_marking, fragment, precedence, option, suppress_rpf_drop,
+            action, protocol_type, source, destination, dscp,
+            drop_precedence_force, urg, ack, push, fin, rst, sync,
+            vlan_id, count, log, mirror, copy_sflow, dscp_marking,
+            fragment, precedence, option, suppress_rpf_drop,
             priority, priority_force, priority_mapping, tos):
-
 
         """Run helper methods to add an L3 IPV4 ACL rule to an existing ACL
         """

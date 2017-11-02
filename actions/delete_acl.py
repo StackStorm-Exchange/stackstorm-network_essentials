@@ -25,5 +25,4 @@ class DeleteAcl(NosDeviceAction):
             self.logger.info(output)
             return True
 
-
         return False

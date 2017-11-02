@@ -21,7 +21,6 @@ class CreateAcl(NosDeviceAction):
         self.logger.info('Creating %s ACL %s of type %s',
                          address_type, acl_name, acl_type)
 
-
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp) as device:
 
