@@ -317,7 +317,7 @@ class CreatePortChannel(NosDeviceAction):
         cli_output = raw_cli_output[cli_cmd]
         tmp_speed = re.search(r'(LineSpeed Actual     : )(\d+)', cli_output)
         if int(tmp_speed.group(2)) not in [1000, 10000, 25000, 40000, 100000]:
-            self.logger.error('Invalid actual linespeed found in $s output', cli_cmd)
+            self.logger.error('Invalid actual linespeed found in %s output', cli_cmd)
             raise ValueError('Invalid actual linespeed found in show output')
 
         return tmp_speed.group(2)
