@@ -136,8 +136,7 @@ class CreatePortChannel(NosDeviceAction):
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
                              channel_type, mode_type, intf_desc):
         """ Configuring the port channel and channel-group,
-            Admin state up on interface and port-channel."""
-        
+            Admin state up on interface and port-channel."""        
         actual_line_speed = False
         po_speed = None
         if device.os_type == 'slxos':
@@ -323,6 +322,6 @@ class CreatePortChannel(NosDeviceAction):
             port_speed = tmp_speed.group(2)
             if int(tmp_speed.group(2)) not in [1000, 10000, 25000, 40000, 100000]:
                 self.logger.error('Invalid actual linespeed found in %s output', cli_cmd)
-                raise ValueError('Invalid actual linespeed found in show output')
-                
+                raise ValueError('Invalid actual linespeed found in show output')                
         return port_speed
+    
