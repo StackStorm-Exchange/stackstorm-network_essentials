@@ -62,5 +62,5 @@ class DeletePortChannel(NosDeviceAction):
         if not is_po_present:
             return True
         else:
-            self.logger.error('port-channel %s does not exist in the switch', portchannel_num)
-            sys.exit(-1)
+            self.logger.info('port-channel %s does not exist in the switch', portchannel_num)
+            return False

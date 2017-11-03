@@ -116,18 +116,18 @@ class CreatePortChannel(NosDeviceAction):
                 if port_chann['aggregator_type'] == 'standard':
                     for interfaces in port_chann['interfaces']:
                         if interfaces['interface-name'] in intf_name:
-                            self.logger.error(
+                            self.logger.info(
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
                                 portchannel_num, interfaces['interface-name'])
-                            sys.exit(-1)
+                            return False
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
-                        self.logger.error('Interface %s is already mapped to a'
+                        self.logger.info('Interface %s is already mapped to a'
                                          ' different port channel %s',
                                          interfaces['interface-name'], port_chann['interface-name'])
-                        sys.exit(-1)
+                        return False
         return True
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
