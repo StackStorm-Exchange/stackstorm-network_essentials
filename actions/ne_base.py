@@ -256,10 +256,8 @@ class NosDeviceAction(Action):
                 self.logger.error("'Not a valid vlan %s", vid)
                 return None
             elif vid in reserved_vlan_list:
-                self.logger.error(
+                self.logger.info(
                     "User provided vlans contains reserved vlans %s", vid)
-                return None
-
         return vlan_id
 
     def expand_interface_range(self, intf_type, intf_name, rbridge_id):
