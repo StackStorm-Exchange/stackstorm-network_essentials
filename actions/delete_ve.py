@@ -67,8 +67,8 @@ class DeleteVe(NosDeviceAction):
         if device.interface.is_vlan_rtr_ve_config_req():
             curr_ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
             if curr_ve_id is None:
-                self.logger.error('No VE %s exists for VLAN %s', ve_id, vlan_id)
-                sys.exit(-1)
+                self.logger.info('No VE %s exists for VLAN %s', ve_id, vlan_id)
+                return False
             elif ve_id != curr_ve_id:
                 self.logger.error('vlan_id %s is mapped to a different router interface ve %s',
                                  vlan_id, curr_ve_id)
