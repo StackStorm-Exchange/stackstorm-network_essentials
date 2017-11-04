@@ -14,6 +14,9 @@
 
 import pyswitch.utilities
 import sys
+import re
+import random
+from execute_cli import CliCMD
 from ne_base import NosDeviceAction
 
 
@@ -134,22 +137,29 @@ class CreatePortChannel(NosDeviceAction):
                              channel_type, mode_type, intf_desc):
         """ Configuring the port channel and channel-group,
             Admin state up on interface and port-channel."""
-        if intf_type == "ethernet":
-            po_speed = "10000"
-        if intf_type == "gigabitethernet":
-            po_speed = "1000"
-        if intf_type == "tengigabitethernet":
-            po_speed = "10000"
-        if intf_type == "fortygigabitethernet":
-            po_speed = "40000"
-        if intf_type == "hundredgigabitethernet":
-            po_speed = "100000"
+        actual_line_speed = False
+        po_speed = None
+        if device.os_type == 'slxos':
+            po_speed = self._get_current_port_speed(device, intf_name)
+            actual_line_speed = True
+        if po_speed is None:
+            if intf_type == "ethernet":
+                po_speed = "10000"
+            if intf_type == "gigabitethernet":
+                po_speed = "1000"
+            if intf_type == "tengigabitethernet":
+                po_speed = "10000"
+            if intf_type == "fortygigabitethernet":
+                po_speed = "40000"
+            if intf_type == "hundredgigabitethernet":
+                po_speed = "100000"
 
         for intf in intf_name:
             try:
                 device.interface.channel_group(name=intf, int_type=intf_type,
                                                port_int=portchannel_num,
                                                channel_type=channel_type, mode=mode_type)
+
                 self.logger.info('Configuring port channel %s with mode as %s'
                                  ' and protocol as active on interface %s is done',
                                  portchannel_num, channel_type, intf)
@@ -191,7 +201,8 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.info('Configure port speed %s under port-channel %s',
                                      po_speed, portchannel_num)
                     device.interface.port_channel_speed(name=portchannel_num, po_speed=po_speed)
-        elif speed is None and (intf_type == "tengigabitethernet" or intf_type == "ethernet"):
+        elif speed is None and (intf_type == "tengigabitethernet" or intf_type == "ethernet") and\
+                not actual_line_speed:
             self.logger.info('port-channel %s is already configured with default speed %s',
                              portchannel_num, po_speed)
         else:
@@ -288,3 +299,28 @@ class CreatePortChannel(NosDeviceAction):
             self.logger.info('Invalid Input values while configuring fabric neighbor discovery')
 
         return True
+
+    def _get_current_port_speed(self, device, intf_name):
+        """Fabric neighbor discovery settings on the interface.
+        """
+
+        exec_cli = CliCMD()
+        host_ip = self.host
+        host_username = self.auth[0]
+        host_password = self.auth[1]
+
+        intf = random.choice(intf_name)
+        cli_cmd = 'show interface ethernet' + " " + intf
+
+        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
+                                                      password=host_password,
+                                                      cli_cmd=[cli_cmd])
+        cli_output = raw_cli_output[cli_cmd]
+        tmp_speed = re.search(r'(LineSpeed Actual     : )(\d+)', cli_output)
+        port_speed = None
+        if tmp_speed is not None:
+            port_speed = tmp_speed.group(2)
+            if int(tmp_speed.group(2)) not in [1000, 10000, 25000, 40000, 100000]:
+                self.logger.error('Invalid actual linespeed found in %s output', cli_cmd)
+                raise ValueError('Invalid actual linespeed found in show output')
+        return port_speed
