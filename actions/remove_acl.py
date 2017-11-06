@@ -31,7 +31,8 @@ class Remove_Acl(NosDeviceAction):
                     interface_list.append(ex_intf)
 
         with self.pmgr(conn=self.conn, auth=self.auth,
-                       auth_snmp=self.auth_snmp) as device:
+                       auth_snmp=self.auth_snmp,
+                       connection_type='NETCONF') as device:
             for intf in interface_list:
                 if not self.validate_interface(intf_type, str(intf),
                                                rbridge_id=rbridge_id,

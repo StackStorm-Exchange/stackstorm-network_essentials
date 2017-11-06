@@ -33,7 +33,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         params_config.pop('self', None)
 
         with self.pmgr(conn=self.conn, auth=self.auth,
-                       auth_snmp=self.auth_snmp) as device:
+                       auth_snmp=self.auth_snmp,
+                       connection_type='NETCONF') as device:
             output = device.acl.add_ipv4_rule_acl(**params_config)
             self.logger.info(output)
             return True

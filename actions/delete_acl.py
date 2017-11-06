@@ -18,7 +18,8 @@ class DeleteAcl(NosDeviceAction):
         self.logger.info('Deleteng {} ACL'.format(acl_name))
 
         with self.pmgr(conn=self.conn, auth=self.auth,
-                       auth_snmp=self.auth_snmp) as device:
+                       auth_snmp=self.auth_snmp,
+                       connection_type='NETCONF') as device:
 
             output = device.acl.delete_acl(**params_config)
 

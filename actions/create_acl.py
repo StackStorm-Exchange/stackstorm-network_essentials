@@ -22,7 +22,8 @@ class CreateAcl(NosDeviceAction):
                          address_type, acl_name, acl_type)
 
         with self.pmgr(conn=self.conn, auth=self.auth,
-                       auth_snmp=self.auth_snmp) as device:
+                       auth_snmp=self.auth_snmp,
+                       connection_type='NETCONF') as device:
 
             output = device.acl.create_acl(**params_config)
             self.logger.info(output)
