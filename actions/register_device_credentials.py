@@ -108,10 +108,6 @@ class RegisterDeviceCredentials(Action):
             if not self.snmpconfig:
                 self.logger.error("SNMP credentials are mandatory if mgmt_ip is USER.DEFAULT")
                 sys.exit(-1)
-            elif not self.snmpconfig['snmpv2c']:
-                self.logger.error("SNMPv2c credential required if mgmt_ip is USER.DEFAULT")
-                sys.exit(-1)
-            return
 
         if self.snmpconfig:
             # Validate snmpv2 credentials
@@ -142,6 +138,9 @@ class RegisterDeviceCredentials(Action):
                         self.logger.error("Priv passphrase missing (--priv_pass= )")
                         sys.exit(-1)
                 pass
+
+        if host == 'USER.DEFAULT':
+            return
 
         if user and passwd:
             self.ostype = self._validate_ssh_connection(host, user, passwd)
@@ -278,6 +277,10 @@ class RegisterDeviceCredentials(Action):
             authpass = self.snmpconfig['authpass']
             v3priv = self.snmpconfig['v3priv']
             privpass = self.snmpconfig['privpass']
+        else:
+            snmpver = snmpv2c = v3user = None
+            v3auth = v3priv = None
+            authpass = privpass = None
 
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
@@ -304,34 +307,42 @@ class RegisterDeviceCredentials(Action):
                 if snmpver != item.value:
                     self.action_service.set_value(name=lookup_key, value=snmpver,
                                                   local=False)
-            elif lookup_key == self._get_lookup_key(host, 'snmpv2c') and snmpv2c:
-                self.action_service.set_value(name=lookup_key, value=snmpv2c,
-                                              local=False, encrypt=True)
             elif lookup_key == self._get_lookup_key(host, 'snmpport') and snmpport:
                 if snmpport != int(item.value):
                     self.action_service.set_value(name=lookup_key, value=snmpport,
                                                   local=False)
-            elif lookup_key == self._get_lookup_key(host, 'v3user') and v3user:
-                if v3user != item.value:
-                    self.action_service.set_value(name=lookup_key,
-                                                  value=v3user, local=False)
-            elif lookup_key == self._get_lookup_key(host, 'v3auth') and v3auth:
-                if v3auth != item.value:
-                    self.action_service.set_value(name=lookup_key,
-                                                  value=v3auth, local=False)
-            elif lookup_key == self._get_lookup_key(host, 'v3priv') and v3priv:
-                if v3priv != item.value:
-                    self.action_service.set_value(name=lookup_key,
-                                                  value=v3priv, local=False)
-            elif lookup_key == self._get_lookup_key(host, 'authpass') and authpass:
-                self.action_service.set_value(name=lookup_key, value=authpass,
-                                              local=False, encrypt=True)
-            elif lookup_key == self._get_lookup_key(host, 'privpass') and privpass:
-                self.action_service.set_value(name=lookup_key, value=privpass,
-                                              local=False, encrypt=True)
             else:
                 # lookup key found but user input is not present hence removing
                 self.action_service.delete_value(name=item.name, local=False)
+
+        if snmpv2c and snmpver == 'v2':
+            lookup_key = self._get_lookup_key(host, 'snmpv2c')
+            self.action_service.set_value(name=lookup_key, value=snmpv2c,
+                                         local=False, encrypt=True)
+
+        if v3user and snmpver == 'v3':
+            lookup_key = self._get_lookup_key(host, 'v3user')
+            if v3user != item.value:
+                self.action_service.set_value(name=lookup_key,
+                                              value=v3user, local=False)
+        if v3auth and snmpver == 'v3':
+            lookup_key = self._get_lookup_key(host, 'v3auth')
+            if v3auth != item.value:
+                self.action_service.set_value(name=lookup_key,
+                                              value=v3auth, local=False)
+        if v3priv and snmpver == 'v3':
+            lookup_key = self._get_lookup_key(host, 'v3priv')
+            if v3priv != item.value:
+                self.action_service.set_value(name=lookup_key,
+                                              value=v3priv, local=False)
+        if authpass and snmpver == 'v3':
+            lookup_key = self._get_lookup_key(host, 'authpass')
+            self.action_service.set_value(name=lookup_key, value=authpass,
+                                          local=False, encrypt=True)
+        if privpass and snmpver == 'v3':
+            lookup_key = self._get_lookup_key(host, 'privpass')
+            self.action_service.set_value(name=lookup_key, value=privpass,
+                                          local=False, encrypt=True)
 
     def _store_value(self, host, key, value, encrypt=False):
         """

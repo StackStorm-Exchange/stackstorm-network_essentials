@@ -43,6 +43,11 @@ parameters:
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
+      For MLX - Type of IP packets to be filtered based on protocol. 
+                Valid values are <0-255> or key words specifying protocols.
+                MLX supports wide range of protocols e.g. 
+                a_n,ahp,argus,aris,ax25,bbn-rcc,bna,br-sat-mon,cbt,cftp,
+                chaos,compaq-peer,cphb,cpnx,crdup,crtp,dcn, etc.
     position: 6
   source:
     type: string
@@ -60,12 +65,14 @@ parameters:
     type: string
     description: Matches the specified value against the DSCP value of the packet
       to filter.  Allowed values are 0 through 63.
+        For MLX - this field will be used for dscp-mapping.
     required: false
     position: 9
   drop_precedence_force:
     type: string
     description: Matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
+       For MLX - Allowed values are 0 through 3.
     position: 10
   urg:
     type: string
@@ -111,3 +118,62 @@ parameters:
     type: string
     description: Enables copy-sflow for the rule
     position: 21
+  dscp_marking:
+    type: string
+    description: dscp-marking number is used to mark the DSCP value in the
+        incoming packet with the value you specify to filter.
+        Allowed values are 0 through 63.
+    required: false
+    position: 22
+  fragment:
+    type: string
+    description: Use fragment keyword to allow the ACL to filter fragmented packets.
+        Use the non-fragment keyword to filter non-fragmented packets.
+            - fragment
+            - non-fragment
+    required: false
+    position: 23
+  precedence:
+    type: string
+    description: Match packets with given precedence value.
+        Allowed value { <0 to 7> | critical | flash |
+        flash-override | immediate | internet | network |
+        priority | routine  }
+    required: false
+    position: 24
+  option:
+    type: string
+    description: Match match IP option packets.
+        supported values are - 
+            any, eol, extended-security, ignore, loose-source-route
+            no-op, record-route, router-alert, security, streamid,
+            strict-source-route, timestamp             
+            Allowed value in decimal <0-255>.
+    required: false
+    position: 25
+  suppress_rpf_drop:
+    type: boolean
+    description: Permit packets that fail RPF check
+    required: false
+    position: 26
+  priority:
+    type: integer
+    description: set priority. Allowed value is <0-7>.
+    required: false
+    position: 27
+  priority_force:
+    type: integer
+    description: force packet outgoing priority. Allowed value is <0-7>.
+    required: false
+    position: 28
+  priority_mapping:
+    type: integer
+    description: map incoming packet priority. Allowed value is <0-7>.
+    required: false
+    position: 29
+  tos:
+    type: integer
+    description: Match packets with given TOS value.
+        Allowed value in decimal <0-15>.
+    required: false
+    position: 30

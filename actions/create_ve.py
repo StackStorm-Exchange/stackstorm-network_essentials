@@ -112,17 +112,12 @@ class CreateVe(NosDeviceAction):
                                                         vrf_name=vrf_name,
                                                         rbridge_id=rbridge_id,
                                                         ve_name=str(ve_id))
-                    else:
-                        raise ValueError('Failed VRF check on device %s', self.host)
-
                     if changes['pre_validation_ip']:
                         changes['assign_ip'] =\
                             self._assign_ip_to_ve(device,
                                                   rbridge_id=rbridge_id,
                                                   ve_name=ve_id,
                                                   ip_address=ip_address)
-                    else:
-                        raise ValueError('Failed IP address check on device %s', self.host)
                 elif vrf_name is not None and vrf_name != '':
                     ve_exists =\
                         self._check_requirements_ve(device,
@@ -148,8 +143,6 @@ class CreateVe(NosDeviceAction):
                                                         vrf_name=vrf_name,
                                                         rbridge_id=rbridge_id,
                                                         ve_name=str(ve_id))
-                    else:
-                        raise ValueError('Failed VRF check on device %s', self.host)
                 elif ip_address is not None and ip_address != '':
                     ip_address = temp_address
                     ve_exists =\
@@ -176,8 +169,6 @@ class CreateVe(NosDeviceAction):
                                                   rbridge_id=rbridge_id,
                                                   ve_name=ve_id,
                                                   ip_address=ip_address)
-                    else:
-                        raise ValueError('Failed IP address check on device %s', self.host)
                 elif ip_address is None and vrf_name is None:
                     ve_exists =\
                         self._check_requirements_ve(device,
@@ -248,24 +239,24 @@ class CreateVe(NosDeviceAction):
             if each_ve['ip-address'] != 'unassigned':
                 if each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] == ip_address:
-                    self.logger.error('Ip address %s on the VE %s is'
-                                      ' pre-existing on rbridge_id %s',
-                                      ip_address, ve_name, rbridge_id)
-                    sys.exit(-1)
+                    self.logger.info('Ip address %s on the VE %s is'
+                                     ' pre-existing on rbridge_id %s',
+                                     ip_address, ve_name, rbridge_id)
+                    return False
                 elif each_ve['if-name'] != tmp_ve_name and\
                         each_ve['ip-address'] == ip_address:
                     self.logger.error('Ip address %s is pre-assigned to a '
                                       'different %s on rbridge_id %s',
                                       ip_address, each_ve['if-name'],
                                       rbridge_id)
-                    sys.exit(-1)
+                    return False
                 elif each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] != ip_address:
                     self.logger.error('Ve %s is pre-assigned with a different'
                                       ' IP %s on rbridge_id %s',
                                       ve_name, each_ve['ip-address'],
                                       rbridge_id)
-                    sys.exit(-1)
+                    return False
                 elif ip_interface(unicode(ip_address)).network == \
                         ip_interface(unicode(each_ve['ip-address'])).network:
                     self.logger.error('IP address %s overlaps with a previously'
@@ -273,7 +264,7 @@ class CreateVe(NosDeviceAction):
                                       ' rbridge_id %s',
                                       ip_address, each_ve['if-name'],
                                       rbridge_id)
-                    sys.exit(-1)
+                    return False
 
         if vrf_name == '':
             vrf_fwd = device.interface.add_int_vrf(get=True,
