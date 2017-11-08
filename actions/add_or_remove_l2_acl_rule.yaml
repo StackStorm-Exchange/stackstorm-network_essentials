@@ -66,6 +66,8 @@ parameters:
     type: string
     description: Destination filter, can be 'any' or 'host', or the actual MAC of
       the destination in HHHH.HHHH.HHHH format.
+                MLX - Destination filter, can be 'any' or the actual MAC in
+      HHHH.HHHH.HHHH format.
     default: any
     position: 10
   dsthost:
