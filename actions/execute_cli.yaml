@@ -27,3 +27,8 @@ parameters:
     description: CLI commands to execute on the specified VDX device
     required: true
     position: 3
+  config_operation:
+    type: boolean
+    description: Flag to indicate whether commands are for configuration or show
+    default: False
+    position: 4

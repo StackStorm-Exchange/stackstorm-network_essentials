@@ -24,18 +24,18 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, mgmt_ip, username, password, cli_cmd):
+    def run(self, mgmt_ip, username, password, cli_cmd, config_operation):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
         self.logger.info('successfully connected to %s to find execute CLI %s', self.host, cli_cmd)
-        result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd)
+        result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd, config_operation)
         self.logger.info('closing connection to %s after executions cli cmds -- all done!',
                          self.host)
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd):
+    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation):
         opt = {'device_type': 'brocade_vdx'}
         opt['ip'] = mgmt_ip
         opt['username'] = username
@@ -46,10 +46,20 @@ class CliCMD(NosDeviceAction):
         cli_output = {}
         try:
             net_connect = ConnectHandler(**opt)
-            for cmd in cli_cmd:
-                cmd = cmd.strip()
-                cli_output[cmd] = (net_connect.send_command(cmd))
-                self.logger.info('successfully executed cli %s', cmd)
+            self.logger.info('successfully connected to %s to find execute CLI %s', self.host,
+                             cli_cmd)
+            if not config_operation:
+                for cmd in cli_cmd:
+                    cmd = cmd.strip()
+                    if not config_operation:
+                        cli_output[cmd] = (net_connect.send_command(cmd))
+                        self.logger.info('successfully executed cli %s', cmd)
+            else:
+                cli_output['output'] = (net_connect.send_config_set(cli_cmd))
+                self.logger.info('successfully executed config cli %s', cli_cmd)
+
+            self.logger.info('closing connection to %s after executions cli cmds -- all done!',
+                             self.host)
             return cli_output
         except (NetMikoTimeoutException, NetMikoAuthenticationException,
                 ) as e:
