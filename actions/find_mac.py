@@ -26,32 +26,12 @@ class FindMAC(NosDeviceAction):
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         results = []
-        try:
-            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
-            self.logger.info('successfully connected to %s to enable interface', self.host)
-        except AttributeError as e:
-            self.logger.info('Failed to connect to %s due to %s', self.host, e.message)
-            raise ValueError('Failed to connect to %s due to %s', self.host, e.message)
-        except ValueError as verr:
-            self.logger.error("Error while logging in to %s due to %s",
-                              self.host, verr.message)
-            raise ValueError("Error while logging in to %s due to %s",
-                             self.host, verr.message)
-        except self.ConnectionError as cerr:
-            self.logger.error("Connection failed while logging in to %s due to %s",
-                              self.host, cerr.message)
-            raise ValueError("Connection failed while logging in to %s due to %s",
-                             self.host, cerr.message)
-        except self.RestInterfaceError as rierr:
-            self.logger.error("Failed to get a REST response while logging in "
-                              "to %s due to %s", self.host, rierr.message)
-            raise ValueError("Failed to get a REST response while logging in "
-                             "to %s due to %s", self.host, rierr.message)
-        self._check_requirements(macs)
-        results = self._find_mac_addresses(device, macs)
-        self.logger.info('Closing connection to %s after searching MACs -- all done!',
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
+            self.logger.info('successfully connected to %s to find mac address', self.host)
+            self._check_requirements(macs)
+            results = self._find_mac_addresses(device, macs)
+            self.logger.info('Closing connection to %s after searching MACs -- all done!',
                          self.host)
-
         return results
 
     def _check_requirements(self, macs):
@@ -63,29 +43,28 @@ class FindMAC(NosDeviceAction):
 
         """ Find MACs found on interfaces in a VCS."""
         try:
-            mac_table = device.get_mac_address_table_rpc(None)
+            mac_table = device.services.mac_table
         except Exception as e:
             raise ValueError(e.message)
-        mac_list = []
         results = []
+        mac_list = []
         for mac in macs:
             mac_list.append(self.mac_converter(mac))
-        mac_result = mac_table[1][0][self.host]['response']['json']['output']['mac-address-table']
-        if type(mac_result) == dict:
-            mac_result = [mac_result, ]
         for each in mac_list:
             found = False
-            for mac in mac_result:
-                if mac['mac-address'] == each:
+            for mac in mac_table:
+                if mac['mac_address'] == each:
                     output = {}
                     found = True
-                    self.logger.info('mac-address %s found', each)
+                    self.logger.info('mac_address %s found', each)
                     for key, value in mac.iteritems():
                         output[key] = value
-                    if output['forwarding-interface']['interface-type'].startswith('port-channel'):
-                        output['member-ports'] = []
-                        port_channel_num = int(output['forwarding-interface']['interface-name'])
-                        members = self._get_port_channel_members(device, port_channel_num)
+                    if output['interface_type'] == 'port-channel':
+                        output['member_ports'] = []
+                        port_channel_num = output['interface_name']
+                        port_channels = device.interface.port_channels
+                        members = next((pc['interfaces'] for pc in port_channels
+                                      if pc['aggregator_id'] == port_channel_num), None)
                         for member in members:
                             output['member-ports'].\
                                 append(member['interface-type'] + ' ' + member['interface-name'])
