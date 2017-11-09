@@ -10,7 +10,6 @@ class Add_Ipv6_Rule_Acl(NosDeviceAction):
             vlan_id, count, log, mirror, copy_sflow, dscp_marking,
             fragment, drop_precedence, icmp_filter, tcp_operator):
 
-
         """Run helper methods to add an L3 IPV6 ACL rule to an existing ACL
         """
 
