@@ -25,17 +25,20 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
+    def run(self, mgmt_ip, username, password, cli_cmd, config_operation,
+            device_type='brocade_vdx'):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
-        op_result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd)
+        op_result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd,
+                                             config_operation)
         if op_result is not None:
             result = op_result
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, device_type, cli_cmd):
+    def execute_cli_command(self, mgmt_ip, username, password, device_type, cli_cmd,
+                            config_operation):
         opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
         opt['username'] = username
@@ -49,10 +52,16 @@ class CliCMD(NosDeviceAction):
             net_connect = ConnectHandler(**opt)
             self.logger.info('successfully connected to %s to find execute CLI %s', self.host,
                              cli_cmd)
-            for cmd in cli_cmd:
-                cmd = cmd.strip()
-                cli_output[cmd] = (net_connect.send_command(cmd))
-                self.logger.info('successfully executed cli %s', cmd)
+            if not config_operation:
+                for cmd in cli_cmd:
+                    cmd = cmd.strip()
+                    if not config_operation:
+                        cli_output[cmd] = (net_connect.send_command(cmd))
+                        self.logger.info('successfully executed cli %s', cmd)
+            else:
+                cli_output['output'] = (net_connect.send_config_set(cli_cmd))
+                self.logger.info('successfully executed config cli %s', cli_cmd)
+
             self.logger.info('closing connection to %s after executions cli cmds -- all done!',
                              self.host)
             return cli_output
