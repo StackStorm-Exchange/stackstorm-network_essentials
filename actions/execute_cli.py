@@ -51,9 +51,8 @@ class CliCMD(NosDeviceAction):
             if not config_operation:
                 for cmd in cli_cmd:
                     cmd = cmd.strip()
-                    if not config_operation:
-                        cli_output[cmd] = (net_connect.send_command(cmd))
-                        self.logger.info('successfully executed cli %s', cmd)
+                    cli_output[cmd] = (net_connect.send_command(cmd))
+                    self.logger.info('successfully executed cli %s', cmd)
             else:
                 cli_output['output'] = (net_connect.send_config_set(cli_cmd))
                 self.logger.info('successfully executed config cli %s', cli_cmd)
