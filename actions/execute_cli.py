@@ -24,7 +24,7 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, mgmt_ip, username, password, cli_cmd, config_operation):
+    def run(self, mgmt_ip, username, password, cli_cmd, config_operation=False):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
