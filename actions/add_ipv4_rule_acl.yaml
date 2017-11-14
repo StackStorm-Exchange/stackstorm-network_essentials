@@ -43,11 +43,7 @@ parameters:
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
-      For MLX - Type of IP packets to be filtered based on protocol. 
-                Valid values are <0-255> or key words specifying protocols.
-                MLX supports wide range of protocols e.g. 
-                a_n,ahp,argus,aris,ax25,bbn-rcc,bna,br-sat-mon,cbt,cftp,
-                chaos,compaq-peer,cphb,cpnx,crdup,crtp,dcn, etc.
+      For MLX - Valid values are <0-255> or supported protocol keywords.
     position: 6
   source:
     type: string
@@ -177,3 +173,22 @@ parameters:
         Allowed value in decimal <0-15>.
     required: false
     position: 30
+  established:
+    type: boolean
+    description: This policy applies only to TCP packets that have the ACK or
+        RST bits set on.
+    required: false
+    position: 31
+  icmp_filter:
+    type: string
+    description: Specify ICMP type and ICMP code or ICMP message. Format is
+      [ [icmp-type <vlaue>] [icmp-code <value>] ] | [icmp-message <value>]
+      icmp-type and icmp-code values are between 0-255. Refer configuration
+      guide of device for supported icmp-messages.
+    position: 32
+  drop_precedence:
+    type: string
+    description: Matches the drop_precedence value of the packet.
+       Allowed values are 0 through 2.
+       For MLX - Allowed values are 0 through 3.
+    position: 33
