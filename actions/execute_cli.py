@@ -35,7 +35,7 @@ class CliCMD(NosDeviceAction):
                          self.host)
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation):
+    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation=False):
         opt = {'device_type': 'brocade_vdx'}
         opt['ip'] = mgmt_ip
         opt['username'] = username
