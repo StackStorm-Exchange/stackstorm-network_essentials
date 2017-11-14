@@ -28,14 +28,13 @@ class CliCMD(NosDeviceAction):
     def run(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         result = {}
-        op_result = self.execute_cli_command(mgmt_ip, username, password, device_type, cli_cmd)
+        op_result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd, device_type)
         if op_result is not None:
             result = op_result
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, device_type, cli_cmd):
+    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
         opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
         opt['username'] = username
@@ -59,7 +58,7 @@ class CliCMD(NosDeviceAction):
         except (NetMikoTimeoutException, NetMikoAuthenticationException,
                 ) as e:
             reason = e.message
-            self.logger.error('Failed to execute cli on %s due to %s', mgmt_ip, reason)
+            self.logger.error('Failed2 to execute cli on %s due to %s', mgmt_ip, reason)
             sys.exit(-1)
         except SSHException as e:
             reason = e.message
