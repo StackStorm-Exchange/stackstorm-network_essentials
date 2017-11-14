@@ -58,7 +58,7 @@ class CliCMD(NosDeviceAction):
         except (NetMikoTimeoutException, NetMikoAuthenticationException,
                 ) as e:
             reason = e.message
-            self.logger.error('Failed2 to execute cli on %s due to %s', mgmt_ip, reason)
+            self.logger.error('Failed to execute cli on %s due to %s', mgmt_ip, reason)
             sys.exit(-1)
         except SSHException as e:
             reason = e.message
