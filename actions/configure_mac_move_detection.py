@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from ne_base import NosDeviceAction
+import sys
 
 
 class ConfigureMacMoveDetection(NosDeviceAction):
@@ -42,7 +43,11 @@ class ConfigureMacMoveDetection(NosDeviceAction):
         """
         is_mac_move_detect = True
         is_move_threshold = True
-        mac_move = device.interface.mac_move_detect_enable(get=True)
+        try:
+            mac_move = device.interface.mac_move_detect_enable(get=True)
+        except NotImplementedError as e:
+            self.logger.error("Mac move enable failed %s" % (e.message))
+            sys.exit(-1)
         if mac_move is not None:
             self.logger.info('Mac Move detect enable already configured')
             is_mac_move_detect = False
