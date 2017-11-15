@@ -26,12 +26,24 @@ parameters:
     description: Single VLAN or range of VLANs, for example 2 or 3-9
     required: true
     position: 3
+  intf_type:
+    type: string
+    enum:
+      - gigabitethernet
+      - tengigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+      - ethernet
+    description: Interface type
+    required: true
+    position: 4
   intf_name:
     type: string
     description: Interface names, can be comma separated physical ports, port channel
       numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9
     required: true
-    position: 4
+    position: 5
   intf_mode:
     type: string
     enum:
@@ -39,7 +51,7 @@ parameters:
       - access
     default: access
     description: Interface mode
-    position: 5
+    position: 6
 tags:
   - name: group
     value: Validate Edge Ports
