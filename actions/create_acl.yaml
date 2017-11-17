@@ -34,7 +34,6 @@ parameters:
       - standard
       - extended
     description: ACL type, extended or standard
-    required: true
     position: 4
   acl_name:
     type: string
