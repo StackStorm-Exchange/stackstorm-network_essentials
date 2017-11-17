@@ -140,7 +140,7 @@ class CreatePortChannel(NosDeviceAction):
         actual_line_speed = False
         po_speed = None
         if device.os_type == 'slxos':
-            po_speed = self._get_current_port_speed(device, intf_name)
+            po_speed = self._get_current_port_speed(device, intf_type, intf_name)
             actual_line_speed = True
         if po_speed is None:
             if intf_type == "ethernet":
@@ -300,21 +300,22 @@ class CreatePortChannel(NosDeviceAction):
 
         return True
 
-    def _get_current_port_speed(self, device, intf_name):
-        """Fabric neighbor discovery settings on the interface.
+    def _get_current_port_speed(self, device, intf_type, intf_name):
+        """Get the actual line speed on the port.
         """
 
         exec_cli = CliCMD()
         host_ip = self.host
-        host_username = self.auth[0]
-        host_password = self.auth[1]
+        host_username = self.auth_snmp[0]
+        host_password = self.auth_snmp[1]
 
         intf = random.choice(intf_name)
-        cli_cmd = 'show interface ethernet' + " " + intf
+        cli_cmd = 'show interface ' + intf_type + " " + intf
 
+        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
-                                                      cli_cmd=[cli_cmd])
+                                                      cli_cmd=[cli_cmd], device_type=device_type)
         cli_output = raw_cli_output[cli_cmd]
         tmp_speed = re.search(r'(LineSpeed Actual     : )(\d+)', cli_output)
         port_speed = None

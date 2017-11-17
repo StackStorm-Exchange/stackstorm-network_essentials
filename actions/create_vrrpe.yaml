@@ -21,27 +21,32 @@ parameters:
     description: Login password to connect to the device
     secret: true
     position: 2
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - ve
+    description: Interface type, VDX/SLX supports only ve and MLX supports both
+    required: true
+    position: 3
+  intf_name:
+    type: string
+    description: name of the interface
+    required: true
+    position: 4
   rbridge_id:
     type: string
     description: RBridge ID of the VDX switch.  This parameter is only applicable
       for VDX switches.
     required: false
-    position: 3
-  ve_name:
-    type: string
-    description: Interface VE name
-    required: true
-    position: 4
+    position: 5
   vrid:
     type: string
     description: Virtual group ID
     required: true
-    position: 5
+    position: 6
   virtual_ip:
     type: string
     description: VRRPe virtual IP address without the netmask
-    position: 6
+    position: 7
     required: true
-
-
-
