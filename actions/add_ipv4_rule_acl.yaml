@@ -181,10 +181,47 @@ parameters:
     position: 31
   icmp_filter:
     type: string
-    description: Specify ICMP type and ICMP code or ICMP message. Format is
-      [ [icmp-type <vlaue>] [icmp-code <value>] ] | [icmp-message <value>]
-      icmp-type and icmp-code values are between 0-255. Refer configuration
-      guide of device for supported icmp-messages.
+    description: ICMP message type to be filtered.
+    enum:
+        - administratively-prohibited
+        - any-icmp-type
+        - destination-host-prohibited
+        - destination-host-unknown
+        - destination-net-prohibited
+        - destination-network-unknown
+        - echo
+        - echo-reply
+        - general-parameter-problem
+        - host-precedence-violation
+        - host-redirect
+        - host-tos-redirec
+        - host-tos-unreachable
+        - host-unreachable
+        - information-reply
+        - information-request
+        - mask-reply
+        - mask-request
+        - net-redirect
+        - net-tos-redirect
+        - net-tos-unreachable
+        - net-unreachable
+        - packet-too-big
+        - parameter-problem
+        - port-unreachable
+        - precedence-cutoff
+        - protocol-unreachable
+        - reassembly-timeout
+        - redirect
+        - router-advertisement
+        - router-solicitation
+        - source-host-isolated
+        - source-quench
+        - source-route-failed
+        - time-exceeded
+        - timestamp-reply
+        - timestamp-request
+        - ttl-exceeded
+        - unreachable
     position: 32
   drop_precedence:
     type: string
