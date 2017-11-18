@@ -28,18 +28,23 @@ class DeleteDeviceCredentials(Action):
             self).__init__(
             config=config,
             action_service=action_service)
-        self.host = None
 
     def run(self, mgmt_ip):
+        lookup_key = self._get_lookup_key(mgmt_ip, 'user')
+        user_kv = self.action_service.get_value(name=lookup_key, local=False)
+        if not user_kv:
+            self.logger.error("Device not registered. Verify the device ip.")
+            exit(-1)
         self._delete_device(mgmt_ip)
 
-    def _get_prefix(self, host):
-        return 'switch.%s' % (host)
+    def _get_lookup_key(self, host, key):
+        return 'switch.%s.%s' % (host, key)
 
     def _delete_device(self, host):
 
-        devprefix = self._get_prefix(host)
-        listval = self.action_service.list_values(local=False, prefix=devprefix)
+        keylist = ['user', 'passwd', 'enablepass', 'ostype', 'snmpver', 'snmpport',
+                   'snmpv2c', 'v3user', 'v3auth', 'v3priv', 'authpass', 'privpass']
 
-        for item in listval:
-            self.action_service.delete_value(name=item.name, local=False)
+        for item in keylist:
+            lookup_name = self._get_lookup_key(host, item)
+            self.action_service.delete_value(name=lookup_name, local=False)
