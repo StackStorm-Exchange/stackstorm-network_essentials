@@ -239,6 +239,7 @@ class CreateSwitchPort(NosDeviceAction):
         except Exception as e:
             error_msg = str(e.message)
             self.logger.error("Configuring Switch port access failed due to %s", error_msg)
+            exit(-1)
 
     def _config_switchport_mac_group(self, device, intf_type, intf_name, mac_gps):
         """Associate the Mac Group to the Access Vlan.

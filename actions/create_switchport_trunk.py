@@ -49,7 +49,7 @@ class CreateSwitchPort(NosDeviceAction):
             if device.os_type != 'nos' and c_tag is not None:
                 self.logger.error('c_tag mapping under switchport is not '
                                   'supported on this platform')
-                return
+                exit(-1)
 
             if vlan_id == 'all':
                 vlan_action = 'all'
