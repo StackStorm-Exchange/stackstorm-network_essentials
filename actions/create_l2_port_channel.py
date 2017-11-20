@@ -28,7 +28,7 @@ class CreatePortChannel(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, ports, intf_type, port_channel_id,
-           protocol, mode, port_channel_desc):
+           protocol, mode, port_channel_desc, port_speed):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -71,7 +71,8 @@ class CreatePortChannel(NosDeviceAction):
                                                               portchannel_num=port_channel_id,
                                                               channel_type=mode,
                                                               mode_type=protocol,
-                                                              intf_desc=port_channel_desc)
+                                                              intf_desc=port_channel_desc,
+                                                              port_speed=port_speed)
             self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
             if device.os_type == 'nos':
                 changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
@@ -131,13 +132,16 @@ class CreatePortChannel(NosDeviceAction):
         return True
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
-                             channel_type, mode_type, intf_desc):
+                             channel_type, mode_type, intf_desc, port_speed):
         """ Configuring the port channel and channel-group,
             Admin state up on interface and port-channel."""
         actual_line_speed = False
         po_speed = None
         if device.os_type == 'slxos':
-            po_speed = self._get_current_port_speed(device, intf_type, intf_name)
+            if port_speed is None:
+                po_speed = self._get_current_port_speed(device, intf_type, intf_name)
+            else:
+                po_speed = port_speed
             actual_line_speed = True
         if po_speed is None:
             if intf_type == "ethernet":
@@ -311,7 +315,6 @@ class CreatePortChannel(NosDeviceAction):
         if len(set(speed_list)) != 1:
             self.logger.error('Port channel group member ports cannot be of different port speeds')
             raise ValueError('Port channel group member ports cannot be of different port speeds')
-
         port_speed = None
         if list(set(speed_list))[0] == "1Gbps":
             port_speed = "1000"
