@@ -14,9 +14,6 @@
 
 import pyswitch.utilities
 import sys
-import re
-import random
-from execute_cli import CliCMD
 from ne_base import NosDeviceAction
 
 
@@ -31,7 +28,7 @@ class CreatePortChannel(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, ports, intf_type, port_channel_id,
-           protocol, mode, port_channel_desc):
+           protocol, mode, port_channel_desc, port_speed):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -41,6 +38,10 @@ class CreatePortChannel(NosDeviceAction):
 
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
+
+            if device.os_type not in ['slxos', 'nos'] and port_speed is not None:
+                self.logger.error('port_speed args is not valid on this platform ')
+                sys.exit(-1)
             if device.os_type == 'slxos':
                 if mode != "standard":
                     self.logger.error('SLXOS only supports port-channel type as standard')
@@ -76,7 +77,8 @@ class CreatePortChannel(NosDeviceAction):
                                                               portchannel_num=port_channel_id,
                                                               channel_type=mode,
                                                               mode_type=protocol,
-                                                              intf_desc=port_channel_desc)
+                                                              intf_desc=port_channel_desc,
+                                                              port_speed=port_speed)
             self.logger.info('intf_type {0} ports {1}'.format(intf_type, ports))
             if device.os_type == 'nos':
                 changes['fabric_isl_disable'] = self._disable_isl(device, intf_type, ports)
@@ -136,14 +138,18 @@ class CreatePortChannel(NosDeviceAction):
         return True
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
-                             channel_type, mode_type, intf_desc):
+                             channel_type, mode_type, intf_desc, port_speed):
         """ Configuring the port channel and channel-group,
             Admin state up on interface and port-channel."""
         actual_line_speed = False
         po_speed = None
-        if device.os_type == 'slxos':
-            po_speed = self._get_current_port_speed(device, intf_type, intf_name)
+        if device.os_type in ['slxos', 'nos']:
+            if port_speed is None:
+                po_speed = self._get_current_port_speed(device, intf_type, intf_name)
+            else:
+                po_speed = port_speed
             actual_line_speed = True
+
         if po_speed is None:
             if intf_type == "ethernet":
                 po_speed = "10000"
@@ -168,9 +174,8 @@ class CreatePortChannel(NosDeviceAction):
             except (ValueError, KeyError) as e:
                 error_message = str(e.message)
                 self.logger.error(error_message)
-                self.logger.error('Port Channel %s Creation and setting channel mode %s failed',
-                                 portchannel_num,
-                                 channel_type)
+                self.logger.error('Port Channel %s Creation and setting channel mode %s failed'
+                                  ' due to %s ', portchannel_num, channel_type, str(e.message))
                 sys.exit(-1)
 
             # no-shut on the interface
@@ -306,24 +311,28 @@ class CreatePortChannel(NosDeviceAction):
         """Get the actual line speed on the port.
         """
 
-        exec_cli = CliCMD()
-        host_ip = self.host
-        host_username = self.auth_snmp[0]
-        host_password = self.auth_snmp[1]
+        intf_list = device.interface.interfaces
+        speed_list = []
+        for each_int in intf_list:
+            if each_int['if-name'] is not None:
+                tmp_intf = each_int['if-name'].split(' ')[1]
+                if tmp_intf in intf_name:
+                    speed_list.append(each_int['actual-speed'])
 
-        intf = random.choice(intf_name)
-        cli_cmd = 'show interface ' + intf_type + " " + intf
+        if len(set(speed_list)) != 1:
+            self.logger.error('Port channel group member ports cannot be of different port speeds')
+            raise ValueError('Port channel group member ports cannot be of different port speeds')
 
-        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
-        raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
-                                                      password=host_password,
-                                                      cli_cmd=[cli_cmd], device_type=device_type)
-        cli_output = raw_cli_output[cli_cmd]
-        tmp_speed = re.search(r'(LineSpeed Actual     : )(\d+)', cli_output)
         port_speed = None
-        if tmp_speed is not None:
-            port_speed = tmp_speed.group(2)
-            if int(tmp_speed.group(2)) not in [1000, 10000, 25000, 40000, 100000]:
-                self.logger.error('Invalid actual linespeed found in %s output', cli_cmd)
-                raise ValueError('Invalid actual linespeed found in show output')
+        if list(set(speed_list))[0] == "1Gbps":
+            port_speed = "1000"
+        if list(set(speed_list))[0] == "10Gbps":
+            port_speed = "10000"
+        if list(set(speed_list))[0] == "25Gbps":
+            port_speed = "25000"
+        if list(set(speed_list))[0] == "40Gbps":
+            port_speed = "40000"
+        if list(set(speed_list))[0] == "100Gbps":
+            port_speed = "100000"
+
         return port_speed
