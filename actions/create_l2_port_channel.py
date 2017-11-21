@@ -44,16 +44,18 @@ class CreatePortChannel(NosDeviceAction):
                 sys.exit(-1)
             if device.os_type == 'slxos':
                 if mode != "standard":
-                    self.logger.info('SLXOS only supports port-channel type as standard')
+                    self.logger.error('SLXOS only supports port-channel type as standard')
                     sys.exit(-1)
             if device.os_type == 'NI':
-                mode = "standard"
+                if mode != "standard":
+                    self.logger.error('MLX only supports port-channel type as standard')
+                    sys.exit(-1)
                 if protocol == "on":
                     protocol = "static"
                 elif protocol == "active":
                     protocol = "dynamic"
                 else:
-                    self.logger.info('NI/MLX doesnt support port-channel protocol %s', protocol)
+                    self.logger.error('NI/MLX doesnt support port-channel protocol %s', protocol)
                     sys.exit(-1)
 
             changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
