@@ -506,7 +506,7 @@ class NosDeviceAction(Action):
                 intf = intf_name
             else:
                 msg = 'Invalid interface format'
-        elif os_type == "slxos":
+        elif os_type == "slxos" or os_type == "NI":
             if re.search(re_pattern1, intf_name):
                 intf = intf_name
             elif re.search(re_pattern2, intf_name) and intf_type in NosIntTypes:
