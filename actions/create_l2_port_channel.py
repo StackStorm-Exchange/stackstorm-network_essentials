@@ -40,7 +40,7 @@ class CreatePortChannel(NosDeviceAction):
             self.logger.info('successfully connected to %s to create port channel', self.host)
 
             if device.os_type not in ['slxos', 'nos'] and port_speed is not None:
-                self.logger.info('port_speed args is not vlaid on this platform ')
+                self.logger.error('port_speed args is not valid on this platform ')
                 sys.exit(-1)
             if device.os_type == 'slxos':
                 if mode != "standard":
