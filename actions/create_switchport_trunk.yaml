@@ -50,7 +50,7 @@ parameters:
     type: string
     description:  For 802.1Q VLANs, single or range of VLANs, for example, 5 or 4-7
       or 4,6,9-11 or all; ID must be below 4096.  For service or transport VFs, single
-      ID, range can be from 4096 through 8191. For MLX vlan range <0-4090>.
+      ID, range can be from 4096 through 8191. For MLX vlan range <1-4090>.
     position: 6
   c_tag:
     type: string
