@@ -43,7 +43,8 @@ parameters:
   mtu_size:
     type: integer
     description: For SLX IPV4/IPV6 MTU size in bytes <Number:1300-9194>. For VDX IPV4
-      <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes.
+      <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes. For MLX
+      IPv4 <576-8982> or IPv6 <1280-8982>.
     required: true
     position: 5
   afi:
