@@ -38,6 +38,10 @@ class CreatePortChannel(NosDeviceAction):
 
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create port channel', self.host)
+
+            if device.os_type not in ['slxos', 'nos'] and port_speed is not None:
+                self.logger.info('port_speed args is not vlaid on this platform ')
+                sys.exit(-1)
             if device.os_type == 'slxos':
                 if mode != "standard":
                     self.logger.info('SLXOS only supports port-channel type as standard')
@@ -137,12 +141,13 @@ class CreatePortChannel(NosDeviceAction):
             Admin state up on interface and port-channel."""
         actual_line_speed = False
         po_speed = None
-        if device.os_type == 'slxos':
+        if device.os_type in ['slxos', 'nos']:
             if port_speed is None:
                 po_speed = self._get_current_port_speed(device, intf_type, intf_name)
             else:
                 po_speed = port_speed
             actual_line_speed = True
+
         if po_speed is None:
             if intf_type == "ethernet":
                 po_speed = "10000"
@@ -315,11 +320,14 @@ class CreatePortChannel(NosDeviceAction):
         if len(set(speed_list)) != 1:
             self.logger.error('Port channel group member ports cannot be of different port speeds')
             raise ValueError('Port channel group member ports cannot be of different port speeds')
+
         port_speed = None
         if list(set(speed_list))[0] == "1Gbps":
             port_speed = "1000"
         if list(set(speed_list))[0] == "10Gbps":
             port_speed = "10000"
+        if list(set(speed_list))[0] == "25Gbps":
+            port_speed = "25000"
         if list(set(speed_list))[0] == "40Gbps":
             port_speed = "40000"
         if list(set(speed_list))[0] == "100Gbps":

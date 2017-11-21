@@ -43,9 +43,10 @@ parameters:
     enum:
       - 1000
       - 10000
+      - 25000
       - 40000
       - 100000
-    description: Configurable port speed. Supported only on SLX. 
+    description: Configurable port speed. Supported on SLX and VDX. 
     position: 5
   port_channel_id:
     type: string
