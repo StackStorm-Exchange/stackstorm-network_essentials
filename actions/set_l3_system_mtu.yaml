@@ -24,7 +24,7 @@ parameters:
   mtu_size:
     type: integer
     description: MTU size in bytes <Number:1300-9100> for IPV4, <Number:1280-9100>
-      for IPV6
+      for IPV6 , for MLX IPv4 <576-9198> , IPv6 <1280-8982>
     required: true
     position: 3
   afi:

@@ -43,11 +43,7 @@ parameters:
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
-      For MLX - Type of IP packets to be filtered based on protocol. 
-                Valid values are <0-255> or key words specifying protocols.
-                MLX supports wide range of protocols e.g. 
-                a_n,ahp,argus,aris,ax25,bbn-rcc,bna,br-sat-mon,cbt,cftp,
-                chaos,compaq-peer,cphb,cpnx,crdup,crtp,dcn, etc.
+      For MLX - Valid values are <0-255> or supported protocol keywords.
     position: 6
   source:
     type: string
@@ -177,3 +173,59 @@ parameters:
         Allowed value in decimal <0-15>.
     required: false
     position: 30
+  established:
+    type: boolean
+    description: This policy applies only to TCP packets that have the ACK or
+        RST bits set on.
+    required: false
+    position: 31
+  icmp_filter:
+    type: string
+    description: ICMP message type to be filtered.
+    enum:
+        - administratively-prohibited
+        - any-icmp-type
+        - destination-host-prohibited
+        - destination-host-unknown
+        - destination-net-prohibited
+        - destination-network-unknown
+        - echo
+        - echo-reply
+        - general-parameter-problem
+        - host-precedence-violation
+        - host-redirect
+        - host-tos-redirec
+        - host-tos-unreachable
+        - host-unreachable
+        - information-reply
+        - information-request
+        - mask-reply
+        - mask-request
+        - net-redirect
+        - net-tos-redirect
+        - net-tos-unreachable
+        - net-unreachable
+        - packet-too-big
+        - parameter-problem
+        - port-unreachable
+        - precedence-cutoff
+        - protocol-unreachable
+        - reassembly-timeout
+        - redirect
+        - router-advertisement
+        - router-solicitation
+        - source-host-isolated
+        - source-quench
+        - source-route-failed
+        - time-exceeded
+        - timestamp-reply
+        - timestamp-request
+        - ttl-exceeded
+        - unreachable
+    position: 32
+  drop_precedence:
+    type: string
+    description: Matches the drop_precedence value of the packet.
+       Allowed values are 0 through 2.
+       For MLX - Allowed values are 0 through 3.
+    position: 33

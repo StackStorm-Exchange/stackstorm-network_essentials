@@ -2,7 +2,7 @@
 name: get_os_version
 pack: network_essentials
 runner_type: run-python
-description: Get Operating System (OS) version of a VDX or SLX device
+description: Get Operating System (OS) version of the network device
 enabled: true
 entry_point: get_os_version.py
 parameters:

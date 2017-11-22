@@ -56,7 +56,7 @@ class CreateVRF(NosDeviceAction):
                     if validate_vrf_afi:
                         changes['Create_address_family'] = self._create_vrf_afi(
                             device, rb_id,
-                            vrf_name, afi)
+                            vrf_name, afi, rd)
                     self.logger.info('closing connection to %s after Create VRF '
                                      '- all done!',
                                      self.host)
@@ -147,16 +147,18 @@ class CreateVRF(NosDeviceAction):
 
         exec_cli = CliCMD()
         host_ip = self.host
-        host_username = self.auth[0]
-        host_password = self.auth[1]
+        host_username = self.auth_snmp[0]
+        host_password = self.auth_snmp[1]
         cli_arr = []
         cli_cmd = 'show vrf ' + vrf_name
         cli_arr.append(cli_cmd)
 
+        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
+
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip,
                                                       username=host_username,
                                                       password=host_password,
-                                                      cli_cmd=cli_arr)
+                                                      cli_cmd=cli_arr, device_type=device_type)
         output = str(raw_cli_output)
         self.logger.info(output)
         return True
