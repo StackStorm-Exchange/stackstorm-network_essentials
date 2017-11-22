@@ -8,7 +8,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             drop_precedence_force, urg, ack, push, fin, rst, sync,
             vlan_id, count, log, mirror, copy_sflow, dscp_marking,
             fragment, precedence, option, suppress_rpf_drop,
-            priority, priority_force, priority_mapping, tos):
+            priority, priority_force, priority_mapping, tos,
+            established, icmp_filter, drop_precedence):
 
         """Run helper methods to add an L3 IPV4 ACL rule to an existing ACL
         """
@@ -20,7 +21,9 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                                      mirror, copy_sflow, dscp_marking,
                                      fragment, precedence, option,
                                      suppress_rpf_drop, priority,
-                                     priority_force, priority_mapping, tos)
+                                     priority_force, priority_mapping, tos,
+                                     established, icmp_filter,
+                                     drop_precedence)
 
     @log_exceptions
     def switch_operation(self, acl_name, seq_id, action, protocol_type,
@@ -28,7 +31,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                          urg, ack, push, fin, rst, sync, vlan_id, count,
                          log, mirror, copy_sflow, dscp_marking, fragment,
                          precedence, option, suppress_rpf_drop, priority,
-                         priority_force, priority_mapping, tos):
+                         priority_force, priority_mapping, tos,
+                         established, icmp_filter, drop_precedence):
         params_config = locals()
         params_config.pop('self', None)
 

@@ -35,9 +35,8 @@ parameters:
   timeout_value:
     type: integer
     description: Timeout parameter for the ping command. Specifies the time (in seconds)
-      to wait for a response.
+      to wait for a response. Default value 1 sec for SLX/VDX and 50 sec for MLX.
     required: false
-    default: 1
     position: 5
   count:
     type: integer

@@ -43,6 +43,7 @@ parameters:
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are 0 through 255 or key words tcp, udp, icmp or ip
+      MLX supported key words are - ahp, esp, icmp, ipv6, sctp, tcp, udp 
     position: 6
   source:
     type: string
@@ -60,10 +61,12 @@ parameters:
     type: string
     description: Matches the specified value against the DSCP value of the packet
       to filter.  Can be either a numerical value or DSCP name
+        For MLX - Only numerical value in range of 0-63 is allowed.
     position: 9
   drop_precedence_force:
     type: string
     description: Matches the drop_precedence value of the packet.  Allowed values are 0 through 2.
+        MLX- Allowed range is <0-3>.
     position: 10
   urg:
     type: string
@@ -109,3 +112,41 @@ parameters:
     type: string
     description: Enables copy-sflow for the rule
     position: 21
+  dscp_marking:
+    type: string
+    description: dscp-marking number is used to mark the DSCP value in the
+        incoming packet with the value you specify to filter.
+        Allowed values are 0 through 63.
+    required: false
+    position: 22
+  fragment:
+    type: boolean
+    description: The policy applies to fragmented packets that
+        contain a non-zero fragment offset.
+    required: false
+    position: 23
+    default: false
+  drop_precedence:
+    type: string
+    description: Matches the drop_precedence value of the packet. MLX- Allowed range is <0-3>.
+    position: 24
+  icmp_filter:
+    type: string
+    description: Specify ICMP type and ICMP code or ICMP message. Format is
+        [ [ icmp-type <vlaue> ] [ icmp-code <value> ] ] | [ icmp-message <value> ]
+        icmp-type and icmp-code values are between 0-255.
+        icmp-message value can be one of these
+            beyond-scope, destination-unreachable, dscp, echo-reply, echo-request,
+            flow-label, fragments, header, hop-limit, mld-query, mld-reduction,
+            mld-report, nd-na, nd-ns, next-header, no-admin, no-route,
+            packet-too-big, parameter-option, parameter-problem,
+            port-unreachable, reassembly-timeout, renum-command,
+            renum-result, renum-seq-number, router-advertisement,
+            router-renumbering, router-solicitation, routing, sequence,
+            time-exceeded, unreachable
+    position: 25
+  tcp_operator:
+    type: string
+    description: Specifies a comparison operator for the TCP port. This parameter applies
+        only when you specify tcp as the protocol.  Allowed values are [established, syn]
+    position: 26

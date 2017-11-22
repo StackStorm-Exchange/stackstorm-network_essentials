@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from ne_base import NosDeviceAction
-import pyswitch.utilities
 from pyswitch.device import Device
 
 
@@ -24,7 +23,8 @@ class DeleteVrrpe(NosDeviceAction):
            2.Delete vrrpe group on the vlan
     """
 
-    def run(self, mgmt_ip, username, password, vlan_id, rbridge_id, vrrpe_group, ip_version):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name,
+         rbridge_id, vrrpe_group, ip_version):
         """Run helper methods to implement the desired state.
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -34,53 +34,69 @@ class DeleteVrrpe(NosDeviceAction):
             self.validate_supports_rbridge(device, rbridge_id=rbridge_id)
             self.logger.info('successfully connected to %s to Delete VRRPe group',
                              self.host)
-            changes['pre_check'] = self._validate_if_ve_exists(device, vlan_id, vrrpe_group)
-            if changes['pre_check']:
-                changes['VRRPe_group'] = self._delete_vrrpe(device, ve_name=vlan_id,
-                                                            rbridge_id=rbridge_id,
-                                                            vrrpe_group=vrrpe_group,
-                                                            ip_version=ip_version)
+
+            # validate supported interface type for vrrpe
+            device.interface.vrrpe_supported_intf(intf_type=intf_type)
+
+            if intf_type == 've':
+                changes['pre_check'] = self._validate_if_ve_exists(device,
+                        intf_name, vrrpe_group)
             else:
-                raise ValueError('Ve doesnt exist on the switch', vlan_id)
+                changes['pre_check'] = self._validate_l3_eth_if_exists(device,
+                                        intf_name, vrrpe_group)
+            if changes['pre_check']:
+                changes['VRRPe_group'] = self._delete_vrrpe(device,
+                          intf_type=intf_type, intf_name=intf_name,
+                          rbridge_id=rbridge_id, vrrpe_group=vrrpe_group,
+                          ip_version=ip_version)
+            else:
+                raise ValueError('intferface %s does not exist on the switch' %
+                               intf_name)
             self.logger.info('closing connection to %s after'
                              ' Deleting VRRPe group -- all done!', self.host)
         return changes
 
-    def _validate_if_ve_exists(self, device, vlan_id, vrrpe_group):
-        """validate vlan_id and ve
+    def _validate_if_ve_exists(self, device, intf_name, vrrpe_group):
+        """validate  ve
         """
 
         if vrrpe_group is None:
             raise ValueError('VRRPe group cannot be None')
         elif int(vrrpe_group) < 1 or int(vrrpe_group) > 255:
             raise ValueError('VRRPe group has to be in range of 1-255', vrrpe_group)
-        if device.os_type == 'nos':
-            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
-        else:
-            valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=False)
-
-        if not valid_vlan:
-            raise ValueError('Invalid vlan_id', vlan_id)
-
-        vlan_id_exists = device.interface.get_vlan_int(vlan_id)
-        if not vlan_id_exists:
-            raise ValueError('vlan_id doesnt exist', vlan_id)
-
         is_exists = False
         vlan_list = device.interface.ve_interfaces()
 
         for each_ve in vlan_list:
-            tmp_ve_name = 'Ve ' + vlan_id
+            tmp_ve_name = 'Ve ' + intf_name
             if each_ve['if-name'] == tmp_ve_name:
                 is_exists = True
                 break
         return is_exists
 
-    def _delete_vrrpe(self, device, ve_name, rbridge_id, vrrpe_group, ip_version):
+    def _validate_l3_eth_if_exists(self, device, intf_name, vrrpe_group):
+        """validate l3 ethernet interface
+        """
+
+        if vrrpe_group is None:
+            raise ValueError('VRRPe group cannot be None')
+        elif int(vrrpe_group) < 1 or int(vrrpe_group) > 255:
+            raise ValueError('VRRPe group has to be in range of 1-255', vrrpe_group)
+        is_exists = False
+        eth_list = device.interface.get_eth_l3_interfaces()
+
+        for each_intf in eth_list:
+            tmp_intf_name = 'eth ' + intf_name
+            if each_intf['if-name'] == tmp_intf_name:
+                is_exists = True
+                break
+        return is_exists
+
+    def _delete_vrrpe(self, device, intf_type, intf_name, rbridge_id, vrrpe_group, ip_version):
         """ Deleting VRRPe group"""
 
         is_vrrpe_present = True
-        user_ve = str(ve_name)
+        user_intf = str(intf_name)
         user_vrrpe = str(vrrpe_group)
         if ip_version is None or ip_version == 'IPv4':
             ip_version = 4
@@ -90,30 +106,34 @@ class DeleteVrrpe(NosDeviceAction):
         if rbridge_id and device.os_type == 'nos':
             for rbid in rbridge_id:
                 rb = str(rbid)
-                tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, int_type='ve', name=user_ve,
-                                                             version=ip_version, rbridge_id=rb,
-                                                             vrid=user_vrrpe)
+                tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True,
+                     int_type=intf_type, name=user_intf, version=ip_version,
+                     rbridge_id=rb, vrid=user_vrrpe)
                 if tmp_vrrpe_name is None:
                     is_vrrpe_present = True
                 elif user_vrrpe in tmp_vrrpe_name:
                     self.logger.info('Deleting VRRPe group %s on Ve %s from rbridge_id %s ',
-                                     user_vrrpe, user_ve, rb)
-                    device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
-                                                version=ip_version, rbridge_id=rb, vrid=user_vrrpe)
+                                     user_vrrpe, user_intf, rb)
+                    device.interface.vrrpe_vrid(delete=True, int_type=intf_type,
+                         name=user_intf, version=ip_version,
+                         rbridge_id=rb, vrid=user_vrrpe)
                     is_vrrpe_present = False
         else:
-            tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True, name=user_ve, version=ip_version,
-                                                         int_type='ve', vrid=user_vrrpe)
+            tmp_vrrpe_name = device.interface.vrrpe_vrid(get=True,
+                        name=user_intf, version=ip_version, int_type=intf_type,
+                        vrid=user_vrrpe)
             if tmp_vrrpe_name is None:
                 is_vrrpe_present = True
             elif user_vrrpe in tmp_vrrpe_name:
                 self.logger.info('Deleting VRRPe group on Ve %s ', user_vrrpe)
-                device.interface.vrrpe_vrid(delete=True, int_type='ve', name=user_ve,
-                                            vrid=user_vrrpe, version=ip_version)
+                device.interface.vrrpe_vrid(delete=True, int_type=intf_type,
+                         name=user_intf, vrid=user_vrrpe, version=ip_version)
+
                 is_vrrpe_present = False
 
         if not is_vrrpe_present:
             return True
         else:
-            self.logger.info('VRRPe group %s does not exist on the Ve %s', user_vrrpe, user_ve)
+            self.logger.info('VRRPe group %s does not exist on the Ve %s',
+            user_vrrpe, user_intf)
             return False

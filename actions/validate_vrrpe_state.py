@@ -83,8 +83,8 @@ class validate_vrrpe_state(NosDeviceAction):
 
         exec_cli = CliCMD()
         host_ip = self.host
-        host_username = self.auth[0]
-        host_password = self.auth[1]
+        host_username = self.auth_snmp[0]
+        host_password = self.auth_snmp[1]
         roles = []
         cli_cmd = 'show vrrp interface ve' + " " + str(vlan_id)
 
@@ -94,9 +94,11 @@ class validate_vrrpe_state(NosDeviceAction):
         vrrpe_role = '(Master|Backup)'
         vrrpe_state = 'Admin Status: Enabled'
         spf_state = 'Short-path-forwarding: Enabled'
+        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
-                                                      cli_cmd=[cli_cmd])
+                                                      cli_cmd=[cli_cmd],
+                                                      device_type=device_type)
         cli_output = raw_cli_output[cli_cmd]
 
         vrid_match = vrid_pattern.findall(cli_output)
