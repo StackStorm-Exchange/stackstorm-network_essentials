@@ -26,19 +26,14 @@ class Apply_Acl(NosDeviceAction):
             if "-" not in str(intf):
                 interface_list.append(intf)
             else:
-                ex_intflist = self.extend_interface_range(intf_type=intf_type, intf_name=intf)
+                ex_intflist = self.extend_interface_range(intf_type=intf_type,
+                                                          intf_name=intf)
                 for ex_intf in ex_intflist:
                     interface_list.append(ex_intf)
 
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
-
-            for intf in interface_list:
-                if not self.validate_interface(intf_type, str(intf),
-                                               rbridge_id=rbridge_id,
-                                               os_type=device.os_type):
-                    raise ValueError("Input is not a valid Interface")
 
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
                          acl_name, intf_type, intf)

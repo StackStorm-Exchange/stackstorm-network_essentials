@@ -23,6 +23,6 @@ parameters:
     position: 2
   mtu_size:
     type: integer
-    description: MTU size in bytes <Number:1522-9216>
+    description: MTU size in bytes <Number:1522-9216>. for MLX MTU <1298-9216>.
     required: true
     position: 3
