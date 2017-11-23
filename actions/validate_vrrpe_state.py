@@ -51,7 +51,7 @@ class validate_vrrpe_state(NosDeviceAction):
                 tmp_role = each_role['vrrpe_role']
                 check_roles.append(tmp_role)
             final_check.append(each_role['check'])
-        if check_roles.count('Master') != 1:
+        if check_roles.count('Master') > 1:
             self.logger.info('There are more than one VRRPe Master in the given IP list')
             return changes
             sys.exit(1)
