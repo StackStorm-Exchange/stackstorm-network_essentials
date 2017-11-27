@@ -3,7 +3,9 @@ name: set_intf_admin_state
 pack: network_essentials
 runner_type: run-python
 description: Enable or disable a single physical port, port-channel, loopback or VE
-  interface on a device.  Optionally set the interface description.
+  interface on a device.  Optionally set the interface description, For MLX
+  port-channel admin state changes means it changes member port's admin
+  state
 enabled: true
 entry_point: set_intf_admin_state.py
 parameters:
