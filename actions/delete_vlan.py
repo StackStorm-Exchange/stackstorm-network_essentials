@@ -39,9 +39,13 @@ class DeleteVlan(NosDeviceAction):
                 self.host)
 
             # Check is the user input for VLANS is correct
-            vlan_list = self.get_vlan_list(vlan_id)
+            try:
+                vlan_list = self.get_vlan_list(vlan_id, device)
+            except Exception as e:
+                error_msg = str(e.message)
+                self.logger.error("Error deleting VLAN %s", error_msg)
+                sys.exit(-1)
             changes["vlan"] = self._delete_vlan(device, vlan_list, vlan_id)
-
             self.logger.info('Closing connection to %s after '
                              'Deleting vlans -- all done!',
                              self.host)

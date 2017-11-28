@@ -118,7 +118,7 @@ class CreateSwitchPort(NosDeviceAction):
         vlanid_list = []
         if vlan_action == 'add':
             vlanid_list = vlan_id
-            vlan_list = self.get_vlan_list(vlan_id)
+            vlan_list = self.get_vlan_list(vlan_id, device)
             for vf in vlan_list:
                 if c_tag is not None:
                     vlanid_list = vlan_list
@@ -133,7 +133,7 @@ class CreateSwitchPort(NosDeviceAction):
                         raise ValueError('Vlans in vlan_id must be in range(1,4090)')
 
             if c_tag is not None:
-                c_tag_list = self.get_vlan_list(c_tag)
+                c_tag_list = self.get_vlan_list(c_tag, device)
                 for ctag in c_tag_list:
                     if int(ctag) not in xrange(1, 4091):
                         self.logger.error('Vlans in c_tag %s must be in range(1,4090)',

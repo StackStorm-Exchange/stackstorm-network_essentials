@@ -82,7 +82,7 @@ class RemoveSwitchPort(NosDeviceAction):
         vlanlist = vlan_id.split(',')
         vlanid_list = vlan_id
         for val in vlanlist:
-            temp = self.expand_vlan_range(vlan_id=val)
+            temp = self.expand_vlan_range(vlan_id=val, device=device)
             if temp is None:
                 raise ValueError('Reserved/Control Vlans passed in args `vlan_id`')
             vlan_list.append(temp)
@@ -105,7 +105,7 @@ class RemoveSwitchPort(NosDeviceAction):
         if c_tag is not None:
             ctag_list = c_tag.split(',')
             for cval in ctag_list:
-                ctemp = self.expand_vlan_range(vlan_id=cval)
+                ctemp = self.expand_vlan_range(vlan_id=cval, device=device)
                 c_tag_list.append(ctemp)
             c_tag_list = list(itertools.chain.from_iterable(c_tag_list))
             for ctag in c_tag_list:
