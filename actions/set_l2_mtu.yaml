@@ -41,6 +41,6 @@ parameters:
     position: 4
   mtu_size:
     type: integer
-    description: MTU size in bytes <Number:1522-9216>
+    description: For SLX MTU size in bytes <Number:1548-9216>. For VDX <Number:1522-9216>
     required: true
     position: 5
