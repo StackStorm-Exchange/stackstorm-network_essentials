@@ -40,7 +40,7 @@ class ValidateInterfaceVlan(NosDeviceAction):
                 self.host)
             # Check is the user input for VLANS is correct
 
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id)
+            vlan_list = self.expand_vlan_range(vlan_id=vlan_id, device=device)
 
             if vlan_list:
                 changes['vlan'] = self._validate_interface_vlan(device,

@@ -86,7 +86,7 @@ class AutoPickLifID(NosDeviceAction):
         if re.search(re_pattern, length_of_the_range):
             length_of_the_range = int(length_of_the_range)
         else:
-            length_of_the_range = len(self.get_vlan_list(length_of_the_range))
+            length_of_the_range = len(self.get_vlan_list(length_of_the_range, device))
 
         lifs = [int(e.split('.')[1]) for e in lif_list]
         lifs_list = []
