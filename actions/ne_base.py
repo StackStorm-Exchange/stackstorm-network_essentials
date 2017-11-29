@@ -212,7 +212,7 @@ class NosDeviceAction(Action):
                 'Length of the description is more than the allowed size')
             return False
 
-    def expand_vlan_range(self, vlan_id):
+    def expand_vlan_range(self, vlan_id, device):
         """Fail the task if vlan id is zero or one or above 4096 .
         """
 
@@ -239,16 +239,20 @@ class NosDeviceAction(Action):
                 vlan_id.groups()[1]) + 1)
         elif re.search(re_pattern3, vlan_id):
             vlan_id = vlan_id.split(",")
+            vlan_id = map(int, vlan_id)
         else:
             self.logger.info("Invalid vlan format")
             return None
 
         for vid in vlan_id:
+            if device.os_type == 'NI':
+                if vid > 4090:
+                    self.logger.error("Not a valid vlan %s", vid)
+                    return None
             if vid > 4096:
                 extended = "true"
             else:
                 extended = "false"
-
             tmp_vlan_id = pyswitch.utilities.valid_vlan_id(vid, extended=extended)
 
             reserved_vlan_list = range(4087, 4096)
@@ -506,7 +510,7 @@ class NosDeviceAction(Action):
                 intf = intf_name
             else:
                 msg = 'Invalid interface format'
-        elif os_type == "slxos" or os_type == "NI":
+        elif os_type == "slxos":
             if re.search(re_pattern1, intf_name):
                 intf = intf_name
             elif re.search(re_pattern2, intf_name) and intf_type in NosIntTypes:
@@ -938,12 +942,12 @@ class NosDeviceAction(Action):
             self.logger.info('Device does not support rbridge')
             raise ValueError('Device does not support rbridge')
 
-    def get_vlan_list(self, vlan_id):
+    def get_vlan_list(self, vlan_id, device):
         """ Expand the vlan_id values into a list """
         vlan_list = []
         vlanlist = vlan_id.split(',')
         for val in vlanlist:
-            temp = self.expand_vlan_range(vlan_id=val)
+            temp = self.expand_vlan_range(vlan_id=val, device=device)
             if temp is None:
                 raise ValueError('Reserved/Control/Invalid vlans passed in args `vlan_id`')
             vlan_list.append(temp)

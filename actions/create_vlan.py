@@ -42,7 +42,12 @@ class CreateVlan(NosDeviceAction):
                 'Successfully connected to %s to create interface vlans',
                 self.host)
             # Check is the user input for VLANS is correct
-            vlan_list = self.get_vlan_list(vlan_id)
+            try:
+                vlan_list = self.get_vlan_list(vlan_id, device)
+            except Exception as e:
+                error_msg = str(e.message)
+                self.logger.error("Error creating VLAN %s", error_msg)
+                sys.exit(-1)
 
             valid_desc = True
             if intf_desc:

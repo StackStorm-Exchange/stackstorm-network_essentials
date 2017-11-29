@@ -64,7 +64,7 @@ class AutoPickNetworkID(NosDeviceAction):
         if re.search(re_pattern, length_of_the_range):
             length_of_the_range = int(length_of_the_range)
         else:
-            length_of_the_range = len(self.get_vlan_list(length_of_the_range))
+            length_of_the_range = len(self.get_vlan_list(length_of_the_range, device))
 
         if length_of_the_range > 4096:
             self.logger.error('length_of_the_range %s must be a value between 1 to 4095',
