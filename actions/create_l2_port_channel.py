@@ -58,7 +58,8 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.error('NI/MLX doesnt support port-channel protocol %s', protocol)
                     sys.exit(-1)
 
-            changes['pre_validation'] = self._check_requirements(device, ports, intf_type,
+            changes['pre_validation'], po_exists = self._check_requirements(device, ports,
+                                                                 intf_type,
                                                                  port_channel_id,
                                                                  port_channel_desc)
             if changes['pre_validation']:
@@ -69,7 +70,8 @@ class CreatePortChannel(NosDeviceAction):
                                                               portchannel_num=port_channel_id,
                                                               channel_type=mode,
                                                               mode_type=protocol,
-                                                              intf_desc=port_channel_desc)
+                                                              intf_desc=port_channel_desc,
+                                                              po_exists=po_exists)
                 else:
                     changes['port_channel_configs'] = self._create_port_channel(device,
                                                               intf_name=ports,
@@ -91,6 +93,7 @@ class CreatePortChannel(NosDeviceAction):
 
     def _check_requirements(self, device, intf_name, intf_type, portchannel_num, intf_desc):
         """ Verify if the port channel already exists """
+        po_exists = False
         for each in intf_name:
             r1 = pyswitch.utilities.valid_interface(int_type=intf_type, name=each)
             if not r1:
@@ -121,21 +124,22 @@ class CreatePortChannel(NosDeviceAction):
         for port_chann in result:
             if port_chann['interface-name'] == port_chan:
                 if port_chann['aggregator_type'] == 'standard':
+                    po_exists = True
                     for interfaces in port_chann['interfaces']:
                         if interfaces['interface-name'] in intf_name:
                             self.logger.info(
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
                                 portchannel_num, interfaces['interface-name'])
-                            return False
+                            return False, po_exists
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
                         self.logger.info('Interface %s is already mapped to a'
                                          ' different port channel %s',
                                          interfaces['interface-name'], port_chann['interface-name'])
-                        return False
-        return True
+                        return False, po_exists
+        return True, po_exists
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
                              channel_type, mode_type, intf_desc, port_speed):
@@ -235,13 +239,14 @@ class CreatePortChannel(NosDeviceAction):
         return True
 
     def _create_port_channel_mlx(self, device, intf_name, intf_type, portchannel_num,
-                             channel_type, mode_type, intf_desc):
+                             channel_type, mode_type, intf_desc, po_exists):
         """ Configuring the port channel with member ports
         """
         try:
             device.interface.create_port_channel(intf_name, intf_type,
                                            portchannel_num,
                                            mode_type,
+                                           po_exists,
                                            intf_desc)
             self.logger.info('Configuring port channel %s with type as %s'
                              ' on interfaces %s is done',
