@@ -41,7 +41,7 @@ class AutoPickLifID(NosDeviceAction):
             self.logger.info(
                 'Successfully connected to %s to fetch LIF ID', self.host)
 
-            if device.os_type == 'nos':
+            if device.os_type == 'nos' or device.os_type == 'NI':
                 self.logger.error('Operation is not supported on this device')
                 raise ValueError('Operation is not supported on this device')
 
