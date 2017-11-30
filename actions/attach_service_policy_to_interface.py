@@ -26,19 +26,19 @@ class ConfigureInOutPolicyMap(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, intf_type, intf_name, policy_map_name,
-            policy_type):
+            policy_type, rbridge_id):
         """Run helper methods to implement the desired state.
         """
 
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        changes = self.switch_operation(intf_type, intf_name, policy_map_name, policy_type)
+        changes = self.switch_operation(intf_type, intf_name, policy_map_name, policy_type,rbridge_id)
 
         return changes
 
     @log_exceptions
-    def switch_operation(self, intf_type, intf_name, policy_map_name, policy_type):
+    def switch_operation(self, intf_type, intf_name, policy_map_name, policy_type,rbridge_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
                 'successfully connected to %s to Attach Input/Output Policy Map'
                 ' to an interface', self.host)
@@ -55,7 +55,7 @@ class ConfigureInOutPolicyMap(NosDeviceAction):
                                  '`policy_map_name` args must be a single value')
 
             changes['check_policy_name'] = self._check_policy_name(device, policy_map_name,
-                                                                   intf_type, intf_name)
+                                                                   intf_type, intf_name,rbridge_id)
             if changes['check_policy_name']:
                 changes['check_policy_on_intf'] = self._check_policy_intf(device,
                                                                           policy_map_name,
@@ -72,8 +72,10 @@ class ConfigureInOutPolicyMap(NosDeviceAction):
                              self.host)
         return changes
 
-    def _check_policy_name(self, device, policy_map_name, intf_type, intf_name):
+    def _check_policy_name(self, device, policy_map_name, intf_type, intf_name,rbridge_id):
         """ Check if policy name is pre-configured on the device """
+
+        os = device.os_type
 
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Iterface type is not valid. '
@@ -82,23 +84,27 @@ class ConfigureInOutPolicyMap(NosDeviceAction):
             raise ValueError('Iterface type is not valid. '
                              'Interface type must be one of %s'
                              % device.interface.valid_int_types)
-
-        if not self.validate_interface(intf_type, intf_name, os_type=device.os_type):
-            raise ValueError('Interface %s is not valid' % (intf_name))
+        if os == 'nos':
+            if not self.validate_interface(intf_type, intf_name, rbridge_id):
+                  msg = "Input is not a valid Interface"
+                  self.logger.error(msg)
+                  raise ValueError(msg)
+#        if os != 'nos':
+#            if not self.validate_interface(intf_type, intf_name, os):
+#                raise ValueError('Interface %s is not valid' % (intf_name))
 
         if not device.interface.interface_exists(int_type=intf_type,
                                                  name=intf_name):
-            self.logger.error('Interface %s %s is not present on the Device'
+             self.logger.error('Interface %s %s is not present on the Device'
                               % (intf_type, intf_name))
-            raise ValueError('Interface %s %s is not present on the Device'
-                             % (intf_type, intf_name))
+             raise ValueError('Interface %s %s is not present on the Device'
+                            % (intf_type, intf_name))
 
         for each_map in policy_map_name:
             out = device.interface.policy_map_create(get=True, policy_map_name=each_map)
-            print('aaaaaaaaaaaaaaa', out)
             if out is None:
-                self.logger.info("Policy Map Name %s is not present on the device", each_map)
-                return False
+                self.logger.info("%s Policy Map Name %s is not present on the device", out,each_map)
+                return True 
 
         return True
 

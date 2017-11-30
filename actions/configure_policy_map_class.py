@@ -37,7 +37,7 @@ class ConfigurePolicyMap(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, policy_map_name, class_name, cir, cbs, eir, ebs):
         changes = {}
-        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
+        with self.pmgr(conn=self.conn, auth=self.auth) as device:
             self.logger.info(
                 'successfully connected to %s to configure Policy Map'
                 ' on the device', self.host)
@@ -91,14 +91,10 @@ class ConfigurePolicyMap(NosDeviceAction):
         if class_name not in out_2:
             self.logger.exception("Class Map %s is not present on the device", class_name)
             raise ValueError("Class Map is not present on the device", class_name)
-
-        out_1 = device.interface.policy_map_class_map_create(policy_map_name=policy_map_name,
-                                                           class_map_name=class_name, get=True)
+        out_1 = device.interface.policy_map_class_map_create(policy_map_name=policy_map_name, class_map_name=class_name, get=True)
         if out_1 == class_name:
-            self.logger.info("Policy Map Class Instance %s is pre-existing on Policy Map %s",
-                             class_name, policy_map_name)
+            self.logger.info("Policy Map Class Instance %s is pre-existing on Policy Map %s", class_name, policy_map_name)
             return False
-
         return True
 
     def _pre_check_rates(self, device, policy_map_name, class_name, cir, cbs, eir, ebs):
