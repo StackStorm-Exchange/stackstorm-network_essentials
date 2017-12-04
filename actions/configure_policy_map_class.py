@@ -37,7 +37,7 @@ class ConfigurePolicyMap(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, policy_map_name, class_name, cir, cbs, eir, ebs):
         changes = {}
-        with self.pmgr(conn=self.conn, auth=self.auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to configure Policy Map'
                 ' on the device', self.host)

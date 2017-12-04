@@ -39,7 +39,7 @@ class ConfigureInOutPolicyMap(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, intf_type, intf_name, policy_map_name, policy_type, rbridge_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth_snmp=self.snmp_auth) as device:
+        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info(
                 'successfully connected to %s to Attach Input/Output Policy Map'
                 ' to an interface', self.host)
