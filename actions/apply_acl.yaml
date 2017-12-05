@@ -34,28 +34,38 @@ parameters:
     default: tengigabitethernet
     description: Interface type, can be a physical port, port channel, VE or management
       interface
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   intf_name:
     type: array
     description: Interface names, can be comma separated physical ports, port channel
       numbers or VEs. Examples are 224/0/1, 224/0/2 or 4, 5, 6 or 80, 81.
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
   rbridge_id:
     type: string
     description: RBridge ID of the VDX switch under which VE will be configured, only
       needed for VDX device.
+        required-by:- [None]
+        accepted-by:- [NOS]
     required: false
     position: 5
   acl_name:
     type: string
     description: Name of the access list
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 6
   acl_direction:
     type: string
     description: Direction of ACL binding on the specified interface
+        required-by:- [SLX, NOS, MLX]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 7
     enum:
@@ -65,6 +75,8 @@ parameters:
   traffic_type:
     type: string
     description: Traffic type for the ACL being applied
+        required-by:- [None]
+        accepted-by:- [SLX, NOS]
     required: false
     position: 8
     enum:

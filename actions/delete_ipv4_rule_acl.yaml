@@ -23,10 +23,14 @@ parameters:
   acl_name:
     type: string
     description: Name of the ACL (standard or extended) to delete the rule from
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   seq_id:
     type: integer
     description: Sequence number of the rule to be deleted
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
