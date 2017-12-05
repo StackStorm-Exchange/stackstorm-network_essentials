@@ -192,6 +192,7 @@ class CreateVe(NosDeviceAction):
                         changes['create_ve'] = \
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
+                                            vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
                     self._ipv6_link_local(device, name=ve_id,
