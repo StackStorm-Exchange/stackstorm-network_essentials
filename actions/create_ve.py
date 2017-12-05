@@ -255,11 +255,10 @@ class CreateVe(NosDeviceAction):
                     return False
                 elif each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] != ip_address:
-                    self.logger.error('Ve %s is pre-assigned with a different'
-                                      ' IP %s on rbridge_id %s',
-                                      ve_name, each_ve['ip-address'],
-                                      rbridge_id)
-                    return False
+                    self.logger.info('Ve %s is pre-assigned with a different'
+                                     ' IP %s on rbridge_id %s',
+                                     ve_name, each_ve['ip-address'],
+                                     rbridge_id)
                 elif ip_interface(unicode(ip_address)).network == \
                         ip_interface(unicode(each_ve['ip-address'])).network:
                     self.logger.error('IP address %s overlaps with a previously'
