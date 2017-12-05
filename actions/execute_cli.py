@@ -26,19 +26,28 @@ class CliCMD(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
-            device_type='brocade_vdx'):
+            device_type='brocade_vdx', enable_passwd=None):
         """Run helper methods to implement the desired state.
         """
         result = {}
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        auth_snmp = self.auth_snmp
+        if not username:
+            username = auth_snmp[0]
+        if not password:
+            password = auth_snmp[1]
+        if not enable_passwd:
+            enable_passwd = auth_snmp[2]
+
         op_result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd,
-                                             config_operation, device_type)
+                                             config_operation, device_type, enable_passwd)
 
         if op_result is not None:
             result = op_result
         return result
 
     def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
-                            device_type='brocade_vdx'):
+                            device_type='brocade_vdx', enable_passwd=None):
 
         opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
@@ -46,6 +55,8 @@ class CliCMD(NosDeviceAction):
         opt['password'] = password
         opt['verbose'] = True
         opt['global_delay_factor'] = 0.5
+        if device_type == 'brocade_netiron' and enable_passwd:
+            opt['secret'] = enable_passwd
         net_connect = None
         cli_output = {}
 
@@ -59,6 +70,8 @@ class CliCMD(NosDeviceAction):
                     cli_output[cmd] = (net_connect.send_command(cmd))
                     self.logger.info('successfully executed cli %s', cmd)
             else:
+                if device_type == 'brocade_netiron':
+                    net_connect.enable()
                 cli_output['output'] = (net_connect.send_config_set(cli_cmd))
                 self.logger.info('successfully executed config cli %s', cli_cmd)
 
