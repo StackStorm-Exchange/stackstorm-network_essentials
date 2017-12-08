@@ -1,0 +1,29 @@
+---
+name: get_vlan_id_list
+pack: network_essentials
+runner_type: run-python
+description: Expand the range for given list of Vlans IDs  
+enabled: true
+entry_point: get_vlan_id_list.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    secret: true
+    position: 2
+  vlan_id_list:
+    type: string
+    description: Single/Range of vlans_ids.Returns the list of VLANS IDs in the range.
+      For example 10 or 1-25 or 1-25,26,28. For example, if network_id_list='400,401,420-425'
+      returns 400,401,420,421,422,423,424,425.
+    required: true
+    position: 3
