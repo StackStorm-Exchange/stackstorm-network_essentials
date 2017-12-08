@@ -83,9 +83,11 @@ network_essentials.cfg_rate_limiting:
                 dscp: <% $.dscp %>
                 vlan_id: <% $.vlan_id %>
             on-success:
-                - apply_acl: <% $.address_type = 'ip' %>
+                - configure_class_map: <% $.class_map_name_exists = false %>
+                - configure_policy_map_class: <% $.class_map_name_exists = true %>
             on-error:
-                - apply_acl: <% $.address_type = 'ip' %>
+                - configure_class_map: <% $.class_map_name_exists = false %>
+                - configure_policy_map_class: <% $.class_map_name_exists = true %>
         add_ipv6_rule_acl:
             action: network_essentials.add_ipv6_rule_acl
             input:
@@ -99,19 +101,6 @@ network_essentials.cfg_rate_limiting:
                 source: <% $.source %>
                 destination: <% $.destination %>
                 vlan_id: <% $.vlan_id %>
-            on-success:
-                - apply_acl:  <% $.address_type = 'ipv6' %>
-            on-error:
-                - apply_acl:  <% $.address_type = 'ipv6' %>
-        apply_acl:
-            action: network_essentials.apply_acl
-            input:
-                mgmt_ip: <% $.mgmt_ip %>
-                username: <% $.username %>
-                password: <% $.password %>
-                acl_name: <% $.acl_name %>
-                intf_name: <% $.intf_name %>
-                intf_type: <% $.intf_type %>
             on-success:
                 - configure_class_map: <% $.class_map_name_exists = false %>
                 - configure_policy_map_class: <% $.class_map_name_exists = true %>
