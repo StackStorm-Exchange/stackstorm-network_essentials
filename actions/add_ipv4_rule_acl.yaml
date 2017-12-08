@@ -138,7 +138,7 @@ parameters:
     position: 18
   log:
     type: string
-    description: Enables logging for the rule (Available for permit or deny only)
+    description: Enables logging for the rule.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 19
