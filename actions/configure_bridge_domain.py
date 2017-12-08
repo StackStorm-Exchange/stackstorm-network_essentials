@@ -58,13 +58,14 @@ class ConfigureBridgeDomain(NosDeviceAction):
                 self.logger.error('Missing mandatory args `intf_type`')
                 raise ValueError('Missing mandatory args `intf_Type`')
 
-            int_type = []
-            tmp_intf = intf_type[:]
-            if len(logical_interface_number.split(',')) > 1 and len(intf_type.split(',')) == 1:
-                for e in range(1, len(logical_interface_number.split(',')) + 1):
-                    int_type.append(tmp_intf)
-            else:
-                int_type = intf_type.split(',')
+            if intf_type is not None:
+                int_type = []
+                tmp_intf = intf_type[:]
+                if len(logical_interface_number.split(',')) > 1 and len(intf_type.split(',')) == 1:
+                    for e in range(1, len(logical_interface_number.split(',')) + 1):
+                        int_type.append(tmp_intf)
+                else:
+                    int_type = intf_type.split(',')
 
             re_pat1 = '\d+r'
             if vlan_id is not None and re.match(re_pat1, device.firmware_version):
@@ -73,7 +74,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
                 raise ValueError('Bridge Domain association with router interface'
                                  ' is not supported on this device')
 
-            changes['pre_check_bd'] = self._check_bd_presence(device, intf_type,
+            changes['pre_check_bd'] = self._check_bd_presence(device,
                                                               bridge_domain_id,
                                                               bridge_domain_service_type, vc_id,
                                                               pw_profile_name, peer_ip)
@@ -105,7 +106,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
                              self.host)
         return changes
 
-    def _check_bd_presence(self, device, intf_type, bridge_domain_id,
+    def _check_bd_presence(self, device, bridge_domain_id,
                            bridge_domain_service_type, vc_id, pw_profile_name, peer_ip):
 
         if peer_ip is not None:

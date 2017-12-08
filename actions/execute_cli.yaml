@@ -39,3 +39,8 @@ parameters:
     description: Connecting device type
     required: false
     position: 5
+  enable_passwd:
+    type: string
+    description: privilege exec mode password. Applicable only to MLX device.
+    secret: true
+    position: 6
