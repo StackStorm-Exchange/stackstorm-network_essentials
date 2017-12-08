@@ -14,7 +14,6 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import itertools
 
 
 class GetNetworkID(NosDeviceAction):
@@ -57,6 +56,6 @@ class GetNetworkID(NosDeviceAction):
             num = vlan_str.lstrip(',')
         except (ValueError, KeyError) as e:
             self.logger.error('Failed to expand the vlan id range due to %s',
-                               e.message)
+                e.message)
             raise ValueError('Failed to expand the vlan id range')
         return num
