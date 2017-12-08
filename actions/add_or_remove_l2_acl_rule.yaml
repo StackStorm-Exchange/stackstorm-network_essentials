@@ -36,7 +36,7 @@ parameters:
     type: integer
     description: Sequence number of the rule.  For add operation, if not specified,
       the rule is added at the end of the list.
-      seq_id is mandatory parameter for device types - MLX, SLX and VDX.
+      For delete operation seq_id is required-by parameter for MLX, SLX, VDX.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 5
