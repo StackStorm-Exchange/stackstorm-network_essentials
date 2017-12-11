@@ -1,5 +1,6 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import sys
 
 
 class set_l2_mtu(NosDeviceAction):
@@ -53,4 +54,5 @@ class set_l2_mtu(NosDeviceAction):
                     'Cannot set L2 mtu on interface %s %s due to %s',
                     intf_type, intf, str(e.message))
                 result = False
+                sys.exit(-1)
         return result
