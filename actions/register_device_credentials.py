@@ -89,7 +89,7 @@ class RegisterDeviceCredentials(Action):
         return 'switch.%s.%s' % (host, lookup)
 
     def _get_lookup_prefix(self, host):
-        return 'switch.%s' % host
+        return 'switch.%s.' % host
 
     def _validate_input_credentials(self, host, user=None, passwd=None, enable_pass=None):
 
@@ -322,19 +322,16 @@ class RegisterDeviceCredentials(Action):
 
         if v3user and snmpver == 'v3':
             lookup_key = self._get_lookup_key(host, 'v3user')
-            if v3user != item.value:
-                self.action_service.set_value(name=lookup_key,
-                                              value=v3user, local=False)
+            self.action_service.set_value(name=lookup_key,
+                                          value=v3user, local=False)
         if v3auth and snmpver == 'v3':
             lookup_key = self._get_lookup_key(host, 'v3auth')
-            if v3auth != item.value:
-                self.action_service.set_value(name=lookup_key,
-                                              value=v3auth, local=False)
+            self.action_service.set_value(name=lookup_key,
+                                          value=v3auth, local=False)
         if v3priv and snmpver == 'v3':
             lookup_key = self._get_lookup_key(host, 'v3priv')
-            if v3priv != item.value:
-                self.action_service.set_value(name=lookup_key,
-                                              value=v3priv, local=False)
+            self.action_service.set_value(name=lookup_key,
+                                          value=v3priv, local=False)
         if authpass and snmpver == 'v3':
             lookup_key = self._get_lookup_key(host, 'authpass')
             self.action_service.set_value(name=lookup_key, value=authpass,
