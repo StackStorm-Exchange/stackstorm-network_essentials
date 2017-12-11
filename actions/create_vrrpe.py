@@ -43,48 +43,61 @@ class CreateVrrpe(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to Enable'
                              ' VRRPE Configs', self.host)
+            if device.suports_rbridge and rbridge_id is None:
+                rbridge_id = self.vlag_pair(device)
 
-            self.validate_supports_rbridge(device, rbridge_id)
+            if rbridge_id:
+                for rb_id in rbridge_id:
+                    self.validate_supports_rbridge(device, rb_id)
+                    changes = self._create_vrrpe(device, intf_type, intf_name,
+                                                 rb_id, virtual_ip, vrid)
+            else:
+                self.validate_supports_rbridge(device, rbridge_id)
+                changes = self._create_vrrpe(device, intf_type, intf_name,
+                                             rbridge_id, virtual_ip, vrid)
+        return changes
 
-            changes['pre_validation'] = self._check_requirements(
-                device, intf_type=intf_type, intf_name=intf_name,
-                rbridge_id=rbridge_id, vrid=vrid, virtual_ip=virtual_ip)
+    def _create_vrrpe(self, device, intf_type, intf_name, rbridge_id, virtual_ip, vrid):
+        changes = {}
+        changes['pre_validation'] = self._check_requirements(
+            device, intf_type=intf_type, intf_name=intf_name,
+            rbridge_id=rbridge_id, vrid=vrid, virtual_ip=virtual_ip)
 
-            if changes['pre_validation'] != '':
-                ip_version = int(changes['pre_validation'])
+        if changes['pre_validation'] != '':
+            ip_version = int(changes['pre_validation'])
 
-                changes['start_vrrpe'] = self._start_vrrpe(
-                    device,
-                    rbridge_id=rbridge_id,
-                    ip_version=ip_version)
+            changes['start_vrrpe'] = self._start_vrrpe(
+                device,
+                rbridge_id=rbridge_id,
+                ip_version=ip_version)
 
-                changes['vrrpe_vip'] = self._create_vrrpe_vip(
+            changes['vrrpe_vip'] = self._create_vrrpe_vip(
+                device,
+                intf_type=intf_type, intf_name=intf_name,
+                rbridge_id=rbridge_id,
+                virtual_ip=virtual_ip,
+                vrid=vrid,
+                ip_version=ip_version)
+
+            if changes['vrrpe_vip']:
+                changes['vrrpe_vmac'] = self._create_vrrpe_vmac(
                     device,
                     intf_type=intf_type, intf_name=intf_name,
                     rbridge_id=rbridge_id,
-                    virtual_ip=virtual_ip,
                     vrid=vrid,
                     ip_version=ip_version)
 
-                if changes['vrrpe_vip']:
-                    changes['vrrpe_vmac'] = self._create_vrrpe_vmac(
-                        device,
-                        intf_type=intf_type, intf_name=intf_name,
-                        rbridge_id=rbridge_id,
-                        vrid=vrid,
-                        ip_version=ip_version)
+            if changes['vrrpe_vmac']:
+                changes['vrrpe_spf'] = self._create_vrrpe_spf(
+                    device,
+                    intf_type=intf_type, intf_name=intf_name,
+                    rbridge_id=rbridge_id,
+                    vrid=vrid,
+                    ip_version=ip_version)
 
-                if changes['vrrpe_vmac']:
-                    changes['vrrpe_spf'] = self._create_vrrpe_spf(
-                        device,
-                        intf_type=intf_type, intf_name=intf_name,
-                        rbridge_id=rbridge_id,
-                        vrid=vrid,
-                        ip_version=ip_version)
-
-            self.logger.info(
-                'closing connection to %s after Enabling VRRPE - all done!',
-                self.host)
+        self.logger.info(
+            'closing connection to %s after Enabling VRRPE - all done!',
+            self.host)
         return changes
 
     def _check_requirements(self, device, intf_type, intf_name, vrid, rbridge_id,
@@ -236,28 +249,19 @@ class CreateVrrpe(NosDeviceAction):
             virtual_ip, vrid, ip_version):
         """ Create the VRRPE extender group and associate the VIP """
 
-        try:
-            self.logger.info('Create the VRRPE extender group %s'
-                             ' and associate the VIP service %s',
-                             vrid, virtual_ip)
+        self.logger.info('Create the VRRPE extender group %s'
+                         ' and associate the VIP service %s',
+                         vrid, virtual_ip)
+        device.interface.vrrpe_vrid(int_type=intf_type,
+                                    name=intf_name,
+                                    vrid=vrid,
+                                    version=ip_version,
+                                    rbridge_id=rbridge_id)
 
-            device.interface.vrrpe_vrid(int_type=intf_type,
-                                        name=intf_name,
-                                        vrid=vrid,
-                                        version=ip_version,
-                                        rbridge_id=rbridge_id)
-
-            device.interface.vrrpe_vip(name=intf_name, int_type=intf_type,
-                                       vip=virtual_ip,
-                                       vrid=vrid, rbridge_id=rbridge_id,
-                                       version=int(ip_version))
-        except (ValueError, KeyError):
-            self.logger.exception('Invalid Input types while '
-                                  'creating VRRPE group %s %s %s' %
-                                  (vrid, virtual_ip, intf_name))
-            raise ValueError('Invalid Input types while '
-                             'creating VRRPE group %s %s %s' %
-                             (vrid, virtual_ip, intf_name))
+        device.interface.vrrpe_vip(name=intf_name, int_type=intf_type,
+                                   vip=virtual_ip,
+                                   vrid=vrid, rbridge_id=rbridge_id,
+                                   version=int(ip_version))
         return True
 
     def _create_vrrpe_vmac(self, device, intf_type, intf_name, vrid,
