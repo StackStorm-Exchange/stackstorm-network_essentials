@@ -31,6 +31,8 @@ parameters:
       - ve
       - loopback
       - ethernet
+      - management
+      - vlan
     default: tengigabitethernet
     description: Interface type, can be a physical port, port channel, VE or management
       interface
