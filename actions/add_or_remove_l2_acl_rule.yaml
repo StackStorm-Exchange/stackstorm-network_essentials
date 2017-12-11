@@ -36,12 +36,16 @@ parameters:
     type: integer
     description: Sequence number of the rule.  For add operation, if not specified,
       the rule is added at the end of the list.
-      seq_id is mandatory parameter for device types - MLX, SLX and VDX.
+      For delete operation seq_id is required-by parameter for MLX, SLX, VDX.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 5
   action:
     type: string
     description: Action to apply on the traffic, either to drop (deny), allow (permit)
       or force drop (hard-drop)
+        required-by:- [SLX, NOS, MLX]
+        accepted-by:- [SLX, NOS, MLX]
     enum:
       - deny
       - permit
@@ -52,16 +56,22 @@ parameters:
     type: string
     description: Source filter, can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format
                  MLX - Source filter, can be 'any' or the actual MAC in HHHH.HHHH.HHHH format.
+        required-by:- [SLX, NOS, MLX]
+        accepted-by:- [SLX, NOS, MLX]
     default: any
     position: 7
   srchost:
     type: string
     description: The source MAC in HHHH.HHHH.HHHH format. The value is required only
       when the source is 'host'.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS]
     position: 8
   src_mac_addr_mask:
     type: string
     description: Mask for the source MAC in HHHH.HHHH.HHHH format.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 9
   dst:
     type: string
@@ -69,20 +79,29 @@ parameters:
       the destination in HHHH.HHHH.HHHH format.
                 MLX - Destination filter, can be 'any' or the actual MAC in
       HHHH.HHHH.HHHH format.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     default: any
     position: 10
   dsthost:
     type: string
     description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only
       when the dst is 'host'
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 11
   dst_mac_addr_mask:
     type: string
     description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 12
   vlan_tag_format:
     type: string
     description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+        required-by:- [None]
+        accepted-by:- [SLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     enum:
        - untagged
        - single-tagged
@@ -91,60 +110,92 @@ parameters:
   vlan:
     type: string
     description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 14
   ethertype:
     type: string
     description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
                  For MLX EtherType, can be 'arp', 'fcoe', 'ipv4-l5', 'ipv6' or custom value between 1536 and 65535.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     position: 15
   arp_guard:
     type: string
     description: Enables arp-guard for the rule
+        required-by:- [None]
+        accepted-by:- [SLX, MLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 16
   pcp:
     type: string
     description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+        required-by:- [None]
+        accepted-by:- [SLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 17
   drop_precedence_force:
     type: string
     description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
+        required-by:- [None]
+        accepted-by:- [SLX, MLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 18
   count:
     type: string
     description: Enables the packet count
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 19
   log:
     type: string
     description: Enables the logging
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 20
   mirror:
     type: string
     description: Enables mirror for the rule
+        required-by:- [None]
+        accepted-by:- [SLX, MLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 21
   copy_sflow:
     type: string
     description: Enables copy-sflow for the rule
+        required-by:- [None]
+        accepted-by:- [SLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 22
   drop_precedence:
     type: string
     description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
+        required-by:- [None]
+        accepted-by:- [SLX, MLX]
+        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 23
   priority:
     type: integer
     description: Matches the specified value against the priority value of the packet to filter.  Allowed values are 0 through 7.
+        required-by:- [None]
+        accepted-by:- [MLX]
     position: 24
   priority_force:
     type: integer
     description: Matches the specified value against the priority_force value of the packet to filter.  Allowed values are 0 through 7.
+        required-by:- [None]
+        accepted-by:- [MLX]
     position: 25
   priority_mapping:
     type: integer
     description: Matches the specified value against the priority_mapping value of the packet to filter.  Allowed values are 0 through 7.
+        required-by:- [None]
+        accepted-by:- [MLX]
     position: 26
