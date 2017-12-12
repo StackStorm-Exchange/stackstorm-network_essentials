@@ -282,6 +282,9 @@ class RegisterDeviceCredentials(Action):
             v3auth = v3priv = None
             authpass = privpass = None
 
+        if self.ostype == 'slx' or self.ostype == 'vdx':
+            snmpver = 'None'
+
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
 
