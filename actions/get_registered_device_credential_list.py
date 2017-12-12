@@ -40,9 +40,9 @@ class GetRegisteredDeviceList(Action):
 
     def _get_prefix(self, host):
         if host:
-            return 'switch.%s' % (host)
+            return 'switch.%s.' % (host)
         else:
-            return 'switch'
+            return 'switch.'
 
     def _get_device(self, host):
 
