@@ -41,9 +41,7 @@ parameters:
     position: 4
   acl_name:
     type: string
-    description: Unique name for ACL, can be up to 63 characters long, and must begin
-      with a-z, A-Z or 0-9. You can also use underscore (_) or hyphen (-) in an ACL
-      name, but not as the first character.
+    description: Unique name for ACL which must begin with a-z, A-Z.
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 5
