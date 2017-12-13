@@ -48,14 +48,14 @@ class CreatePortChannel(NosDeviceAction):
                     sys.exit(-1)
             if device.os_type == 'NI':
                 if mode != "standard":
-                    self.logger.error('MLX only supports port-channel type as standard')
+                    self.logger.error('NI only supports port-channel type as standard')
                     sys.exit(-1)
                 if protocol == "on":
                     protocol = "static"
                 elif protocol == "active":
                     protocol = "dynamic"
                 else:
-                    self.logger.error('NI/MLX doesnt support port-channel protocol %s', protocol)
+                    self.logger.error('NI doesnt support port-channel protocol %s', protocol)
                     sys.exit(-1)
 
             changes['pre_validation'], po_exists = self._check_requirements(device, ports,
@@ -110,8 +110,8 @@ class CreatePortChannel(NosDeviceAction):
                 raise ValueError('Invalid interface description %s', intf_desc)
         else:
             if device.os_type == 'NI':
-                raise ValueError('Port-channel name/description cannot be NULL for MLX %d',
-                        portchannel_num)
+                self.logger.error('Port-channel name/description cannot be NULL for NI')
+                sys.exit(-1)
 
         result = device.interface.port_channels
         tmp1 = "-" + portchannel_num
@@ -122,7 +122,8 @@ class CreatePortChannel(NosDeviceAction):
 
         # Verify if the port channel to interface mapping is already existing
         for port_chann in result:
-            if port_chann['interface-name'] == port_chan:
+            if port_chann['interface-name'] == port_chan and \
+               port_chann['aggregator_id'] == portchannel_num:
                 if port_chann['aggregator_type'] == 'standard':
                     po_exists = True
                     for interfaces in port_chann['interfaces']:
@@ -130,15 +131,16 @@ class CreatePortChannel(NosDeviceAction):
                             self.logger.info(
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
-                                portchannel_num, interfaces['interface-name'])
+                                port_chann['aggregator_id'], interfaces['interface-name'])
                             return False, po_exists
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
-                        self.logger.info('Interface %s is already mapped to a'
-                                         ' different port channel %s',
-                                         interfaces['interface-name'], port_chann['interface-name'])
-                        return False, po_exists
+                        self.logger.error('Interface %s is already mapped to a'
+                                ' different port channel id: %s desc: %s',
+                                interfaces['interface-name'], port_chann['aggregator_id'],
+                                port_chann['interface-name'])
+                        sys.exit(-1)
         return True, po_exists
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
