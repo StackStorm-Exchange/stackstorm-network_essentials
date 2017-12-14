@@ -36,7 +36,7 @@ class Remove_Acl(NosDeviceAction):
                        connection_type='NETCONF') as device:
 
             self.logger.info('Removing ACL %s on int-type - %s int-name- %s',
-                         acl_name, intf_type, intf)
+                         acl_name, intf_type, str(intf_name))
 
             output = device.acl.remove_acl(**parameters)
             self.logger.info(output)
