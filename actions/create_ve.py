@@ -182,8 +182,6 @@ class CreateVe(NosDeviceAction):
                                             vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
-                self._admin_state(device, ve_name=ve_id,
-                                  rbridge_id=rbridge_id)
                 if ipv6_use_link_local_only:
                     ve_exists =\
                         self._check_requirements_ve(device,
@@ -194,6 +192,7 @@ class CreateVe(NosDeviceAction):
                         changes['create_ve'] = \
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
+                                            vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
                     self._ipv6_link_local(device, name=ve_id,
@@ -206,6 +205,7 @@ class CreateVe(NosDeviceAction):
         """ Verify if the VE is pre-existing """
 
         ves = device.interface.ve_interfaces(rbridge_id=rbridge_id)
+        ret = True
         for each_ve in ves:
             tmp_ve_name = 'Ve ' + ve_name
             if each_ve['if-name'] == tmp_ve_name:
@@ -217,10 +217,13 @@ class CreateVe(NosDeviceAction):
                     if match:
                         self.logger.info('Router VE %s is pre-existing on vlan_id '
                                          '%s', match, ve_name)
-                        return False
+                        ret = False
                 else:
-                    return False
-        return True
+                    ret = False
+        if not ret:
+            self._admin_state(device, ve_name=ve_name,
+                              rbridge_id=rbridge_id)
+        return ret
 
     def _check_requirements_ip(self, device, ve_name, ip_address,
                                rbridge_id, vrf_name):
@@ -252,11 +255,10 @@ class CreateVe(NosDeviceAction):
                     return False
                 elif each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] != ip_address:
-                    self.logger.error('Ve %s is pre-assigned with a different'
-                                      ' IP %s on rbridge_id %s',
-                                      ve_name, each_ve['ip-address'],
-                                      rbridge_id)
-                    return False
+                    self.logger.info('Ve %s is pre-assigned with a different'
+                                     ' IP %s on rbridge_id %s',
+                                     ve_name, each_ve['ip-address'],
+                                     rbridge_id)
                 elif ip_interface(unicode(ip_address)).network == \
                         ip_interface(unicode(each_ve['ip-address'])).network:
                     self.logger.error('IP address %s overlaps with a previously'
@@ -340,7 +342,7 @@ class CreateVe(NosDeviceAction):
         if vrf_name not in vrf_list:
             self.logger.error('Create VRF %s on rbridge-id %s before '
                              'assigning it to Ve', vrf_name, rbridge_id)
-            return False
+            sys.exit(-1)
 
         vrf_fwd = device.interface.add_int_vrf(get=True, rbridge_id=rbridge_id,
                                                name=ve_name, int_type='ve',
@@ -371,6 +373,8 @@ class CreateVe(NosDeviceAction):
                 device.interface.vlan_router_ve(vlan_id=vlan_id, ve_config=ve_name)
             device.interface.create_ve(enable=True, ve_name=ve_name,
                                        rbridge_id=rbridge_id)
+            self._admin_state(device, ve_name=ve_name,
+                              rbridge_id=rbridge_id)
         except (ValueError, KeyError) as e:
             self.logger.error('Invalid input value while creating Ve %s %s' % (ve_name, e.message))
             sys.exit(-1)
@@ -388,7 +392,7 @@ class CreateVe(NosDeviceAction):
                                         rbridge_id=rbridge_id)
         except (ValueError, KeyError) as e:
             self.logger.error('Invalid Input values while assigning IP '
-                             'address to Ve %s' % (e.message))
+                              'address to Ve %s' % (e.message))
             sys.exit(-1)
         return True
 

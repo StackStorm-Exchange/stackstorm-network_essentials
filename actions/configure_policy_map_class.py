@@ -91,14 +91,12 @@ class ConfigurePolicyMap(NosDeviceAction):
         if class_name not in out_2:
             self.logger.exception("Class Map %s is not present on the device", class_name)
             raise ValueError("Class Map is not present on the device", class_name)
-
         out_1 = device.interface.policy_map_class_map_create(policy_map_name=policy_map_name,
-                                                           class_map_name=class_name, get=True)
+            class_map_name=class_name, get=True)
         if out_1 == class_name:
             self.logger.info("Policy Map Class Instance %s is pre-existing on Policy Map %s",
-                             class_name, policy_map_name)
+                class_name, policy_map_name)
             return False
-
         return True
 
     def _pre_check_rates(self, device, policy_map_name, class_name, cir, cbs, eir, ebs):

@@ -25,22 +25,38 @@ class CliCMD(NosDeviceAction):
        Implements the logic to find MACs on an interface on VDX Switches .
     """
 
-    def run(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
+    def run(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
+            device_type='brocade_vdx', enable_passwd=None):
         """Run helper methods to implement the desired state.
         """
         result = {}
-        op_result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd, device_type)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        auth_snmp = self.auth_snmp
+        if not username:
+            username = auth_snmp[0]
+        if not password:
+            password = auth_snmp[1]
+        if not enable_passwd:
+            enable_passwd = auth_snmp[2]
+
+        op_result = self.execute_cli_command(mgmt_ip, username, password, cli_cmd,
+                                             config_operation, device_type, enable_passwd)
+
         if op_result is not None:
             result = op_result
         return result
 
-    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, device_type='brocade_vdx'):
+    def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
+                            device_type='brocade_vdx', enable_passwd=None):
+
         opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
         opt['username'] = username
         opt['password'] = password
         opt['verbose'] = True
         opt['global_delay_factor'] = 0.5
+        if device_type == 'brocade_netiron' and enable_passwd:
+            opt['secret'] = enable_passwd
         net_connect = None
         cli_output = {}
 
@@ -48,10 +64,17 @@ class CliCMD(NosDeviceAction):
             net_connect = ConnectHandler(**opt)
             self.logger.info('successfully connected to %s to find execute CLI %s', self.host,
                              cli_cmd)
-            for cmd in cli_cmd:
-                cmd = cmd.strip()
-                cli_output[cmd] = (net_connect.send_command(cmd))
-                self.logger.info('successfully executed cli %s', cmd)
+            if not config_operation:
+                for cmd in cli_cmd:
+                    cmd = cmd.strip()
+                    cli_output[cmd] = (net_connect.send_command(cmd))
+                    self.logger.info('successfully executed cli %s', cmd)
+            else:
+                if device_type == 'brocade_netiron':
+                    net_connect.enable()
+                cli_output['output'] = (net_connect.send_config_set(cli_cmd))
+                self.logger.info('successfully executed config cli %s', cli_cmd)
+
             self.logger.info('closing connection to %s after executions cli cmds -- all done!',
                              self.host)
             return cli_output

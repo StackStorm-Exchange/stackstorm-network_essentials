@@ -36,7 +36,7 @@ parameters:
   intf_name:
     type: string
     description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple
-      format (24/1)
+      format (24/1) or Port-channel number <1-6144>.
     required: true
     position: 4
   vlan_id:

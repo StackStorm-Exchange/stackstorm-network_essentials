@@ -1,6 +1,6 @@
 ---
-name: attach_service_policy_to_interface
-pack: network_essentials
+name: attach_service_policy_to_interface 
+pack: network_essentials 
 runner_type: run-python
 description: Attach Input/Output Policy Map.
 enabled: true
@@ -14,39 +14,49 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
+    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
+    default: password
     secret: true
     position: 2
   intf_type:
     type: string
+    description: Interface type
     enum:
       - ethernet
       - port_channel
-    default: ethernet
-    description: Interface type
-    required: true
-    position: 3
-  intf_name:
-    type: string
-    description: Interface name physical port or port channel number. E.g:0/1 or 7
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+    default: tengigabitethernet
     required: true
     position: 4
-  policy_map_name:
-    type: array
-    description: Single Policy Map Class Name for configuring In/Out Policy. List
-      of Class Names to configure In & Out Policy. (Max Size -64). For Example. 'Policy_map_in'
-      or 'Policy_map_out' or 'Policy_map_in, Policy_map_out'
+  intf_name:
+    type: string 
+    description: Interface name physical port or port channel number. E.g:0/1 or 7
     required: true
     position: 5
+  policy_map_name:
+    type: array 
+    description: Single Policy Map Class Name for configuring In/Out Policy. List of Class Names to configure In & Out Policy. (Max Size -64).
+                 For Example. 'Policy_map_in' or 'Policy_map_out' or 'Policy_map_in, Policy_map_out'
+    required: true
+    position: 6
   policy_type:
     type: string
     enum:
-      - In
-      - Out
-      - Both
+     - In
+     - Out
+     - Both
     description: In/Out Policy Map  (Max Size -64)
-    default: In
-    position: 6
+    default: In 
+    position: 7
+  rbridge_id:
+    type: string
+    description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+    required: false
+    position: 3

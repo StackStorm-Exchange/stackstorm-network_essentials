@@ -40,6 +40,8 @@ class CreateVRF(NosDeviceAction):
             self.logger.info('successfully connected to %s to Create VRF '
                              'for tenants',
                              self.host)
+            if device.suports_rbridge and rbridge_id is None:
+                rbridge_id = self.vlag_pair(device)
 
             if rbridge_id:
                 for rb_id in rbridge_id:

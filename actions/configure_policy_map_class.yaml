@@ -1,6 +1,6 @@
 ---
 name: configure_policy_map_class
-pack: network_essentials
+pack: network_essentials 
 runner_type: run-python
 description: Create Policy Map, Class Instance and Police Configurations.
 enabled: true
@@ -14,10 +14,12 @@ parameters:
   username:
     type: string
     description: Login user name to connect to the device
+    default: admin
     position: 1
   password:
     type: string
     description: Login password to connect to the device
+    default: password
     secret: true
     position: 2
   policy_map_name:
@@ -27,22 +29,21 @@ parameters:
   class_name:
     type: string
     description: Policy Map Class Name (Max Size -64)
-    default: default
+    default: default 
     position: 3
   cir:
     type: integer
-    description: Committed Information Rate.Valid Range <0-300000000000> bits Per
-      Second
+    description: Committed Information Rate.Valid Range <0-300000000000> bits Per Second
     position: 4
   cbs:
-    type: integer
-    description: Committed Burst Rate.Valid Range <1250-37500000000> Bytes
+    type: integer 
+    description: Committed Burst Rate.Valid Range <1250-37500000000> Bytes 
     position: 5
   eir:
-    type: integer
+    type: integer 
     description: Extended Information Rate.Valid Range <0-300000000000> bits Per Second
     position: 6
   ebs:
-    type: integer
-    description: Extended Burst Rate.Valid Range <1250-37500000000> Bytes
+    type: integer 
+    description: Extended Burst Rate.Valid Range <1250-37500000000> Bytes 
     position: 7

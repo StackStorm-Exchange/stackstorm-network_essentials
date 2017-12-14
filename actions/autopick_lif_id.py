@@ -41,7 +41,7 @@ class AutoPickLifID(NosDeviceAction):
             self.logger.info(
                 'Successfully connected to %s to fetch LIF ID', self.host)
 
-            if device.os_type == 'nos':
+            if device.os_type == 'nos' or device.os_type == 'NI':
                 self.logger.error('Operation is not supported on this device')
                 raise ValueError('Operation is not supported on this device')
 
@@ -86,7 +86,7 @@ class AutoPickLifID(NosDeviceAction):
         if re.search(re_pattern, length_of_the_range):
             length_of_the_range = int(length_of_the_range)
         else:
-            length_of_the_range = len(self.get_vlan_list(length_of_the_range))
+            length_of_the_range = len(self.get_vlan_list(length_of_the_range, device))
 
         lifs = [int(e.split('.')[1]) for e in lif_list]
         lifs_list = []

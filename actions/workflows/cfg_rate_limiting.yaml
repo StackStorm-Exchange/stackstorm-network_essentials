@@ -1,0 +1,164 @@
+version: '2.0'
+network_essentials.cfg_rate_limiting:
+    description: This workflow accomplishes the task of limiting the cir on a specified interface by applying a service policy on that interface. This is accomplished by first adding an IP ACL to the class map, adding the class map to a policy. The policy is then applied to the interface. If the input parameter acl_exists is false, then the ACL is first created,if class_map_name_exists is false, class_map is created, te acl is associated to it, if policy_map_name_exists is false, policy map is created first. Finally the policy is attached to the interface.
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - acl_name
+        - intf_type
+        - intf_name
+        - protocol_type
+        - source
+        - src_mac_addr_mask
+        - destination
+        - dst_mac_addr_mask
+        - dscp
+        - vlan_id
+        - ethertype
+        - address_type
+        - acl_exists
+        - seq_id
+        - class_map_name
+        - class_map_name_exists
+        - policy_map_name
+        - policy_map_name_exists
+        - cir
+        - policy_type
+        - match_type
+        - rbridge_id
+
+    tasks:
+        begin:
+            action: core.local
+            input:
+                cmd: "echo 'cfg_rate_limiting START'"
+            on-success:
+                - create_acl: <% $.acl_exists = false %>
+                - add_ipv4_rule_acl: <% $.acl_exists = true and $.address_type = 'ip' %>
+                - add_ipv6_rule_acl: <% $.acl_exists = true and $.address_type = 'ipv6' %>
+        create_acl:
+            action: network_essentials.create_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_type: 'extended'
+                acl_name: <% $.acl_name %>
+                address_type: <% $.address_type %>
+            on-success:
+#               - add_or_remove_l2_acl_rule: <% $.address_type = 'mac' %>
+                - add_ipv4_rule_acl: <% $.address_type = 'ip' %>
+                - add_ipv6_rule_acl: <% $.address_type = 'ipv6' %>
+#        add_or_remove_l2_acl_rule:
+#            action: network_essentials.add_or_remove_l2_acl_rule
+#            input:
+#                mgmt_ip: <% $.mgmt_ip %>
+#                username: <% $.username %>
+#                password: <% $.password %>
+#                acl_name: <% $.acl_name %>
+#                seq_id: <% $.seq_id %>
+#                source: <% $.source %>
+#                src_mac_addr_mask: <% $.src_mac_addr_mask %>
+#                dst: <% $.destination %>
+#                dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
+#                ethertype: <% $.ethertype %>
+#                vlan: <% $.vlan_id %>
+#            on-success:
+#                - apply_acl: <% $.acl_exists = true %>
+#                - create_switchport_access: <% $.acl_exists = false %>
+        add_ipv4_rule_acl:
+            action: network_essentials.add_ipv4_rule_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                action: "permit"
+                protocol_type: <% $.protocol_type %>
+                source: <% $.source %>
+                destination: <% $.destination %>
+                dscp: <% $.dscp %>
+                vlan_id: <% $.vlan_id %>
+            on-success:
+                - apply_acl: <% $.address_type = 'ip' %>
+            on-error:
+                - apply_acl: <% $.address_type = 'ip' %>
+        add_ipv6_rule_acl:
+            action: network_essentials.add_ipv6_rule_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                seq_id: <% $.seq_id %>
+                action: "permit"
+                protocol_type: <% $.protocol_type %>
+                source: <% $.source %>
+                destination: <% $.destination %>
+                vlan_id: <% $.vlan_id %>
+            on-success:
+                - apply_acl:  <% $.address_type = 'ipv6' %>
+            on-error:
+                - apply_acl:  <% $.address_type = 'ipv6' %>
+        apply_acl:
+            action: network_essentials.apply_acl
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                acl_name: <% $.acl_name %>
+                intf_name: <% $.intf_name %>
+                intf_type: <% $.intf_type %>
+            on-success:
+                - configure_class_map: <% $.class_map_name_exists = false %>
+                - configure_policy_map_class: <% $.class_map_name_exists = true %>
+            on-error:
+                - configure_class_map: <% $.class_map_name_exists = false %>
+        configure_class_map:
+            action: network_essentials.configure_class_map
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                class_name: <% $.class_map_name %>
+                match_type: <% $.match_type %>
+                match_value: <% $.acl_name %>
+            on-success:
+                - configure_policy_map_class: <% $.policy_map_name_exists = false %>
+                - attach_service_policy_to_interface: <% $.policy_map_name_exists = true %>
+            on-error:
+                - end
+        configure_policy_map_class:
+            action: network_essentials.configure_policy_map_class
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                class_name: <% $.class_map_name %>
+                cir: <% $.cir %>
+                policy_map_name: <% $.policy_map_name[0] %>
+            on-success:
+                - attach_service_policy_to_interface
+            on-error:
+                - end
+        attach_service_policy_to_interface:
+            action: network_essentials.attach_service_policy_to_interface
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                policy_map_name: <% $.policy_map_name %>
+                policy_type: <% $.policy_type %>
+                intf_type: <% $.intf_type %>
+                intf_name: <% $.intf_name[0] %>
+            on-success:
+                - end
+            on-error:
+                - end
+        end:
+            action: core.local
+            input:
+                cmd: "echo 'cfg_rate_limiting END'"
