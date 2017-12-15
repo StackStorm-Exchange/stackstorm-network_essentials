@@ -36,7 +36,7 @@ class Apply_Acl(NosDeviceAction):
                        connection_type='NETCONF') as device:
 
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
-                         acl_name, intf_type, intf)
+                         acl_name, intf_type, str(intf_name))
 
             output = device.acl.apply_acl(**parameters)
             self.logger.info(output)
