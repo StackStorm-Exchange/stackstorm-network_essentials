@@ -58,6 +58,10 @@ class CreateVe(NosDeviceAction):
                                          'not matching', rbridge_id,
                                          ip_address)
                     tmp_list = zip(rbridge_id, ip_address)
+                if ve_id is not None and ve_id != vlan_id:
+                    self.logger.error('Vlan ID %s and VE ID %s must be same on NOS platform',
+                        vlan_id, ve_id)
+                    raise ValueError('Vlan ID and VE ID must be same on NOS platform')
             else:
                 if ip_address is None:
                     tmp_list = [1]
@@ -69,7 +73,8 @@ class CreateVe(NosDeviceAction):
                     sys.exit(-1)
             else:
                 # TBD change this for SLX as ve_id and vlan_id need not be same
-                ve_id = vlan_id
+                if ve_id is None:
+                    ve_id = vlan_id
 
             for each_rb in tmp_list:
                 if ip_address is None:
