@@ -153,7 +153,7 @@ parameters:
     type: string
     description: Enables copy-sflow for the rule
         required-by:- [None]
-        accepted-by:- [SLX]
+        accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 21
   dscp_marking:
