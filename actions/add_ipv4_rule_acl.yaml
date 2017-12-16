@@ -258,7 +258,7 @@ parameters:
         - general-parameter-problem
         - host-precedence-violation
         - host-redirect
-        - host-tos-redirec
+        - host-tos-redirect
         - host-tos-unreachable
         - host-unreachable
         - information-reply
