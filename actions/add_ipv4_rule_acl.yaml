@@ -189,7 +189,7 @@ parameters:
     type: string
     description: Match match IP option packets.
         supported values are - 
-            any, eol, extended-security, ignore, loose-source-route
+            any, eol, extended-security, ignore, loose-source-route,
             no-op, record-route, router-alert, security, streamid,
             strict-source-route, timestamp             
             Allowed value in decimal <0-255>.
