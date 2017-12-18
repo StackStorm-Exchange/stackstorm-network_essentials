@@ -83,7 +83,6 @@ class DeleteLogicalInterface(NosDeviceAction):
 
         return True
 
-
     def _logical_interface_delete(self, device, intf_type, intf_name, lif_name):
         """ Deleting logical interface under an interface """
 
