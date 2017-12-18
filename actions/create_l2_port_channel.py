@@ -321,6 +321,8 @@ class CreatePortChannel(NosDeviceAction):
         port_speed = None
         try:
             intf_list = device.interface.get_media_details_request
+            if intf_list is None:
+                return port_speed
             speed_list = []
             for each_int in intf_list:
                 if each_int['interface-name'] in intf_name:
