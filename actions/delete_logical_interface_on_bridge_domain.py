@@ -59,7 +59,7 @@ class DeleteLogicalInterfaceOnBridgeDomain(NosDeviceAction):
                                                                bridge_domain_id,
                                                                intf_type)
 
-            self.logger.info('Closing connection to %s after Deleting '
+            self.logger.info('Closing connection to %s after Deleting logical interfaces on '
                              'bridge domain -- all done!',
                              self.host)
         return changes
