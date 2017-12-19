@@ -26,6 +26,7 @@ parameters:
     enum:
       - ethernet
       - ve
+    default: ve
     description: Interface type, VDX/SLX supports only ve and MLX supports both
     required: true
     position: 3

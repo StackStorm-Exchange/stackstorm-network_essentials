@@ -59,7 +59,7 @@ class validate_vrrpe_state(NosDeviceAction):
                                             vrid=vrrpe_group)
                 vrrpe_roles.append(roles)
             else:
-                raise ValueError('intf_name %s doesnt exist' % intf_name)
+                raise ValueError('{0} intf_name {1} doesnt exist'.format(intf_type, intf_name))
         # Check if there are more than one VRRPE master in the given IP list
         changes['vrrpe_group_details'] = vrrpe_roles
         for each_role in changes['vrrpe_group_details']:
@@ -80,6 +80,9 @@ class validate_vrrpe_state(NosDeviceAction):
         """validate vlan_id
         """
 
+        if not self.validate_interface('ve', vlan_id, os_type=device.os_type):
+            raise ValueError('Interface %s is not valid' % (vlan_id))
+
         valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
         if not valid_vlan:
             raise ValueError('Invalid Vlan_id %s', vlan_id)
@@ -96,6 +99,9 @@ class validate_vrrpe_state(NosDeviceAction):
     def _validate_if_eth_exists(self, device, intf_name, vrid):
         """validate ethernet interface
         """
+
+        if not self.validate_interface('ethernet', intf_name, os_type=device.os_type):
+            raise ValueError('Interface %s is not valid' % (intf_name))
 
         is_exists = False
         eth_list = device.interface.get_eth_l3_interfaces()
@@ -202,7 +208,7 @@ class validate_vrrpe_state(NosDeviceAction):
         intf_pattern = r'interface (.*)'
         vrrpe_role = '(master|backup)'
         vrrpe_state = 'administrative-status enabled'
-        spf_state = 'short-path-forwarding disabled'
+        spf_state = 'short-path-forwarding enabled'
         device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
