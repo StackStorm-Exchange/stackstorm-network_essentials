@@ -52,10 +52,10 @@ class validate_vrrpe_state(NosDeviceAction):
             if changes['pre_check']:
 
                 if device.os_type == 'NI':
-                    roles = self._fetch_vrrpe_state(device, intf_type,
+                    roles = self._ni_fetch_vrrpe_state(device, intf_type,
                                          intf_name, vrid=vrrpe_group)
                 else:
-                    roles = self._ni_fetch_vrrpe_state(device, intf_name,
+                    roles = self._fetch_vrrpe_state(device, intf_name,
                                             vrid=vrrpe_group)
                 vrrpe_roles.append(roles)
             else:
