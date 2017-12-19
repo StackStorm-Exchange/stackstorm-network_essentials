@@ -21,17 +21,24 @@ parameters:
     description: Login password to connect to the device
     secret: true
     position: 2
-  vlan_id:
+  intf_type:
     type: string
-    description: VLAN ID. <NUMBER:1-4090/8191>, can be greater than 4090 only if VF
-      is enabled.
+    enum:
+      - ethernet
+      - ve
+    description: Interface type, VDX/SLX supports only ve and MLX supports both
     required: true
     position: 3
+  intf_name:
+    type: string
+    description: name of the interface, for ethernet slot/port, for ve, ve-id like 10,20
+    required: true
+    position: 4
   vrrpe_group:
     type: string
     description: Virtual extender group ID. <NUMBER:1-255>
     required: true
-    position: 4
+    position: 5
 tags:
   - name: group
     value: Validate Edge Ports
