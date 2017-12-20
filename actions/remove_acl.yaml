@@ -49,8 +49,8 @@ parameters:
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch.  This parameter is only applicable
-      to VDX switches
+    description: RBridge ID of the VDX switch under which VE will be configured, only
+      needed for VDX device.
         required-by:- [None]
         accepted-by:- [NOS]
     required: false
