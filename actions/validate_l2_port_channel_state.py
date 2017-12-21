@@ -54,13 +54,13 @@ class ValidateL2PortChannelState(NosDeviceAction):
         port_channels = device.interface.port_channels
 
         members = next((pc['interfaces'] for pc in port_channels
-                       if pc['aggregator_id'] == port_channel_id), None)
+                       if pc['aggregator_id'] == str(port_channel_id)), None)
 
         # Verify if the port channel to interface mapping is already existing
         output = {}
         output['member-ports'] = []
         output['state'] = ''
-        in_sync = True
+        in_sync_cnt = 0
 
         if not members:
             self.logger.info('Port Channel cannot be validated')
@@ -73,6 +73,7 @@ class ValidateL2PortChannelState(NosDeviceAction):
                     self.logger.info('{} {} is out of sync'
                                      .format(member['interface-type'],
                                              member['interface-name']))
-                    in_sync = False
-                output['state'] = 'out_of_sync' if not in_sync else 'in_sync'
+                else:
+                    in_sync_cnt += 1
+                output['state'] = 'out_of_sync' if in_sync_cnt == 0 else 'in_sync'
             return output
