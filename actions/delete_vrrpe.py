@@ -13,6 +13,7 @@
 # limitations under the License.
 from ne_base import NosDeviceAction
 from pyswitch.device import Device
+import sys
 
 
 class DeleteVrrpe(NosDeviceAction):
@@ -112,8 +113,8 @@ class DeleteVrrpe(NosDeviceAction):
                 if tmp_vrrpe_name is None:
                     is_vrrpe_present = True
                 elif user_vrrpe in tmp_vrrpe_name:
-                    self.logger.info('Deleting VRRPe group %s on Ve %s from rbridge_id %s ',
-                                     user_vrrpe, user_intf, rb)
+                    self.logger.info('Deleting VRRPe group %s on %s %s from rbridge_id %s ',
+                                     user_vrrpe, intf_type, user_intf, rb)
                     device.interface.vrrpe_vrid(delete=True, int_type=intf_type,
                          name=user_intf, version=ip_version,
                          rbridge_id=rb, vrid=user_vrrpe)
@@ -125,7 +126,7 @@ class DeleteVrrpe(NosDeviceAction):
             if tmp_vrrpe_name is None:
                 is_vrrpe_present = True
             elif user_vrrpe in tmp_vrrpe_name:
-                self.logger.info('Deleting VRRPe group on Ve %s ', user_vrrpe)
+                self.logger.info('Deleting VRRPe group on %s %s ', intf_type, user_vrrpe)
                 device.interface.vrrpe_vrid(delete=True, int_type=intf_type,
                          name=user_intf, vrid=user_vrrpe, version=ip_version)
 
@@ -134,6 +135,6 @@ class DeleteVrrpe(NosDeviceAction):
         if not is_vrrpe_present:
             return True
         else:
-            self.logger.info('VRRPe group %s does not exist on the Ve %s',
-            user_vrrpe, user_intf)
-            return False
+            self.logger.info('VRRPe group %s does not exist on the %s %s',
+            user_vrrpe, intf_type, user_intf)
+            sys.exit(-1)
