@@ -70,7 +70,7 @@ class DeleteInOutPolicyMap(NosDeviceAction):
         return changes
 
     def _check_policy_name(self, device, policy_map_name, intf_type, intf_name, rbridge_id):
-        """ Check if policy name is configured on the device. It returns True if the policy name is present """
+        """ Check if policy name is configured on the device, returns True if it is present """
 
         os = device.os_type
 
@@ -96,14 +96,6 @@ class DeleteInOutPolicyMap(NosDeviceAction):
                               % (intf_type, intf_name))
             raise ValueError('Interface %s %s is not present on the Device'
                             % (intf_type, intf_name))
-
-#        for each_map in policy_map_name:
-#            out = device.interface.policy_map_create(get=True, policy_map_name=each_map)
-#            if out is None:
-#                self.logger.info("%s Policy Map Name %s is not present on the device",
-#                    out, each_map)
-#                return False 
-
         return True
 
     def _check_policy_intf(self, device, policy_map_name, intf_type, intf_name, policy_type):
@@ -114,21 +106,21 @@ class DeleteInOutPolicyMap(NosDeviceAction):
         if out is not None:
             if policy_type == 'In':
                 if out['in_policy'] is not None and out['in_policy'] == policy_map_name[0]:
-                    self.logger.info("In Policy Map %s is pre-existing on the interface %s %s",
+                    self.logger.info("In Policy Map %s is matching on the interface %s %s",
                                      policy_map_name[0], intf_type, intf_name)
 #                   can be deleted
-                    return True 
+                    return True
                 elif out['in_policy'] is not None and out['in_policy'] != policy_map_name[0]:
                     self.logger.info("Interface %s %s is configured with a different "
                                      "In Policy Map %s", intf_type, intf_name, out['in_policy'])
 #                   cannot delete
-                    return False 
+                    return False
             elif policy_type == 'Out':
                 if out['out_policy'] is not None and out['out_policy'] == policy_map_name[0]:
-                    self.logger.info("Out Policy Map %s is pre-existing on the interface %s %s",
+                    self.logger.info("Out Policy Map %s is matching on the interface %s %s",
                                      policy_map_name[0], intf_type, intf_name)
 #                   can be deleted
-                    return True 
+                    return True
                 elif out['out_policy'] is not None and out['out_policy'] != policy_map_name[0]:
                     self.logger.info("Interface %s %s is pre-configured with a different "
                                      "Out Policy Map %s", intf_type, intf_name, out['out_policy'])
@@ -149,7 +141,7 @@ class DeleteInOutPolicyMap(NosDeviceAction):
                                      "In & Out Policy Maps %s & %s ", intf_type, intf_name,
                                      out['in_policy'], out['out_policy'])
 #                   cannot delete
-                    return False 
+                    return False
                 elif out['out_policy'] is not None and out['in_policy'] is None or\
                         out['out_policy'] is None and out['in_policy'] is not None:
                     self.logger.info("Interface %s %s is pre-configured with some "
@@ -166,20 +158,22 @@ class DeleteInOutPolicyMap(NosDeviceAction):
             if policy_type == 'In':
                 self.logger.info('Removing Service Input Policy Map %s from Interface %s %s',
                                  policy_map_name[0], intf_type, intf_name)
-                device.interface.interface_service_policy(delete=True,in_policy=policy_map_name[0],
+                device.interface.interface_service_policy(delete=True, in_policy=policy_map_name[0],
                                                           intf_type=intf_type, intf_name=intf_name)
             elif policy_type == 'Out':
                 self.logger.info('Removing Service Output Policy Map %s from Interface %s %s',
                                  policy_map_name, intf_type, intf_name)
-                device.interface.interface_service_policy(delete=True,out_policy=policy_map_name[0],
-                                                          intf_type=intf_type, intf_name=intf_name)
+                device.interface.interface_service_policy(delete=True,
+                                                out_policy=policy_map_name[0], intf_type=intf_type,
+                                                intf_name=intf_name)
             else:
                 self.logger.info('Removing Service Input & Output Policy Map %s, %s '
                                  'from Interface %s %s', policy_map_name[0], policy_map_name[1],
                                  intf_type, intf_name)
-                device.interface.interface_service_policy(delete=True,in_policy=policy_map_name[0],
+                device.interface.interface_service_policy(delete=True, in_policy=policy_map_name[0],
                                                           intf_type=intf_type, intf_name=intf_name)
-                device.interface.interface_service_policy(delete=True,out_policy=policy_map_name[1],
+                device.interface.interface_service_policy(delete=True,
+                                                          out_policy=policy_map_name[1],
                                                           intf_type=intf_type, intf_name=intf_name)
         except (ValueError, KeyError):
             self.logger.exception("Removing Service Policy Map %s to Interface failed",
