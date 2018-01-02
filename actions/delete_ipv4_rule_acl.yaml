@@ -28,9 +28,14 @@ parameters:
     required: true
     position: 3
   seq_id:
-    type: integer
-    description: Sequence number of the rule to be deleted
-        required-by:- [All]
+    type: string
+    description: Sequence numbers of rules to be deleted
+                 { seq id | all | comman and hyphen separated seq ids }
+        Example:- { 10 | all | 1,2,3-10,20 }
+        Note:- "-" separated will ignore non-existing seq_ids. I.E.  "10-30"
+                will delete all the rules with seq id between 10 to 30
+                including 10 and 30.
+        required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
