@@ -43,4 +43,6 @@ class set_l2_system_mtu(NosDeviceAction):
             self.logger.error('Cannot set L2 mtu on device due to %s',
                               e.message)
             sys.exit(-1)
+        except UserWarning as e:
+            self.logger.warning('%s', e.message)
         return True

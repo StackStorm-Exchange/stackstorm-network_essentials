@@ -41,7 +41,7 @@ parameters:
   intf_name:
     type: string
     description: Interface names, port channel numbers or VEs. Examples are 224/0/1,
-      224/0/2, 52/0/15-16 or 7, 8, 9
+      224/0/2, 0/1 or 7, 8, 9
     required: true
     position: 4
   rbridge_id:
