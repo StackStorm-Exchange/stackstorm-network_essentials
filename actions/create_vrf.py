@@ -152,7 +152,7 @@ class CreateVRF(NosDeviceAction):
         host_username = self.auth_snmp[0]
         host_password = self.auth_snmp[1]
         cli_arr = []
-        cli_cmd = 'show vrf ' + vrf_name
+        cli_cmd = 'show vrf "' + vrf_name + '"'
         cli_arr.append(cli_cmd)
 
         device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
