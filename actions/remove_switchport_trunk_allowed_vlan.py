@@ -15,6 +15,7 @@
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 import itertools
+import sys
 
 
 class RemoveSwitchPort(NosDeviceAction):
@@ -40,6 +41,11 @@ class RemoveSwitchPort(NosDeviceAction):
                 'successfully connected to %s to Remove '
                 'switchport trunk allowed vlan on the Interface',
                 self.host)
+
+            if device.os_type != 'nos' and c_tag is not None:
+                self.logger.error('c_tag mapping under switchport is not '
+                                  'supported on this platform')
+                sys.exit(-1)
 
             v_list, c_list = self._check_interface_presence(
                 device, intf_type, intf_name, vlan_id, c_tag)
@@ -124,6 +130,11 @@ class RemoveSwitchPort(NosDeviceAction):
     def _check_requirements_switchport_exists(self, device, intf_type, intf_name):
         """ Fail the task if switch port exists.
         """
+
+        # MLX doesnt have switchport concept, so just return true to be
+        # compatible with existing code
+        if device.os_type == "NI":
+            return True
 
         return_code = device.interface.switchport(int_type=intf_type,
                                                   name=intf_name,
