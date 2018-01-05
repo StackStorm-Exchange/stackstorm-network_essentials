@@ -2,13 +2,14 @@
 name: execute_cli
 pack: network_essentials
 runner_type: run-python
-description: Execute CLI command and return the result
+description: Execute CLI command and return the result. Device type should be
+             appropriate to get reliable output.
 enabled: true
 entry_point: execute_cli.py
 parameters:
   mgmt_ip:
     type: string
-    description: Ip address of the VDX device
+    description: Ip address of the device
     required: true
     position: 0
   username:
@@ -22,7 +23,7 @@ parameters:
     position: 2
   cli_cmd:
     type: array
-    description: CLI commands to execute on the specified VDX device
+    description: CLI commands to execute on the device
     required: true
     position: 3
   config_operation:
@@ -33,11 +34,12 @@ parameters:
   device_type:
     type: string
     enum:
-      - brocade_vdx
-      - brocade_netiron
-    default: brocade_vdx
+      - nos
+      - slx
+      - ni
+    default: nos
     description: Connecting device type
-    required: false
+    required: true
     position: 5
   enable_passwd:
     type: string

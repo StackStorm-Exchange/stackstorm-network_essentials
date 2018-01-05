@@ -26,7 +26,7 @@ class CliCMD(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
-            device_type='brocade_vdx', enable_passwd=None):
+            device_type='nos', enable_passwd=None):
         """Run helper methods to implement the desired state.
         """
         result = {}
@@ -47,7 +47,17 @@ class CliCMD(NosDeviceAction):
         return result
 
     def execute_cli_command(self, mgmt_ip, username, password, cli_cmd, config_operation=False,
-                            device_type='brocade_vdx', enable_passwd=None):
+                            device_type='nos', enable_passwd=None):
+
+        if device_type == 'nos' or device_type == 'slx':
+            device_type = 'brocade_vdx'
+        elif device_type == 'ni':
+            device_type = 'brocade_netiron'
+        else:
+            error_string = 'Invalid device type "' + device_type +\
+                           '". Valid device types are "nos", "slx" "ni"'
+            self.logger.error(error_string)
+            sys.exit(-1)
 
         opt = {'device_type': device_type}
         opt['ip'] = mgmt_ip
