@@ -273,6 +273,9 @@ class NosDeviceAction(Action):
         re_pattern3 = r"^(\d+)\/(\d+)\/(\d+)$|^\d+/\d+$"
         re_pattern4 = r"^(\d+)\/(\d+)\/(\d+)\-?(\d+)$|^(\d+)/(\d+)-(\d+)$"
         re_pattern5 = r"^(\d+)\/(\d+)\/(\d+)(:(\d+))?$"
+        re_pattern6 = r"^(\d+)\/(\d+)(:(\d+))?$"
+        re_pattern7 = r"^(\d+)\/(\d+)\/(\d+)(:(\d+))-(\d+)$"
+        re_pattern8 = r"^(\d+)\/(\d+)(:(\d+))-(\d+)$"
 
         intTypes = ["port_channel", "gigabitethernet", "tengigabitethernet", "fortygigabitethernet",
                     "hundredgigabitethernet", "ve"]
@@ -313,6 +316,40 @@ class NosDeviceAction(Action):
             int_list = int_list
         elif re.search(re_pattern5, int_list):
             int_list = ((int_list),)
+        elif re.search(re_pattern6, int_list):
+            int_list = ((int_list),)
+        elif re.search(re_pattern7, int_list):
+            try:
+                temp_list = re.match(re_pattern7, int_list)
+            except Exception:
+                return None
+            int_list = []
+            try:
+                if int(temp_list.groups()[4]) == int(temp_list.groups()[5]):
+                    self.logger.info("Use range command only for unique values")
+                intList = range(int(temp_list.groups()[4]), int(
+                    temp_list.groups()[5]) + 1)
+                for intf in intList:
+                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
+                                    temp_list.groups()[2] + ':' + str(intf))
+            except:
+                msg = "Invalid interface format"
+        elif re.search(re_pattern8, int_list):
+            try:
+                temp_list = re.match(re_pattern8, int_list)
+            except Exception:
+                return None
+            int_list = []
+            try:
+                if int(temp_list.groups()[3]) == int(temp_list.groups()[4]):
+                    self.logger.info("Use range command only for unique values")
+                intList = range(int(temp_list.groups()[3]), int(
+                    temp_list.groups()[4]) + 1)
+                for intf in intList:
+                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + ':' +
+                                    str(intf))
+            except:
+                msg = "Invalid interface format"
         else:
             msg = 'Invalid interface format'
 
@@ -510,7 +547,7 @@ class NosDeviceAction(Action):
                 intf = intf_name
             else:
                 msg = 'Invalid interface format'
-        elif os_type == "slxos":
+        elif os_type == "slxos" or os_type == "NI":
             if re.search(re_pattern1, intf_name):
                 intf = intf_name
             elif re.search(re_pattern2, intf_name) and intf_type in NosIntTypes:

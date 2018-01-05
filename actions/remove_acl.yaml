@@ -31,30 +31,42 @@ parameters:
       - ve
       - loopback
       - ethernet
+      - management
+      - vlan
     default: tengigabitethernet
     description: Interface type
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   intf_name:
     type: array
     description: Interface names, can be comma separated physical ports, port channel
       numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch.  This parameter is only applicable
-      to VDX switches
+    description: RBridge ID of the VDX switch under which VE will be configured, only
+      needed for VDX device.
+        required-by:- [None]
+        accepted-by:- [NOS]
     required: false
     position: 5
   acl_name:
     type: string
     description: ACL name
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 6
   acl_direction:
     type: string
     description: ACL direction
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 7
     enum:
@@ -64,6 +76,8 @@ parameters:
   traffic_type:
     type: string
     description: Traffic type for the ACL being removed
+        required-by:- [None]
+        accepted-by:- [None]
     required: false
     position: 8
     enum:

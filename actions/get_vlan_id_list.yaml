@@ -1,11 +1,10 @@
 ---
-name: validate_L2_port_channel_state
+name: get_vlan_id_list
 pack: network_essentials
 runner_type: run-python
-description: Validate the port channel state by verifying the sync state of all member
-  ports is 1.
+description: Expand the range for given list of Vlans IDs  
 enabled: true
-entry_point: validate_l2_port_channel_state.py
+entry_point: get_vlan_id_list.py
 parameters:
   mgmt_ip:
     type: string
@@ -21,9 +20,10 @@ parameters:
     description: Login password to connect to the device
     secret: true
     position: 2
-  port_channel_id:
-    type: integer
-    description: Portchannel interface number. <NUMBER:1-6144>. For MLX
-            range is <1-256>
+  vlan_id_list:
+    type: string
+    description: Single/Range of vlans_ids.Returns the list of VLANS IDs in the range.
+      For example 10 or 1-25 or 1-25,26,28. For example, if vlan_id_list='400,401,420-425'
+      returns 400,401,420,421,422,423,424,425.
     required: true
     position: 3

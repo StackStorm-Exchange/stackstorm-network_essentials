@@ -171,6 +171,9 @@ class ValidateInterfaceState(NosDeviceAction):
                         self.logger.error(
                             "Invalid port channel/physical interface state %s"
                             % proto_state)
+                        raise ValueError(
+                            "Invalid port channel/physical interface state %s"
+                            % proto_state)
                         sys.exit(-1)
         else:
             interfaces = device.interface.single_interface_detail(
@@ -194,9 +197,11 @@ class ValidateInterfaceState(NosDeviceAction):
                         "Invalid port channel/physical interface state %s"
                         % proto_state)
                     changes['state'] = False
+                    sys.exit(-1)
             else:
                 self.logger.error(
                     "Invalid port channel/physical interface name/type")
                 changes['intf'] = False
+                sys.exit(-1)
 
         return changes

@@ -48,14 +48,14 @@ class CreatePortChannel(NosDeviceAction):
                     sys.exit(-1)
             if device.os_type == 'NI':
                 if mode != "standard":
-                    self.logger.error('MLX only supports port-channel type as standard')
+                    self.logger.error('NI only supports port-channel type as standard')
                     sys.exit(-1)
                 if protocol == "on":
                     protocol = "static"
                 elif protocol == "active":
                     protocol = "dynamic"
                 else:
-                    self.logger.error('NI/MLX doesnt support port-channel protocol %s', protocol)
+                    self.logger.error('NI doesnt support port-channel protocol %s', protocol)
                     sys.exit(-1)
 
             changes['pre_validation'], po_exists = self._check_requirements(device, ports,
@@ -110,8 +110,8 @@ class CreatePortChannel(NosDeviceAction):
                 raise ValueError('Invalid interface description %s', intf_desc)
         else:
             if device.os_type == 'NI':
-                raise ValueError('Port-channel name/description cannot be NULL for MLX %d',
-                        portchannel_num)
+                self.logger.error('Port-channel name/description cannot be NULL for NI')
+                sys.exit(-1)
 
         result = device.interface.port_channels
         tmp1 = "-" + portchannel_num
@@ -122,7 +122,8 @@ class CreatePortChannel(NosDeviceAction):
 
         # Verify if the port channel to interface mapping is already existing
         for port_chann in result:
-            if port_chann['interface-name'] == port_chan:
+            if port_chann['interface-name'] == port_chan and \
+               port_chann['aggregator_id'] == portchannel_num:
                 if port_chann['aggregator_type'] == 'standard':
                     po_exists = True
                     for interfaces in port_chann['interfaces']:
@@ -130,15 +131,16 @@ class CreatePortChannel(NosDeviceAction):
                             self.logger.info(
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
-                                portchannel_num, interfaces['interface-name'])
+                                port_chann['aggregator_id'], interfaces['interface-name'])
                             return False, po_exists
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
-                        self.logger.info('Interface %s is already mapped to a'
-                                         ' different port channel %s',
-                                         interfaces['interface-name'], port_chann['interface-name'])
-                        return False, po_exists
+                        self.logger.error('Interface %s is already mapped to a'
+                                ' different port channel id: %s desc: %s',
+                                interfaces['interface-name'], port_chann['aggregator_id'],
+                                port_chann['interface-name'])
+                        sys.exit(-1)
         return True, po_exists
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
@@ -316,28 +318,34 @@ class CreatePortChannel(NosDeviceAction):
         """Get the actual line speed on the port.
         """
 
-        intf_list = device.interface.interfaces
-        speed_list = []
-        for each_int in intf_list:
-            if each_int['if-name'] is not None:
-                tmp_intf = each_int['if-name'].split(' ')[1]
-                if tmp_intf in intf_name:
-                    speed_list.append(each_int['actual-speed'])
-
-        if len(set(speed_list)) != 1:
-            self.logger.error('Port channel group member ports cannot be of different port speeds')
-            raise ValueError('Port channel group member ports cannot be of different port speeds')
-
         port_speed = None
-        if list(set(speed_list))[0] == "1Gbps":
-            port_speed = "1000"
-        if list(set(speed_list))[0] == "10Gbps":
-            port_speed = "10000"
-        if list(set(speed_list))[0] == "25Gbps":
-            port_speed = "25000"
-        if list(set(speed_list))[0] == "40Gbps":
-            port_speed = "40000"
-        if list(set(speed_list))[0] == "100Gbps":
-            port_speed = "100000"
+        try:
+            intf_list = device.interface.get_media_details_request
+            if intf_list is None:
+                return port_speed
+            speed_list = []
+            for each_int in intf_list:
+                if each_int['interface-name'] in intf_name:
+                    speed_list.append(each_int['sfp_speed'])
+
+            if speed_list != [] and len(speed_list) != len(intf_name):
+                self.logger.error('Port channel group member ports %s cannot be of different port'
+                                  ' speeds %s', intf_name, speed_list)
+                raise ValueError('Port channel group member ports cannot '
+                                 'be of different port speeds')
+
+            if speed_list != []:
+                if list(set(speed_list))[0] == "1Gbps":
+                    port_speed = "1000"
+                if list(set(speed_list))[0] == "10Gbps":
+                    port_speed = "10000"
+                if list(set(speed_list))[0] == "25Gbps":
+                    port_speed = "25000"
+                if list(set(speed_list))[0] == "40Gbps":
+                    port_speed = "40000"
+                if list(set(speed_list))[0] == "100Gbps":
+                    port_speed = "100000"
+        except:
+            self.logger.info('Unable to fetch the actual line speed of the interfaces')
 
         return port_speed

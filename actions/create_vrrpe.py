@@ -16,6 +16,7 @@ from ipaddress import ip_interface
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import sys
 
 
 class CreateVrrpe(NosDeviceAction):
@@ -94,6 +95,8 @@ class CreateVrrpe(NosDeviceAction):
                     rbridge_id=rbridge_id,
                     vrid=vrid,
                     ip_version=ip_version)
+        else:
+            sys.exit(-1)
 
         self.logger.info(
             'closing connection to %s after Enabling VRRPE - all done!',
@@ -197,8 +200,8 @@ class CreateVrrpe(NosDeviceAction):
                                 and each_entry['vrid'] == vrid:
                             self.logger.error(
                                 'VRID %s is either associated to '
-                                'a different IP %s or there is no\
-                                 association existing in %s %s' %
+                                'a different IP %s or there is no '
+                                'association existing in %s %s' %
                                 (vrid, each_entry['vip'], intf_type, intf_name))
                             ip_version = ''
 

@@ -23,10 +23,19 @@ parameters:
   acl_name:
     type: string
     description: Name of the ACL (standard or extended) to delete the rule from
+        required-by:- [All]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   seq_id:
-    type: integer
-    description: Sequence number of the rule to be deleted
+    type: string
+    description: Sequence numbers of rules to be deleted
+                 { seq id | all | comman and hyphen separated seq ids }
+        Example:- { 10 | all | 1,2,3-10,20,35-  }
+        Note:- "-" separated values will look for seq_ids in range including
+                the values and 35- is equal to starting from 35 delete all
+                configured sequence ids, including 35.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
