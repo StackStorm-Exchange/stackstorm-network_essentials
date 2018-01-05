@@ -22,7 +22,7 @@ parameters:
     secret: true
     position: 2
   port_channel_id:
-    type: string
+    type: integer
     description: Portchannel interface number. <NUMBER:1-6144>. For MLX
             range is <1-256>
     required: true

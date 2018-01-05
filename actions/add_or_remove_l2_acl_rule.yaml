@@ -9,6 +9,8 @@ parameters:
   delete:
     type: boolean
     description: Indicates add or delete operation. TRUE indicates a remove operation.
+        required-by:- [None]
+        accepted-by:- [SLX, NOS, MLX]
     default: false
     position: 0
   mgmt_ip:

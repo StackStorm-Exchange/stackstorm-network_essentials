@@ -26,14 +26,14 @@ parameters:
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
-  seq_id:
+  seq_id: &seq_id
     type: integer
     description: Sequence number of the rule, if not specified, the rule is added
       at the end of the list. Valid range is 0 to 4294967290
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 4
-  action:
+  action: &action
     type: string
     description: Action performed by ACL rule
         required-by:- [SLX, NOS, MLX]
@@ -44,7 +44,7 @@ parameters:
       - deny
       - hard-drop
     default: permit
-  protocol_type:
+  protocol_type: &protocol_type
     type: string
     description: Type of IP packets to be filtered based on protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
@@ -52,7 +52,7 @@ parameters:
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 6
-  source:
+  source: &source
     type: string
     description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
       } [ source-operator [ S_port-numbers ] ]
@@ -61,14 +61,14 @@ parameters:
     required: true
     position: 7
     default: any
-  destination:
+  destination: &destination
     type: string
     description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) |
       host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 8
-  dscp:
+  dscp: &dscp
     type: string
     description: Matches the specified value against the DSCP value of the packet
       to filter.  Allowed values are 0 through 63.
@@ -79,7 +79,7 @@ parameters:
         accepted-by:- [SLX, NOS, MLX]
     required: false
     position: 9
-  drop_precedence_force:
+  drop_precedence_force: &drop_precedence_force
     type: string
     description: Matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
@@ -88,75 +88,75 @@ parameters:
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 10
-  urg:
+  urg: &urg
     type: string
     description: Enables urg for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 11
-  ack:
+  ack: &ack
     type: string
     description: Enables ack for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 12
-  push:
+  push: &push
     type: string
     description: Enables push for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 13
-  fin:
+  fin: &fin
     type: string
     description: Enables fin for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 14
-  rst:
+  rst: &rst
     type: string
     description: Enables rst for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 15
-  sync:
+  sync: &sync
     type: string
     description: Enables sync for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 16
-  vlan_id:
+  vlan_id: &vlan_id
     type: integer
     description: VLAN interface to which the ACL is bound
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 17
-  count:
+  count: &count
     type: string
     description: Enables statistics for the rule
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 18
-  log:
+  log: &log
     type: string
     description: Enables logging for the rule.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 19
-  mirror:
+  mirror: &mirror
     type: string
     description: Enables mirror for the rule
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 20
-  copy_sflow:
+  copy_sflow: &copy_sflow
     type: string
     description: Enables copy-sflow for the rule
         required-by:- [None]
-        accepted-by:- [SLX]
+        accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 21
-  dscp_marking:
+  dscp_marking: &dscp_marking
     type: string
     description: dscp-marking number is used to mark the DSCP value in the
         incoming packet with the value you specify to filter.
@@ -165,7 +165,7 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 22
-  fragment:
+  fragment: &fragment
     type: string
     description: Use fragment keyword to allow the ACL to filter fragmented packets.
         Use the non-fragment keyword to filter non-fragmented packets.
@@ -175,7 +175,7 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 23
-  precedence:
+  precedence: &precedence
     type: string
     description: Match packets with given precedence value.
         Allowed value { <0 to 7> | critical | flash |
@@ -185,11 +185,11 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 24
-  option:
+  option: &option
     type: string
     description: Match match IP option packets.
         supported values are - 
-            any, eol, extended-security, ignore, loose-source-route
+            any, eol, extended-security, ignore, loose-source-route,
             no-op, record-route, router-alert, security, streamid,
             strict-source-route, timestamp             
             Allowed value in decimal <0-255>.
@@ -197,35 +197,35 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 25
-  suppress_rpf_drop:
+  suppress_rpf_drop: &suppress_rpf_drop
     type: boolean
     description: Permit packets that fail RPF check
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 26
-  priority:
+  priority: &priority
     type: integer
     description: set priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 27
-  priority_force:
+  priority_force: &priority_force
     type: integer
     description: force packet outgoing priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 28
-  priority_mapping:
+  priority_mapping: &priority_mapping
     type: integer
     description: map incoming packet priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 29
-  tos:
+  tos: &tos
     type: integer
     description: Match packets with given TOS value.
         Allowed value in decimal <0-15>.
@@ -233,7 +233,7 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 30
-  established:
+  established: &established
     type: boolean
     description: This policy applies only to TCP packets that have the ACK or
         RST bits set on.
@@ -241,7 +241,7 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 31
-  icmp_filter:
+  icmp_filter: &icmp_filter
     type: string
     description: ICMP message type to be filtered.
         required-by:- [None]
@@ -258,7 +258,7 @@ parameters:
         - general-parameter-problem
         - host-precedence-violation
         - host-redirect
-        - host-tos-redirec
+        - host-tos-redirect
         - host-tos-unreachable
         - host-unreachable
         - information-reply
@@ -287,7 +287,7 @@ parameters:
         - ttl-exceeded
         - unreachable
     position: 32
-  drop_precedence:
+  drop_precedence: &drop_precedence
     type: string
     description: Matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
@@ -295,3 +295,73 @@ parameters:
         required-by:- [None]
         accepted-by:- [MLX]
     position: 33
+  acl_rules:
+    type: array
+    description: Bulk operation is supported to create more than one ACL rule
+        in one action execution. The parameters passed to create multiple
+        rules will follow the constraints similar of single rule creation.
+        NOTE- if rules are specified in acl_rules the rule specified outside
+        of array will be ignored and only rules in acl_array will be processed
+    position: 34
+    items:
+      properties:
+        seq_id:
+          << : *seq_id
+        action:
+          << : *action
+        protocol_type:
+          << : *protocol_type
+        source:
+          << : *source
+        destination:
+          << : *destination
+        dscp:
+          << : *dscp
+        drop_precedence_force:
+          << : *drop_precedence_force
+        urg:
+          << : *urg
+        ack:
+          << : *ack
+        push:
+          << : *push
+        fin:
+          << : *fin
+        rst:
+          << : *rst
+        sync:
+          << : *sync
+        vlan_id:
+          << : *vlan_id
+        count:
+          << : *count
+        log:
+          << : *log
+        mirror:
+          << : *mirror
+        copy_sflow:
+          << : *copy_sflow
+        dscp_marking:
+          << : *dscp_marking
+        fragment:
+          << : *fragment
+        precedence:
+          << : *precedence
+        option:
+          << : *option
+        suppress_rpf_drop:
+          << : *suppress_rpf_drop
+        priority:
+          << : *priority
+        priority_force:
+          << : *priority_force
+        priority_mapping:
+          << : *priority_mapping
+        tos:
+          << : *tos
+        established:
+          << : *established
+        icmp_filter:
+          << : *icmp_filter
+        drop_precedence:
+          << : *drop_precedence
