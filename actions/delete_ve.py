@@ -100,7 +100,7 @@ class DeleteVe(NosDeviceAction):
                 tmp_dut_ve = [str(item) for item in tmp_ve_name]
                 if user_ve in tmp_dut_ve:
                     self.logger.info('Deleting router interface %s to vlan %s mapping and Ve %s',
-                                     ve_name, ve_name, user_ve)
+                                     ve_name, vlan_id, user_ve)
                     device.interface.vlan_router_ve(delete=True, vlan_id=vlan_id, ve_config=ve_name)
                     device.interface.create_ve(enable=False, ve_name=user_ve)
                     return True
