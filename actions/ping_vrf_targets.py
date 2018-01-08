@@ -27,6 +27,6 @@ class CheckPing(NosDeviceAction):
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
 
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
-            ping_output = device.utils.ping(targets=targets, count=count,
+            (status, ping_output) = device.utils.ping(targets=targets, count=count,
                                            timeout_value=timeout_value, vrf=vrf, size=size)
-        return ping_output
+        return (status, ping_output)
