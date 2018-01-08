@@ -130,7 +130,7 @@ class validate_vrrpe_state(NosDeviceAction):
         vrrpe_role = '(Master|Backup)'
         vrrpe_state = 'Admin Status: Enabled'
         spf_state = 'Short-path-forwarding: Enabled'
-        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
+        device_type = 'ni' if device.os_type == 'NI' else 'nos'
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip, username=host_username,
                                                       password=host_password,
                                                       cli_cmd=[cli_cmd],
