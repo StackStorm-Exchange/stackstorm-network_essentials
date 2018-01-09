@@ -1,0 +1,56 @@
+---
+name: delete_logical_interface_on_bridge_domain
+pack: network_essentials 
+runner_type: run-python
+description: Delete logical interfaces under a bridge domain. 
+enabled: true
+entry_point: delete_logical_interface_on_bridge_domain.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    default: admin
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    default: password
+    secret: true
+    position: 2
+  bridge_domain_id:
+    type: string 
+    description: Bridge-domain IDs.
+      <1-4096> on SLX9140,SLX9850 and <1-3566> on SLX9240.
+    required: true
+    position: 3
+  bridge_domain_service_type:
+    type: string
+    enum:
+      - p2mp
+      - p2p
+    description: bridge domain service type.
+      `p2p` is not supported on SLX9140 and SLX9240 platforms.
+    position: 4
+    default: p2mp
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - port_channel
+      - both 
+    description: Interface type to be deleted from the bridge_domain.
+    default: ethernet 
+    position: 5 
+  logical_interface_number:
+    type: string 
+    description: Single/List of logical Interface Number for physical port or port channel separated by comma. E.g:0/1.1,10.1,0/20.1 or 7.1. 
+      1. If intf_type is 'both'  --> all the LIFs {ethernet & port_channel} will be deleted on the BD.
+      2. If intf_type is 'ethernet' and logical_interface_number is not passed --> all the ethernet LIFs will be deleted on the BD.
+      3. If intf_type is 'port_channel' and logical_interface_number is not passed --> all the port_channel LIFs will be deleted on the BD.
+      4. If intf_type is 'port_channel or ethernet' and logical_interface_number is passed --> port_channel/ethernet LIFs passed will be deleted on the BD.
+    position: 6
