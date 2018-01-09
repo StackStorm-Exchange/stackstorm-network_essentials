@@ -1,0 +1,40 @@
+version: '2.0'
+network_essentials.clear_cfg_rate_limiting:
+    description: This workflow accomplishes the task of clearing the service policy attached to the interface.This is accomplished by removing the policy attached to the interface.
+    type: direct
+    input:
+        - mgmt_ip
+        - username
+        - password
+        - rbridge_id
+        - intf_type
+        - intf_name
+        - policy_map_name
+        - policy_type
+
+    tasks:
+        begin:
+            action: core.local
+            input:
+                cmd: "echo 'clear_cfg_rate_limiting START'"
+            on-success:
+                - delete_service_policy
+        delete_service_policy:
+            action: network_essentials.delete_service_policy_to_interface
+            input:
+                mgmt_ip: <% $.mgmt_ip %>
+                username: <% $.username %>
+                password: <% $.password %>
+                intf_name: <% $.intf_name[0] %>
+                intf_type: <% $.intf_type %>
+                policy_map_name: <% $.policy_map_name %>
+                policy_type: <% $.policy_type %>
+                rbridge_id: <% $.rbridge_id %>
+            on-success:
+                - end
+            on-error:
+                - end
+        end:
+            action: core.local
+            input:
+                cmd: "echo 'clear_fg_rate_limiting END'"

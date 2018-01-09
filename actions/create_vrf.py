@@ -155,7 +155,7 @@ class CreateVRF(NosDeviceAction):
         cli_cmd = 'show vrf "' + vrf_name + '"'
         cli_arr.append(cli_cmd)
 
-        device_type = 'brocade_netiron' if device.os_type == 'NI' else 'brocade_vdx'
+        device_type = 'ni' if device.os_type == 'NI' else 'nos'
 
         raw_cli_output = exec_cli.execute_cli_command(mgmt_ip=host_ip,
                                                       username=host_username,
