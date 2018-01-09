@@ -15,14 +15,19 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
         parameters = locals()
         parameters .pop('self', None)
 
-        self.logger.info('add_or_remove_l2_acl_rule Operation: Initiated')
+        self.logger.info('delete_ipv4_rule_acl Operation: Initiated')
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
 
             self.logger.info('Deleting Rule from L2 ACL: {}'
                              .format(acl_name))
-            output = device.acl.delete_ipv4_acl_rule(**parameters)
+
+            if seq_id.isdigit():
+                parameters['seq_id'] = int(parameters['seq_id'])
+                output = device.acl.delete_ipv4_acl_rule(**parameters)
+            else:
+                output = device.acl.delete_ipv4_acl_rule_bulk(**parameters)
 
             self.logger.info(output)
             return True
