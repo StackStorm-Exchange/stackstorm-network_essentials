@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+import sys
 
 
 class SetIntfAdminState(NosDeviceAction):
@@ -36,6 +37,14 @@ class SetIntfAdminState(NosDeviceAction):
             # Check is the user input for Interface Name is correct
             interface_list = self.expand_interface_range(intf_type=intf_type, intf_name=intf_name,
                              rbridge_id=rbridge_id)
+            if rbridge_id:
+                if device.os_type != "nos":
+                    self.logger.error('this platform does not support rbridge_id')
+                    sys.exit(-1)
+                elif device.os_type == 'nos' and intf_type not in ['ve', 'loopback']:
+                    self.logger.error('Rbridge_id is not required for interface type %s', intf_type)
+                    sys.exit(-1)
+
             valid_desc = True
             if intf_desc and intf_type not in ['ve', 'loopback']:
                 # if description is passed we validate that the length is good.
