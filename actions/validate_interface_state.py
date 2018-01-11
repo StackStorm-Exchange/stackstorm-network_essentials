@@ -175,7 +175,7 @@ class ValidateInterfaceState(NosDeviceAction):
 
                 if not is_intf_present:
                     self.logger.error(
-                        "Invalid VE/Loopback interface name/type")
+                        "Invalid interface name/type %s" % (ifname))
                     sys.exit(-1)
                 else:
                     if not is_intf_state_present:
@@ -210,7 +210,7 @@ class ValidateInterfaceState(NosDeviceAction):
                     sys.exit(-1)
             else:
                 self.logger.error(
-                    "Invalid port channel/physical interface name/type")
+                    "Invalid interface name/type %s" % (ifname))
                 changes['intf'] = False
                 sys.exit(-1)
 
