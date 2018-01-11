@@ -2,7 +2,8 @@
 name: create_switchport_access
 pack: network_essentials
 runner_type: run-python
-description: Configure a port channel or a physical interface as an access interface.
+description: Configure a port channel or a physical interface as an access interface,
+  or add a untagged port to a vlan for NI.
 enabled: true
 entry_point: create_switchport_access.py
 parameters:
@@ -35,15 +36,15 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple
-      format (24/1) or Port-channel number <1-6144>.
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX/NI in 2-tuple
+      format (24/1) or Port-channel number <1-6144>, for NI <1-256>.
     required: true
     position: 4
   vlan_id:
     type: string
     description: VLAN ID to be configured on the interface. For 802.1Q VLANs, ID must
       be below 4096, for service or transport VFs valid range is from 4096 through
-      8191.
+      8191, for NI, vlan range <1-4090>.
     required: true
     position: 5
   mac_group_id:
@@ -51,4 +52,5 @@ parameters:
     description: ID of previously created MAC group to be used in MAC-based VLAN classification
       at the access port.  Applicable only when Virtual Fabric is enabled.  This is
       a fabric-wide ID, valid values are 1 through 500.
+      it is no-op for NI.
     position: 6

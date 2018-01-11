@@ -196,7 +196,10 @@ class CreateSwitchPort(NosDeviceAction):
                 else:
                     diff_macs = zip([vlan_id] * len(mac_address), mac_address)
         except (ValueError, IndexError, KeyError), e:
-            raise ValueError('Fetching switch port mode failed %s', str(e))
+            self.logger.error('Fetching switch port mode or type check is failed %s',
+                            str(e.message))
+            sys.exit(-1)
+
         return True, list(diff_grps), list(diff_macs)
 
     def _vlan_exist(self, device, vlan_id, mac_group_id, mac_address):
