@@ -239,11 +239,13 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.info('Configuring Switch port access on intf_name %s', intf_name)
             device.interface.switchport(int_type=intf_type, name=intf_name)
             device.interface.acc_vlan(int_type=intf_type, name=intf_name, vlan=vlan_id)
-            return True
-        except Exception as e:
+        except (ValueError, IndexError, KeyError), e:
             error_msg = str(e.message)
             self.logger.error("Configuring Switch port access failed due to %s", error_msg)
             sys.exit(-1)
+        except UserWarning as e:
+            self.logger.warning("configs are pre-existing %s", str(e.message))
+        return True
 
     def _config_switchport_mac_group(self, device, intf_type, intf_name, mac_gps):
         """Associate the Mac Group to the Access Vlan.
