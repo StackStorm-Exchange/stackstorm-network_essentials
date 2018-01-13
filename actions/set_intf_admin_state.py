@@ -92,10 +92,19 @@ class SetIntfAdminState(NosDeviceAction):
                 else:
                     device.interface.admin_state(enabled=enabled, name=intf, int_type=intf_type)
 
-            if intf_type not in ['ve', 'loopback']:
+            if intf_type not in ['ve', 'loopback'] or device.os_type == 'NI':
                 if intf_desc:
-                    device.interface.description(int_type=intf_type, name=intf,
+                    try:
+                        device.interface.description(int_type=intf_type, name=intf,
                                                  desc=intf_desc)
+                    except UserWarning as e:
+                        self.logger.info('%s', str(e.message))
+
+                    except (ValueError, IndexError, KeyError), e:
+                        error_msg = str(e.message)
+                        self.logger.error('Setting description is failed %s', error_msg)
+                        sys.exit(-1)
+
                 else:
                     self.logger.debug('Skipping description configuration')
 
