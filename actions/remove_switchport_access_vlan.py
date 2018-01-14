@@ -32,18 +32,17 @@ class RemoveSwitchPort(NosDeviceAction):
                              self.host)
 
             try:
-                get_vlan =  device.interface.acc_vlan(get=True, int_type=intf_type,
-                                                       name=intf_name)
+                get_vlan = device.interface.acc_vlan(get=True, int_type=intf_type, name=intf_name)
                 if(get_vlan != vlan_id):
                     self.logger.error('Vlan %s is not configured on port %s',
-                                                          vlan_id, intf_name)
+                       vlan_id, intf_name)
                     sys.exit(-1)
 
                 device.interface.acc_vlan(delete=True, int_type=intf_type,
-                                           name=intf_name, vlan=vlan_id)
-                                              
+                    name=intf_name, vlan=vlan_id)
+
             except Exception as error:
                 self.logger.error('Remove access vlan is failed due to %s',
-                                                   str(error.message))
+                    str(error.message))
                 sys.exit(-1)
         return True
