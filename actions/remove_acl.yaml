@@ -77,7 +77,7 @@ parameters:
     type: string
     description: Traffic type for the ACL being removed
         required-by:- [None]
-        accepted-by:- [None]
+        accepted-by:- [SLX, NOS]
     required: false
     position: 8
     enum:

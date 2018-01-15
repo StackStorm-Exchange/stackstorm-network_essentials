@@ -70,9 +70,19 @@ class NosDeviceAction(Action):
 
         snmpconfig = {}
 
+        os_type = 'unknown'
+        lookup_key = self._get_lookup_key(host=self.host, lookup='ostype')
+        os_kv = self.action_service.get_value(name=lookup_key, local=False,
+                                              decrypt=False)
+        if os_kv:
+            os_type = os_kv
+
         ver_kv = self._lookup_st2_store('snmpver')
         if not ver_kv:
-            snmpconfig['version'] = 2
+            if os_type == 'unknown' or os_type == 'ni':
+                snmpconfig['version'] = 2
+            else:
+                snmpconfig['version'] = 0
         elif ver_kv == 'v2':
             snmpconfig['version'] = 2
         elif ver_kv == 'v3':

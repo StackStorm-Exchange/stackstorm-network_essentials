@@ -1,11 +1,10 @@
 ---
-name: create_switchport_access
+name: remove_switchport_access_vlan
 pack: network_essentials
 runner_type: run-python
-description: Configure a port channel or a physical interface as an access interface,
-  or add a untagged port to a vlan for NI.
+description: Remove a physical interface or port-channel from a vlan.
 enabled: true
-entry_point: create_switchport_access.py
+entry_point: remove_switchport_access_vlan.py
 parameters:
   mgmt_ip:
     type: string
@@ -47,10 +46,3 @@ parameters:
       8191, for NI, vlan range <1-4090>.
     required: true
     position: 5
-  mac_group_id:
-    type: array
-    description: ID of previously created MAC group to be used in MAC-based VLAN classification
-      at the access port.  Applicable only when Virtual Fabric is enabled.  This is
-      a fabric-wide ID, valid values are 1 through 500.
-      it is no-op for NI.
-    position: 6
