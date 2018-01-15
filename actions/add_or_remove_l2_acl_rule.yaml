@@ -118,7 +118,7 @@ parameters:
   ethertype:
     type: string
     description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
-                 For MLX EtherType, can be 'arp', 'fcoe', 'ipv4-l5', 'ipv6' or custom value between 1536 and 65535.
+                 For MLX EtherType, can be 'arp', 'fcoe', 'ipv4-l5', 'ipv6' or custom value between integers 1536 and 65535.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 15
