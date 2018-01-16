@@ -90,37 +90,43 @@ parameters:
     position: 10
   urg: &urg
     type: string
-    description: Enables urg for the rule
+    description: Enables urg for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 11
   ack: &ack
     type: string
-    description: Enables ack for the rule
+    description: Enables ack for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 12
   push: &push
     type: string
-    description: Enables push for the rule
+    description: Enables push for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 13
   fin: &fin
     type: string
-    description: Enables fin for the rule
+    description: Enables fin for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 14
   rst: &rst
     type: string
-    description: Enables rst for the rule
+    description: Enables rst for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 15
   sync: &sync
     type: string
-    description: Enables sync for the rule
+    description: Enables sync for the rule. Use "True" or "False" to enable or
+        disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 16
@@ -132,26 +138,30 @@ parameters:
     position: 17
   count: &count
     type: string
-    description: Enables statistics for the rule
+    description: Enables statistics for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 18
   log: &log
     type: string
-    description: Enables logging for the rule.
+    description: Enables logging for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 19
   mirror: &mirror
     type: string
-    description: Enables mirror for the rule
+    description: Enables mirror for the rule. Use "True" or "False" to enable
+        or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 20
   copy_sflow: &copy_sflow
     type: string
-    description: Enables copy-sflow for the rule
+    description: Enables copy-sflow for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -199,7 +209,8 @@ parameters:
     position: 25
   suppress_rpf_drop: &suppress_rpf_drop
     type: boolean
-    description: Permit packets that fail RPF check
+    description: Permit packets that fail RPF check. Use true or false to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
