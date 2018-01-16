@@ -1,0 +1,48 @@
+---
+name: remove_switchport_access_vlan
+pack: network_essentials
+runner_type: run-python
+description: Remove a physical interface or port-channel from a vlan.
+enabled: true
+entry_point: remove_switchport_access_vlan.py
+parameters:
+  mgmt_ip:
+    type: string
+    description: Management IP address of the target device
+    required: true
+    position: 0
+  username:
+    type: string
+    description: Login user name to connect to the device
+    position: 1
+  password:
+    type: string
+    description: Login password to connect to the device
+    secret: true
+    position: 2
+  intf_type:
+    type: string
+    enum:
+      - ethernet
+      - tengigabitethernet
+      - gigabitethernet
+      - fortygigabitethernet
+      - hundredgigabitethernet
+      - port_channel
+    default: tengigabitethernet
+    description: Interface type
+    required: true
+    position: 3
+  intf_name:
+    type: string
+    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX/NI in 2-tuple
+      format (24/1) or Port-channel number <1-6144>, for NI <1-256>.
+    required: true
+    position: 4
+  vlan_id:
+    type: string
+    description: VLAN ID to be configured on the interface. For 802.1Q VLANs, ID must
+      be below 4096, for service or transport VFs valid range is from 4096 through
+      8191, for NI, vlan range <1-4090>.
+    required: true
+    position: 5
