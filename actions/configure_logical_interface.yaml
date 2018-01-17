@@ -2,23 +2,23 @@
 name: configure_logical_interface
 pack: network_essentials
 runner_type: python-script
-description: Create logical interface under the physical/port-channel interface and
+description: This creates the logical interface under the physical/port-channel interface and
   untag/tag vlan.
 enabled: true
 entry_point: configure_logical_interface.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -31,13 +31,13 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface Port number or Port channel number. Examples for SLX are
+    description: The interface Port number or Port channel number. Examples for SLX are
       1/13, 1/14
     required: true
     position: 4
   logical_interface_number:
     type: string 
-    description: Interface name physical port or port channel number. E.g:0/1.1 or
+    description: The interface name of the physical port or port channel number. E.g:0/1.1 or
       7.1
     required: true
     position: 5
@@ -47,14 +47,14 @@ parameters:
       - untagged
       - tagged
       - double_tagged
-    description: vlan tag type
+    description: The VLAN tag type.
     position: 6
   vlan_id:
     type: string
-    description: Single/List of VLANIDs. Vlan id range <1-4090>
+    description: A single or a list of VLANIDs. VLAN ID range is 1-4090.
     position: 7
   inner_vlan_id:
     type: string
-    description: Configure Single/List of Inner VLAN for the logical interface.vlan
+    description: This configures a single VLAN or a list of Inner VLANs for the logical interface.vlan.
       id range <1-4090>
     position: 8
