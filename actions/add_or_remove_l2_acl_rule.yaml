@@ -2,41 +2,41 @@
 name: add_or_remove_l2_acl_rule
 pack: network_essentials
 runner_type: run-python
-description: Add or remove an ACL rule to or from an L2 ACL
+description: This adds or removes an ACL rule to or from a L2 ACL
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py
 parameters:
   delete:
     type: boolean
-    description: Indicates add or delete operation. TRUE indicates a remove operation.
+    description: This indicates an add or delete operation. If TRUE, this indicates a remove operation.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: false
     position: 0
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device
     required: true
     position: 1
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device
     default: admin
     position: 2
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device
     default: password
     secret: true
     position: 3
   acl_name:
     type: string
-    description: Name of the access list
+    description: The ame of the access control list
     required: true
     position: 4
   seq_id:
     type: integer
-    description: Sequence number of the rule.  For add operation, if not specified,
+    description: The sequence number of the rule.  For add operation, if not specified,
       the rule is added at the end of the list.
       For delete operation seq_id is required-by parameter for MLX, SLX, VDX.
         required-by:- [None]
@@ -44,7 +44,7 @@ parameters:
     position: 5
   action:
     type: string
-    description: Action to apply on the traffic, either to drop (deny), allow (permit)
+    description: The action to apply on the traffic, either to drop (deny), allow (permit)
       or force drop (hard-drop)
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
@@ -56,7 +56,7 @@ parameters:
     position: 6
   source:
     type: string
-    description: Source filter, can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format
+    description: The source filter, which can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format
                  MLX - Source filter, can be 'any' or the actual MAC in HHHH.HHHH.HHHH format.
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
@@ -71,13 +71,13 @@ parameters:
     position: 8
   src_mac_addr_mask:
     type: string
-    description: Mask for the source MAC in HHHH.HHHH.HHHH format.
+    description: The mask for the source MAC in HHHH.HHHH.HHHH format.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 9
   dst:
     type: string
-    description: Destination filter, can be 'any' or 'host', or the actual MAC of
+    description: The destination filter, this can be 'any' or 'host', or the actual MAC of
       the destination in HHHH.HHHH.HHHH format.
                 MLX - Destination filter, can be 'any' or the actual MAC in
       HHHH.HHHH.HHHH format.
@@ -87,20 +87,20 @@ parameters:
     position: 10
   dsthost:
     type: string
-    description: Destination MAC in HHHH.HHHH.HHHH format. The value is required only
+    description: The destination MAC in HHHH.HHHH.HHHH format. The value is required only
       when the dst is 'host'
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 11
   dst_mac_addr_mask:
     type: string
-    description: Mask for the destination MAC in HHHH.HHHH.HHHH format.
+    description: The mask for the destination MAC in HHHH.HHHH.HHHH format.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 12
   vlan_tag_format:
     type: string
-    description: Action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
+    description: The action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
         required-by:- [None]
         accepted-by:- [SLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -111,20 +111,20 @@ parameters:
     position: 13
   vlan:
     type: string
-    description: VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
+    description: The VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 14
   ethertype:
     type: string
-    description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+    description: The EtherType, this can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
                  For MLX EtherType, can be 'arp', 'fcoe', 'ipv4-l5', 'ipv6' or custom value between integers 1536 and 65535.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 15
   arp_guard:
     type: string
-    description: Enables arp-guard for the rule
+    description: This enables the arp-guard for the rule
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -139,7 +139,7 @@ parameters:
     position: 17
   drop_precedence_force:
     type: string
-    description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+    description: This matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -147,21 +147,21 @@ parameters:
     position: 18
   count:
     type: string
-    description: Enables the packet count
+    description: This enables the packet count
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 19
   log:
     type: string
-    description: Enables the logging
+    description: This enables logging
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 20
   mirror:
     type: string
-    description: Enables mirror for the rule
+    description: This enables the mirror for the rule
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -169,7 +169,7 @@ parameters:
     position: 21
   copy_sflow:
     type: string
-    description: Enables copy-sflow for the rule
+    description: This enables the copy-sflow for the rule
         required-by:- [None]
         accepted-by:- [SLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -177,7 +177,7 @@ parameters:
     position: 22
   drop_precedence:
     type: string
-    description: Matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+    description: This matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -185,19 +185,19 @@ parameters:
     position: 23
   priority:
     type: integer
-    description: Matches the specified value against the priority value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority value of the packet to filter.  Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 24
   priority_force:
     type: integer
-    description: Matches the specified value against the priority_force value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority_force value of the packet to filter.  Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 25
   priority_mapping:
     type: integer
-    description: Matches the specified value against the priority_mapping value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority_mapping value of the packet to filter.  Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 26
