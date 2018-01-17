@@ -2,40 +2,40 @@
 name: add_ipv4_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Add an L3 IPv4 ACL rule to an existing ACL
+description: Add a Layer 3 IPv4 ACL rule to an already existing ACL
 enabled: true
 entry_point: add_ipv4_rule_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device
     secret: true
     position: 2
   acl_name:
     type: string
-    description: Name of the access list
+    description: The name of the access control list
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   seq_id: &seq_id
     type: integer
-    description: Sequence number of the rule, if not specified, the rule is added
+    description: The sequence number of the rule, if not specified, the rule is added
       at the end of the list. Valid range is 0 to 4294967290
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 4
   action: &action
     type: string
-    description: Action performed by ACL rule
+    description: The action performed by the ACL rule
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
     position: 5
@@ -46,7 +46,7 @@ parameters:
     default: permit
   protocol_type: &protocol_type
     type: string
-    description: Type of IP packets to be filtered based on protocol. Valid values
+    description: The type of IP packets to be filtered based on the protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip
       For MLX - Valid values are <0-255> or supported protocol keywords.
         required-by:- [None]
@@ -54,7 +54,7 @@ parameters:
     position: 6
   source: &source
     type: string
-    description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
+    description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
       } [ source-operator [ S_port-numbers ] ]
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
@@ -63,14 +63,14 @@ parameters:
     default: any
   destination: &destination
     type: string
-    description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) |
+    description: The destination IP address filters { any | S_IPaddress/mask(0.0.0.255) |
       host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 8
   dscp: &dscp
     type: string
-    description: Matches the specified value against the DSCP value of the packet
+    description: This matches the specified value against the DSCP value of the packet
       to filter.  Allowed values are 0 through 63.
         For SLX - dscp value between 0 and 63. Format {<dscp>[,<dscp-force>]}.
         For NOS - dscp value between 0 and 63. Format {<dscp>]}.
@@ -81,7 +81,7 @@ parameters:
     position: 9
   drop_precedence_force: &drop_precedence_force
     type: string
-    description: Matches the drop_precedence value of the packet.
+    description: This matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
        For MLX - Allowed values are 0 through 3.
         required-by:- [None]
@@ -90,69 +90,69 @@ parameters:
     position: 10
   urg: &urg
     type: string
-    description: Enables urg for the rule. Use "True" or "False" to enable or
+    description: This enables the urg for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 11
   ack: &ack
     type: string
-    description: Enables ack for the rule. Use "True" or "False" to enable or
+    description: This enables the ack for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 12
   push: &push
     type: string
-    description: Enables push for the rule. Use "True" or "False" to enable or
+    description: This enables the push for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 13
   fin: &fin
     type: string
-    description: Enables fin for the rule. Use "True" or "False" to enable or
+    description: This enables the fin for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 14
   rst: &rst
     type: string
-    description: Enables rst for the rule. Use "True" or "False" to enable or
+    description: This enables the rst for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 15
   sync: &sync
     type: string
-    description: Enables sync for the rule. Use "True" or "False" to enable or
+    description: This enables the sync for the rule. Use "True" or "False" to enable or
         disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 16
   vlan_id: &vlan_id
     type: integer
-    description: VLAN interface to which the ACL is bound
+    description: The VLAN interface to which the ACL is bound
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 17
   count: &count
     type: string
-    description: Enables statistics for the rule. Use "True" or "False" to
+    description: This enables the statistics for the rule. Use "True" or "False" to
         enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 18
   log: &log
     type: string
-    description: Enables logging for the rule. Use "True" or "False" to
+    description: This enables the logging for the rule. Use "True" or "False" to
         enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 19
   mirror: &mirror
     type: string
-    description: Enables mirror for the rule. Use "True" or "False" to enable
+    description: This enables the mirror for the rule. Use "True" or "False" to enable
         or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -160,7 +160,7 @@ parameters:
     position: 20
   copy_sflow: &copy_sflow
     type: string
-    description: Enables copy-sflow for the rule. Use "True" or "False" to
+    description: This enables the copy-sflow for the rule. Use "True" or "False" to
         enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -168,7 +168,7 @@ parameters:
     position: 21
   dscp_marking: &dscp_marking
     type: string
-    description: dscp-marking number is used to mark the DSCP value in the
+    description: This is the dscp-marking number that is used to mark the DSCP value in the
         incoming packet with the value you specify to filter.
         Allowed values are 0 through 63.
         required-by:- [None]
@@ -177,7 +177,7 @@ parameters:
     position: 22
   fragment: &fragment
     type: string
-    description: Use fragment keyword to allow the ACL to filter fragmented packets.
+    description: The fragment keyword used to allow the ACL to filter fragmented packets.
         Use the non-fragment keyword to filter non-fragmented packets.
             - fragment
             - non-fragment
@@ -187,7 +187,7 @@ parameters:
     position: 23
   precedence: &precedence
     type: string
-    description: Match packets with given precedence value.
+    description: This will match packets with given precedence value.
         Allowed value { <0 to 7> | critical | flash |
         flash-override | immediate | internet | network |
         priority | routine  }
@@ -197,7 +197,7 @@ parameters:
     position: 24
   option: &option
     type: string
-    description: Match match IP option packets.
+    description: This will match match IP option packets.
         supported values are - 
             any, eol, extended-security, ignore, loose-source-route,
             no-op, record-route, router-alert, security, streamid,
@@ -209,7 +209,7 @@ parameters:
     position: 25
   suppress_rpf_drop: &suppress_rpf_drop
     type: boolean
-    description: Permit packets that fail RPF check. Use true or false to
+    description: This will permit packets that fail RPF check. Use true or false to
         enable or disable respectively.
         required-by:- [None]
         accepted-by:- [MLX]
@@ -217,28 +217,28 @@ parameters:
     position: 26
   priority: &priority
     type: integer
-    description: set priority. Allowed value is <0-7>.
+    description: This will set priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 27
   priority_force: &priority_force
     type: integer
-    description: force packet outgoing priority. Allowed value is <0-7>.
+    description: This will force packet outgoing priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 28
   priority_mapping: &priority_mapping
     type: integer
-    description: map incoming packet priority. Allowed value is <0-7>.
+    description: This will map incoming packet priority. Allowed value is <0-7>.
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
     position: 29
   tos: &tos
     type: integer
-    description: Match packets with given TOS value.
+    description: This will match packets with given TOS value.
         Allowed value in decimal <0-15>.
         required-by:- [None]
         accepted-by:- [MLX]
@@ -254,7 +254,7 @@ parameters:
     position: 31
   icmp_filter: &icmp_filter
     type: string
-    description: ICMP message type to be filtered.
+    description: This is the ICMP message type to be filtered.
         required-by:- [None]
         accepted-by:- [MLX]
     enum:
@@ -300,7 +300,7 @@ parameters:
     position: 32
   drop_precedence: &drop_precedence
     type: string
-    description: Matches the drop_precedence value of the packet.
+    description: This matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
        For MLX - Allowed values are 0 through 3.
         required-by:- [None]
@@ -308,11 +308,11 @@ parameters:
     position: 33
   acl_rules:
     type: array
-    description: Bulk operation is supported to create more than one ACL rule
-        in one action execution. The parameters passed to create multiple
-        rules will follow the constraints similar of single rule creation.
-        NOTE- if rules are specified in acl_rules the rule specified outside
-        of array will be ignored and only rules in acl_array will be processed
+    description: This bulk operation is supported to create more than one ACL rule
+        for one action execution. The parameters are passed to create multiple
+        rules that will follow the constraints similar to a single rule creation.
+        NOTE- if rules are specified in acl_rules, the rule specified outside
+        of the array will be ignored and only the rules in the acl_array will be processed
     position: 34
     items:
       properties:
