@@ -2,7 +2,7 @@
 name: autopick_port_channel_id
 pack: network_essentials
 runner_type: run-python
-description: Auto pick the lowest available Port Channel ID on the device.
+description: This auto picks the lowest available Port Channel ID on the device.
 enabled: true
 entry_point: autopick_port_channel_id.py
 parameters:
