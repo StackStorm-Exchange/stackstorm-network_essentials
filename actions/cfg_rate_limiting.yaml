@@ -24,7 +24,7 @@ parameters:
         position: 2
     acl_name:
         type: string
-        description:  access list name (max 63)
+        description:  The access control list name (max 63)
         required: true
         position: 3
     intf_type:
@@ -36,29 +36,29 @@ parameters:
           - hundredgigabitethernet
           - ethernet
         default: tengigabitethernet
-        description: Interface type gigabitethernet or tengigabitethernet, etc
+        description: The interface type, gigabitethernet or tengigabitethernet, etc
         required: true
         position: 4
     intf_name:
         type: array 
-        description: interface name as array (182/0/97)
+        description: The nterface name as an array (182/0/97)
         required: true
         position: 5
         minItems: 1
     class_map_name:
         required: true
         type: string
-        description:  the class map name that will be a part of the service policy.
+        description:  The class map name that will be a part of the service policy.
         position: 6
     class_map_name_exists:
         type: boolean
         default: True 
-        description: Indicates the class map name already exists.
+        description: This indicates the class map name that already exists.
         position: 7
     policy_map_name:
         type: array 
         required: true
-        description:  the class map name that will be a part of the service policy.
+        description:  The class map name that will be a part of the service policy.
         position: 8
         minItems: 1
     policy_map_name_exists:
@@ -69,7 +69,7 @@ parameters:
     cir:
         type: integer
         required: true
-        description: the max cir that can be allowed through the interface.
+        description: The maximum cir that can be allowed through the interface.
         position: 10
     policy_type:
         type: string
@@ -78,7 +78,7 @@ parameters:
         position: 11
     protocol_type:
         type: string
-        description: Protocol Number Custom value between 0 and 255, tcp, udp, icmp or ip
+        description: The Protocol Number Custom value between 0 and 255, tcp, udp, icmp or ip
         required: true
         position: 12
     source:
@@ -89,22 +89,22 @@ parameters:
         position: 13 
     acl_exists:
         type: boolean
-        description: Indicates is the acl already exists.
+        description: This indicates that the acl already exists.
         default: False
         position: 14
     match_type:
         type: string
-        description: Indicates class match type.
+        description: This indicates the class match type.
         default: True
         position: 15
     rbridge_id:
         type: string
-        description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+        description: The RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
         required: false 
         position: 16
     address_type:
         type: string
-        description: Address type - ip or ipv6
+        description: The Address type - ip or ipv6
         enum:
            - ip
            - ipv6
@@ -112,35 +112,35 @@ parameters:
         position: 17
     destination:
         type: string
-        description: Destination address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+        description: The destination IP address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required: false
         position: 18
     seq_id:
         type: integer
-        description: Sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
+        description: The sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290
         required: false
         position: 19
     dst_mac_addr_mask:
         type: string
-        description: the dst_mac_addr_mask - the mask for destination MAC in HHHH.HHHH.HHHH format.
+        description: The dst_mac_addr_mask - the mask for the destination MAC in HHHH.HHHH.HHHH format.
         position: 20
     src_mac_addr_mask:
         type: string
-        description: Source address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+        description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         position: 21
     dscp:
         type: string
-        description: DSCP value to match against. Can be either a numerical value or DSCP name
+        description: The DSCP value to match against. This can be either a numerical value or DSCP name
         required: false
         position: 22
     vlan_id:
         type: integer
-        description: VLAN interface to which the ACL is bound
+        description: The VLAN interface to which the ACL is bound
         required: false
         position: 23
     ethertype:
         type: string
-        description: the ethertype - 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+        description: The ethertype - 'arp', 'fcoe', 'ipv4' or a custom value between 1536 and 65535.
         required: false
         default: arp
         position: 24
