@@ -2,7 +2,7 @@
 name: add_or_remove_l2_acl_rule
 pack: network_essentials
 runner_type: run-python
-description: This adds or removes an ACL rule to or from a L2 ACL
+description: This adds or removes an ACL rule to or from an L2 ACL.
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py
 parameters:
@@ -15,28 +15,28 @@ parameters:
     position: 0
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 1
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     default: admin
     position: 2
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     default: password
     secret: true
     position: 3
   acl_name:
     type: string
-    description: The ame of the access control list
+    description: The ame of the access control list.
     required: true
     position: 4
   seq_id:
     type: integer
-    description: The sequence number of the rule.  For add operation, if not specified,
+    description: The sequence number of the rule. For add operation, if not specified,
       the rule is added at the end of the list.
       For delete operation seq_id is required-by parameter for MLX, SLX, VDX.
         required-by:- [None]
@@ -124,7 +124,7 @@ parameters:
     position: 15
   arp_guard:
     type: string
-    description: This enables the arp-guard for the rule
+    description: This enables the arp-guard for the rule.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -132,14 +132,14 @@ parameters:
     position: 16
   pcp:
     type: string
-    description: PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
+    description: The PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
         required-by:- [None]
         accepted-by:- [SLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 17
   drop_precedence_force:
     type: string
-    description: This matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+    description: This matches the specified value against the drop_precedence value of the packet to filter. Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -147,21 +147,21 @@ parameters:
     position: 18
   count:
     type: string
-    description: This enables the packet count
+    description: This enables the packet count.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 19
   log:
     type: string
-    description: This enables logging
+    description: This enables logging.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 20
   mirror:
     type: string
-    description: This enables the mirror for the rule
+    description: This enables the mirror for the rule.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -169,7 +169,7 @@ parameters:
     position: 21
   copy_sflow:
     type: string
-    description: This enables the copy-sflow for the rule
+    description: This enables the copy-sflow for the rule.
         required-by:- [None]
         accepted-by:- [SLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
@@ -177,7 +177,7 @@ parameters:
     position: 22
   drop_precedence:
     type: string
-    description: This matches the specified value against the drop_precedence value of the packet to filter.  Allowed values are 0 through 2.
+    description: This matches the specified value against the drop_precedence value of the packet to filter. Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
@@ -185,19 +185,19 @@ parameters:
     position: 23
   priority:
     type: integer
-    description: This matches the specified value against the priority value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 24
   priority_force:
     type: integer
-    description: This matches the specified value against the priority_force value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority_force value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 25
   priority_mapping:
     type: integer
-    description: This matches the specified value against the priority_mapping value of the packet to filter.  Allowed values are 0 through 7.
+    description: This matches the specified value against the priority_mapping value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 26
