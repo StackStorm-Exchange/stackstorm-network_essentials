@@ -2,7 +2,7 @@
 name: drop_unprovision
 pack: network_essentials
 description: This workflow accomplishes the task of allowing traffic back on a specified
-  interface by first deleting the deny ACL currently on that interface. If may also
+  interface by first deleting the deny ACL currently on that interface. It may also
   delete the acl, if it is empty.
 enabled: true
 runner_type: mistral-v2
@@ -33,7 +33,7 @@ parameters:
         position: 4
     rbridge_id:
         type: string
-        description: RBridge ID of the VDX switch under which VE will be configured, only needed for VDX device.
+        description: The RBridge ID of the VDX switch under which the VE will be configured, only needed for VDX device.
         position: 5
     intf_type:
         type: string
@@ -47,15 +47,15 @@ parameters:
           - loopback
           - ethernet
         default: tengigabitethernet
-        description: Interface type gigabitethernet or tengigabitethernet, etc
+        description: The interface type gigabitethernet or tengigabitethernet, etc.
         position: 6
     intf_name:
         type: array
-        description: interface name as array (182/0/97)
+        description: The interface name as an array (182/0/97).
         position: 7
     acl_direction:
         type: string
-        description: Direction of ACL binding on the specified interface
+        description: The direction of ACL binding on the specified interface.
         position: 8
         enum:
           - in
@@ -63,13 +63,13 @@ parameters:
         default: in
     traffic_type:
         type: string
-        description: Traffic type for the ACL being applied
+        description: The traffic type for the ACL being applied.
         position: 9
         enum:
           - switched
           - routed
     delete_acl:
         type: boolean
-        description: Indicates whether the acl should be deleted.
+        description: This ndicates whether the ACL should be deleted.
         default: False
         position: 10
