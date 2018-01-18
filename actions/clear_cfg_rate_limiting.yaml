@@ -8,17 +8,17 @@ entry_point: workflows/clear_cfg_rate_limiting.yaml
 parameters:
     mgmt_ip:
         type: string
-        description: The device IP address
+        description: The device IP address.
         required: true
         position: 0
     username:
         type: string
-        description: The login username
+        description: The login username.
         default: admin
         position: 1
     password:
         type: string
-        description: The login password
+        description: The login password.
         default: password
         secret: true
         position: 2
@@ -31,25 +31,25 @@ parameters:
           - hundredgigabitethernet
           - ethernet
         default: tengigabitethernet
-        description: The interface type - gigabitethernet or tengigabitethernet, etc
+        description: The interface type - gigabitethernet or tengigabitethernet, etc.
         required: true
         position: 3
     intf_name:
         type: array 
-        description: The interface name as an array (182/0/97)
+        description: The interface name as an array (182/0/97).
         required: true
         position: 4
         minItems: 1
     policy_map_name:
         type: array 
         required: true
-        description:  The service policy configured on the interface.
+        description: The service policy configured on the interface.
         position: 5
         minItems: 1
     policy_type:
         type: string
         required: true
-        description:  THis is In, Out or Both.
+        description: This is In, Out or Both.
         position: 6
     rbridge_id:
         type: string
