@@ -2,27 +2,27 @@
 name: add_ipv4_rule_acl_bulk
 pack: network_essentials
 runner_type: run-python
-description: Add a L3 IPv4 ACL rule to an existing ACL
+description: Add an L3 IPv4 ACL rule to an existing ACL.
 enabled: true
 entry_point: add_ipv4_rule_acl_bulk.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   acl_name:
     type: string
-    description: The name of the access control list
+    description: The name of the access control list.
     required: true
     position: 3
   acl_rules:
