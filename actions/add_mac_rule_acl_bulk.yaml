@@ -87,7 +87,7 @@ parameters:
           position: 14
         ethertype:
           type: string
-          description: EtherType, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
+          description: Ethertype, can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
           position: 15
         arp_guard:
           type: string
