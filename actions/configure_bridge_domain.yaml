@@ -8,16 +8,16 @@ entry_point: configure_bridge_domain.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: THe login password to connect to the device
+    description: THe login password to connect to the device.
     secret: true
     position: 2
   bridge_domain_id:
@@ -35,7 +35,7 @@ parameters:
     default: p2mp
   vc_id:
     type: string
-    description: The VC Id under the VPLS Instance. Range <1-4294967295>
+    description: The VC Id under the VPLS Instance. Range <1-4294967295>.
     position: 5
   statistics:
     type: boolean
