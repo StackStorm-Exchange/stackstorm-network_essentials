@@ -72,7 +72,7 @@ parameters:
     position: 11
   logical_interface_number:
     type: string 
-    description: The physical port or port channel number list.Logical Interace ID. E.g
+    description: The physical port or port channel number list. Logical Interace ID. E.g
       '0/34.11,21.1,0/35.1,22.1'
     position: 12
   vlan_id:
