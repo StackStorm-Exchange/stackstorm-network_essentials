@@ -2,7 +2,7 @@
 name: add_mac_rule_acl_bulk
 pack: network_essentials
 runner_type: run-python
-description:This adds a L2 ACL rule to an existing ACL
+description: This adds a L2 ACL rule to an existing ACL
 enabled: true
 entry_point: add_mac_rule_acl_bulk.py
 parameters:
