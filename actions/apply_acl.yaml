@@ -8,16 +8,16 @@ entry_point: apply_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -35,7 +35,7 @@ parameters:
       - vlan
     default: tengigabitethernet
     description: The interface type, can be a physical port, port channel, VE or management
-      interface
+      interface.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -58,14 +58,14 @@ parameters:
     position: 5
   acl_name:
     type: string
-    description: The name of the access control list
+    description: The name of the access control list.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 6
   acl_direction:
     type: string
-    description: The direction of ACL binding on the specified interface
+    description: The direction of ACL binding on the specified interface.
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -76,7 +76,7 @@ parameters:
     default: in
   traffic_type:
     type: string
-    description: The traffic type for the ACL being applied
+    description: The traffic type for the ACL being applied.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     required: false
