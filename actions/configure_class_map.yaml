@@ -8,23 +8,23 @@ entry_point: configure_class_map.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     default: admin
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     default: password
     secret: true
     position: 2
   class_name:
     type: string
-    description: The Policy Map Class Name (Max Size -64)
+    description: The Policy Map Class Name (Max Size -64).
     required: true
     position: 3
   match_type:
