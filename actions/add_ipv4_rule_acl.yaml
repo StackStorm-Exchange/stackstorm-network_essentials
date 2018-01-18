@@ -2,22 +2,22 @@
 name: add_ipv4_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Add a Layer 3 IPv4 ACL rule to an already existing ACL
+description: Add a Layer 3 IPv4 ACL rule to an already existing ACL.
 enabled: true
 entry_point: add_ipv4_rule_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   acl_name:
@@ -35,7 +35,7 @@ parameters:
     position: 4
   action: &action
     type: string
-    description: The action performed by the ACL rule
+    description: The action performed by the ACL rule.
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
     position: 5
@@ -47,7 +47,7 @@ parameters:
   protocol_type: &protocol_type
     type: string
     description: The type of IP packets to be filtered based on the protocol. Valid values
-      are <0-255> or key words tcp, udp, icmp or ip
+      are <0-255> or key words tcp, udp, icmp or ip.
       For MLX - Valid values are <0-255> or supported protocol keywords.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
