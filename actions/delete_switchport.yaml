@@ -35,6 +35,6 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: The interface name, can be port or port channel. For example to specify ports, 24/0/1 (VDX) or 24/1 (SLX). For port channle, 10 or 1-10
+    description: The interface name, can be port or port channel. For example to specify ports, 24/0/1 (VDX) or 24/1 (SLX). For port channel, 10 or 1-10
     required: true
     position: 4
