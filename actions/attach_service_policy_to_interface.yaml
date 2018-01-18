@@ -2,29 +2,29 @@
 name: attach_service_policy_to_interface 
 pack: network_essentials 
 runner_type: run-python
-description: The Attach Input/Output Policy Map.
+description: The attach Input/Output Policy Map.
 enabled: true
 entry_point: attach_service_policy_to_interface.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     default: admin
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     default: password
     secret: true
     position: 2
   intf_type:
     type: string
-    description: The interface type
+    description: The interface type.
     enum:
       - ethernet
       - port_channel
@@ -37,12 +37,12 @@ parameters:
     position: 4
   intf_name:
     type: string 
-    description: The interface name of physical port or port channel number. E.g:0/1 or 7
+    description: The interface name of the physical port or port channel number. E.g 0/1 or 7.
     required: true
     position: 5
   policy_map_name:
     type: array 
-    description: The Single Policy Map Class Name for configuring In/Out Policy. List of Class Names to configure In & Out Policy. (Max Size -64).
+    description: A Single Policy Map Class Name for configuring In/Out Policy. List of Class Names to configure In & Out Policy. (Max Size -64).
                  For Example. 'Policy_map_in' or 'Policy_map_out' or 'Policy_map_in, Policy_map_out'
     required: true
     position: 6
@@ -52,7 +52,7 @@ parameters:
      - In
      - Out
      - Both
-    description: The In/Out Policy Map  (Max Size -64)
+    description: The In/Out Policy Map  (Max Size -64).
     default: In 
     position: 7
   rbridge_id:
