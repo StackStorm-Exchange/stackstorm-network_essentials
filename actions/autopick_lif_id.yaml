@@ -8,16 +8,16 @@ entry_point: autopick_lif_id.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: The login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: The login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -26,12 +26,12 @@ parameters:
       - ethernet
       - port_channel
     default: ethernet
-    description: The interface type
+    description: The interface type.
     position: 3
   intf_name:
     type: string
     description: The interface Port number or Port channel number. Examples for SLX are
-      1/13, 1/14
+      1/13, 1/14.
     required: true
     position: 4
   length_of_the_range:
