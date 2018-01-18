@@ -8,7 +8,7 @@ entry_point: delete_switchport.py
 parameters:
   mgmt_ip:
     type: string
-    description: The management IP address of the target device..
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
