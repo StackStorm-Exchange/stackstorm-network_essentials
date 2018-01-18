@@ -2,7 +2,7 @@
 name: find_mac
 pack: network_essentials
 runner_type: run-python
-description: This looks for which switch port a host is connected to using host MAC address.
+description: This finds which switch port a host is connected to using host MAC address.
 enabled: true
 entry_point: find_mac.py
 parameters:
