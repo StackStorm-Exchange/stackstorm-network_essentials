@@ -27,18 +27,18 @@ parameters:
       - ethernet
       - port_channel
     default: ethernet
-    description: Interface type
+    description: The interface type.
     position: 3
   intf_name:
     type: string
     description: The interface Port number or Port channel number. Examples for SLX are
-      1/13, 1/14
+      1/13, 1/14.
     required: true
     position: 4
   logical_interface_number:
     type: string 
     description: The interface name of the physical port or port channel number. E.g:0/1.1 or
-      7.1
+      7.1.
     required: true
     position: 5
   vlan_type:
