@@ -2,22 +2,22 @@
 name: delete_switchport
 pack: network_essentials
 runner_type: run-python
-description: Delete Switchport on an interface.
+description: This deletes the Switchport on an interface.
 enabled: true
 entry_point: delete_switchport.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device..
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -30,13 +30,13 @@ parameters:
       - hundredgigabitethernet
       - port_channel
     default: tengigabitethernet
-    description: Interface type
+    description: The interface type.
     required: true
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX in 2-tuple
-      format (24/1). Example for interface 235/0/35 or 235/0/35-40 Example for port-channel
+    description: The interface name, for VDX, in 3-tuple format (24/0/1), SLX in 2-tuple
+      format (24/1). Example for interface: 235/0/35 or 235/0/35-40. Example for port-channel:
       10 or 1-10
     required: true
     position: 4
