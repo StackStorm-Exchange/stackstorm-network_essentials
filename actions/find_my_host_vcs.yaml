@@ -1,7 +1,7 @@
 ---
 name: find_my_host_vcs
 pack: network_essentials
-description: This looks for the switch port in a VCS fabric to which a virtual or physical host
+description: This finds the switch port in a VCS fabric to which a virtual or physical host.
   is connected using host IP.
 enabled: true
 runner_type: mistral-v2
