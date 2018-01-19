@@ -282,6 +282,8 @@ class RegisterDeviceCredentials(Action):
         if self.ostype == 'slx' or self.ostype == 'vdx':
             snmpver = 'None'
 
+        is_snmpver_set = False
+
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
 
@@ -304,6 +306,7 @@ class RegisterDeviceCredentials(Action):
                     self.action_service.set_value(name=lookup_key, value='unknown',
                                                   local=False)
             elif lookup_key == self._get_lookup_key(host, 'snmpver') and snmpver:
+                is_snmpver_set = True
                 if snmpver != item.value:
                     self.action_service.set_value(name=lookup_key, value=snmpver,
                                                   local=False)
@@ -314,6 +317,14 @@ class RegisterDeviceCredentials(Action):
             else:
                 # lookup key found but user input is not present hence removing
                 self.action_service.delete_value(name=item.name, local=False)
+
+        # This is a case for USER.DEFAULT
+        if is_snmpver_set is False:
+            lookup_key = self._get_lookup_key(host, 'snmpver')
+            if snmpver is None:
+                self.action_service.set_value(name=lookup_key, value="None", local=False)
+            else:
+                self.action_service.set_value(name=lookup_key, value=snmpver, local=False)
 
         if snmpv2c and snmpver == 'v2':
             lookup_key = self._get_lookup_key(host, 'snmpv2c')
