@@ -104,11 +104,6 @@ class RegisterDeviceCredentials(Action):
            Return Value:
         """
 
-        if host == 'USER.DEFAULT':
-            if not self.snmpconfig:
-                self.logger.error("SNMP credentials are mandatory if mgmt_ip is USER.DEFAULT")
-                sys.exit(-1)
-
         if self.snmpconfig:
             # Validate snmpv2 credentials
             if self.snmpconfig['snmpver'] == 'v2':
@@ -268,6 +263,8 @@ class RegisterDeviceCredentials(Action):
           if user has not specified any existing values then it will
           be removed.
         """
+        self.logger.info("Updating credentials for the given device")
+
         if self.snmpconfig:
             snmpport = self.snmpconfig['snmpport']
             snmpver = self.snmpconfig['snmpver']
@@ -364,6 +361,7 @@ class RegisterDeviceCredentials(Action):
         """
            This method store the device credentials into st2 store
         """
+        self.logger.info("Adding device credentials for first time")
 
         if user:
             self._store_value(host=host, key='user', value=user)
@@ -388,8 +386,9 @@ class RegisterDeviceCredentials(Action):
                 v3priv = self.snmpconfig['v3priv']
                 privpass = self.snmpconfig['privpass']
 
-            if snmp_ver or snmp_ver != 'None':
-                self._store_value(host=host, key='snmpver', value=snmp_ver)
+            self._store_value(host=host, key='snmpver', value=snmp_ver)
+
+            if snmp_ver != 'None':
                 self._store_value(host=host, key='snmpport', value=snmp_port)
 
             if snmp_ver == 'v2' and snmp_v2c != '':
