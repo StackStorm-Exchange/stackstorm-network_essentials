@@ -278,11 +278,13 @@ class RegisterDeviceCredentials(Action):
             snmpver = snmpv2c = v3user = None
             v3auth = v3priv = None
             authpass = privpass = None
+            snmpport = None
 
         if self.ostype == 'slx' or self.ostype == 'vdx':
             snmpver = 'None'
 
         is_snmpver_set = False
+        is_snmpport_set = False
 
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
@@ -311,6 +313,7 @@ class RegisterDeviceCredentials(Action):
                     self.action_service.set_value(name=lookup_key, value=snmpver,
                                                   local=False)
             elif lookup_key == self._get_lookup_key(host, 'snmpport') and snmpport:
+                is_snmpport_set = True
                 if snmpport != int(item.value):
                     self.action_service.set_value(name=lookup_key, value=snmpport,
                                                   local=False)
@@ -322,9 +325,16 @@ class RegisterDeviceCredentials(Action):
         if is_snmpver_set is False:
             lookup_key = self._get_lookup_key(host, 'snmpver')
             if snmpver is None:
-                self.action_service.set_value(name=lookup_key, value="None", local=False)
+                self.action_service.set_value(name=lookup_key, value='None', local=False)
             else:
                 self.action_service.set_value(name=lookup_key, value=snmpver, local=False)
+
+        if snmpver and snmpver != 'None' and is_snmpport_set is False:
+            lookup_key = self._get_lookup_key(host, 'snmpport')
+            if snmpport is None:
+                self.action_service.set_value(name=lookup_key, value=161, local=False)
+            else:
+                self.action_service.set_value(name=lookup_key, value=snmpport, local=False)
 
         if snmpv2c and snmpver == 'v2':
             lookup_key = self._get_lookup_key(host, 'snmpv2c')
