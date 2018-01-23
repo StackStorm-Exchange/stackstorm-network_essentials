@@ -44,7 +44,7 @@ parameters:
     type: integer
     description: For SLX IPV4/IPV6 MTU size in bytes <Number:1300-9194>. For VDX IPV4
       <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes.
-      for MLX you may enter any number within rang of IPv4 <576-9198> , IPv6 <1280-9198>.
+      For MLX you may enter any number within range of IPv4 <576-9198> , IPv6 <1280-9198>.
       However, this value must be 18 bytes less than the
       value of l2 system mtu(global maximum frame size).
     required: true
