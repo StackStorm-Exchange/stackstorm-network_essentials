@@ -2,7 +2,7 @@
 name: enable_vf
 pack: network_essentials
 runner_type: run-python
-description: Enable or disable VCS virtual-fabric on a VCS fabric, when enabled, expands
+description: This enable or disable VCS virtual-fabric on a VCS fabric, when enabled, expands
   the VLAN ID address space beyond the 802.1Q limit in the fabric, allowing VLANs
   with IDs greater than 4095, up through 8191.
 enabled: true
@@ -10,16 +10,16 @@ entry_point: enable_vf.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   virtual_fabric_enable:

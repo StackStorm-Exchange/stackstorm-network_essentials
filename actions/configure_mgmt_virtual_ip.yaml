@@ -2,28 +2,28 @@
 name: configure_mgmt_virtual_ip
 pack: network_essentials
 runner_type: run-python
-description: Configure management virtual IP on the principal switch of a VCS cluster.
+description: This configures management virtual IP on the principal switch of a VCS cluster.
 enabled: true
 entry_point: configure_mgmt_virtual_ip.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP of the principal RBridge
+    description: The management IP of the principal RBridge.
     required: true
     position: 2
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 0
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 1
   mgmt_vip:
     type: string
-    description: 'Virtual management IP and mask of the VCS Fabric, examples for IPv4,
-      IPv6: 10.1.1.1/22, 2620:100:0:fa48:34::50/64.'
+    description: The virtual management IP and mask of the VCS Fabric, for example, for IPv4 -
+     10.1.1.1/22, and for IPv6 - 2620:100:0:fa48:34::50/64.
     required: true
     position: 3
 tags:

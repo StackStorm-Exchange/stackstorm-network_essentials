@@ -2,39 +2,39 @@
 name: create_vrf
 pack: network_essentials
 runner_type: run-python
-description: Create Virtual Routing and Forwarding (VRF) instance on a switch for
+description: This creates a Virtual Routing and Forwarding (VRF) instance on a switch for
   L3 tenants.
 enabled: true
 entry_point: create_vrf.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   vrf_name:
     type: string
-    description: VRF name, for example vrf32 or 32
+    description: The VRF name, for example vrf32 or 32.
     required: true
     position: 3
   rbridge_id:
     type: array
-    description: RBridge ID of the switch. This parameter is only applicable for VDX
+    description: The RBridge ID of the switch. This parameter is only applicable for VDX
       switches.
     required: false
     position: 4
   afi:
     type: string
-    description: IP address type
+    description: The IP address type.
     position: 5
     required: false
     enum:
@@ -43,6 +43,6 @@ parameters:
     default: ipv4
   rd:
     type: string
-    description: Route Distinguisher <ASN:nn or VPN Route Distinguisher>, it is mandatory for MLX
+    description: The Route Distinguisher <ASN:nn or VPN Route Distinguisher>, and is mandatory for MLX
     required: false
     position: 6

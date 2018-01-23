@@ -2,34 +2,34 @@
 name: delete_ipv6_rule_acl
 pack: network_essentials
 runner_type: run-python
-description: Delete IPv6 ACL rule from an existing IPv6 ACL
+description: This deletes the IPv6 ACL rule from an existing IPv6 ACL.
 enabled: true
 entry_point: delete_ipv6_rule_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   acl_name:
     type: string
-    description: Name of the ACL (standard or extended) to delete the rule from
+    description: The name of the ACL (standard or extended) to delete the rule from
         required-by:- [All]
-        accepted-by:- [SLX, NOS, MLX]
+        accepted-by:- [SLX, NOS, MLX].
     required: true
     position: 3
   seq_id:
     type: string
-    description: Sequence numbers of rules to be deleted
+    description: The sequence numbers of rules to be deleted.
                  { seq id | all | comman and hyphen separated seq ids }
         Example:- { 10 | all | 1,2,3-10,20,35-  }
         Note:- "-" separated values will look for seq_ids in range including

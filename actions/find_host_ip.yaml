@@ -2,31 +2,31 @@
 name: find_host_ip
 pack: network_essentials
 runner_type: run-python
-description: Find which switch port a host is connected to using host IP address
+description: This finds which switch port a host is connected to using host IP address.
 enabled: true
 entry_point: find_host_ip.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   ip_address:
     type: string
-    description: IPv4 or IPv6 address of the VM or physical host to be found
+    description: The IPv4 or IPv6 address of the VM or physical host to be found.
     required: true
     position: 3
 tags:
   - name: group
-    value: Manage VCS Fabric Tenants and Edge Ports
+    value: This manages VCS Fabric Tenants and Edge Ports.
   - name: suite
     value: DCFABRIC

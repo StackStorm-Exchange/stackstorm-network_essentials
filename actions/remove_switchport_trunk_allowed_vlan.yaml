@@ -2,23 +2,23 @@
 name: remove_switchport_trunk_allowed_vlan
 pack: network_essentials
 runner_type: run-python
-description: Remove switch port trunk allowed vlan from an interface for
-  SLX/NOS or remove a tagged port from vlan or list of vlans for MLX.
+description: This removes the switch port trunk allowed VLAN from an interface for
+  SLX/NOS or remove a tagged port from a VLAN or list of VLANs for MLX.
 enabled: true
 entry_point: remove_switchport_trunk_allowed_vlan.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -31,26 +31,26 @@ parameters:
       - hundredgigabitethernet
       - port_channel
     default: tengigabitethernet
-    description: Interface type
+    description: The interface type.
     required: true
     position: 3
   intf_name:
     type: string
-    description: Interface name, for VDX in 3-tuple format (24/0/1), SLX/MLX in 2-tuple
+    description: The interface name, for VDX in 3-tuple format (24/0/1), SLX/MLX in 2-tuple
       format (24/1) or Port-channel number <1-6144>, for MLX <1-256>.
     required: true
     position: 4
   vlan_id:
     type: string
     description: For 802.1Q VLANs, single or range of VLANs, for example, 5 or 4-7
-      or 4,6,9-11 or all; ID must be below 4096.  For service or transport VFs, single
-      ID, range can be from 4096 through 8191. For MLX vlan range <1-4090>
+      or 4,6,9-11 or all; ID must be below 4096. For service or transport VFs, single
+      ID, range can be from 4096 through 8191. For MLX vlan range <1-4090>.
     required: true
     position: 5
   c_tag:
     type: string
-    description: Specifies an incoming C-TAG or range of C-TAGs for service or transport
-      VLANs in a Virtual Fabrics context.  For service VF only single ID is allowed,
+    description: This specifies an incoming C-TAG or range of C-TAGs for service or transport
+      VLANs in a Virtual Fabrics context. For service VF only single ID is allowed,
       for Transport VFs a range of IDs, for example, 100-200, or 10,20,100-200.
       it is no-op for MLX.
     position: 6

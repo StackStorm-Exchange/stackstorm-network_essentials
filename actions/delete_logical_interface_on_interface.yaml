@@ -2,23 +2,23 @@
 name: delete_logical_interface_on_interface
 pack: network_essentials 
 runner_type: run-python
-description: Delete logical interface under the physical/port-channel interface.
+description: This deletes the logical interface under the physical/port-channel interface.
 enabled: true
 entry_point: delete_logical_interface_on_interface.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     default: admin
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     default: password
     secret: true
     position: 2
@@ -28,16 +28,16 @@ parameters:
       - ethernet
       - port_channel
     default: ethernet
-    description: Interface type
+    description: The interface type.
     position: 3
   intf_name:
     type: string
-    description: Interface Port number or Port channel number. Examples for SLX are 1/13, 1/14
+    description: The interface Port number or Port channel number. Examples for SLX are 1/13, 1/14.
     required: true
     position: 4
   logical_interface_number:
     type: string 
-    description: Single/List of Interface name physical port or port channel number separated by comma.
-      E.g:0/1.1,0/1.2 or 7.1. If 'all', delete all the LIFs under the interface.
+    description: A single or list of Interface name, physical port or port channel number separated by comma.
+      E.g:0/1.1,0/1.2 or 7.1. If 'all', it will delete all the LIFs under the interface.
     required: true
     position: 5
