@@ -2,7 +2,7 @@
 name: set_l3_mtu
 pack: network_essentials
 runner_type: run-python
-description: This sets the L3 MTU size on physical or port channel interface.
+description: This sets the L3 MTU size on physical, port channel or ve interface.
 enabled: true
 entry_point: set_l3_mtu.py
 parameters:
@@ -43,8 +43,10 @@ parameters:
   mtu_size:
     type: integer
     description: For SLX IPV4/IPV6 MTU size in bytes <Number:1300-9194>. For VDX IPV4
-      <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes. For MLX
-      IPv4 <576-8982> or IPv6 <1280-8982>.
+      <Number:1300-9100> or IPV6 <Number:1280-9100> MTU size in bytes.
+      For MLX you may enter any number within range of IPv4 <576-9198> , IPv6 <1280-9198>.
+      However, this value must be 18 bytes less than the
+      value of l2 system mtu(global maximum frame size).
     required: true
     position: 5
   afi:
