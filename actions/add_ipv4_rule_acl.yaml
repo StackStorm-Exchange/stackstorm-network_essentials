@@ -309,7 +309,7 @@ parameters:
   acl_rules:
     type: array
     description: This bulk operation is supported to create more than one ACL rule
-        for one action execution. The parameters are passed to create multiple
+        in one action execution. The parameters are passed to create multiple
         rules that will follow the constraints similar to a single rule creation.
         NOTE- if rules are specified in acl_rules, the rule specified outside
         of the array will be ignored and only the rules in the acl_array will be processed
