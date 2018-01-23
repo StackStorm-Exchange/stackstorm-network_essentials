@@ -2,31 +2,31 @@
 name: create_vlan
 pack: network_essentials
 runner_type: run-python
-description: Create a single or range of VLANs on a switch
+description: This creates a single or range of VLANs on a switch.
 enabled: true
 entry_point: create_vlan.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   vlan_id:
     type: string
-    description: Single VLAN ID or range of VLAN IDs. For example 21 or 21-26 or 10,13-14,89-91
+    description: A single VLAN ID or a range of VLAN IDs. For example, 21 or 21-26 or 10, 13-14, 89-91.
     required: true
     position: 3
   vlan_desc:
     type: string
-    description: VLAN description. Same description is used when
-      creating multiple VLANs
+    description: The VLAN description. The same description is used when
+      creating multiple VLANs.
     position: 4

@@ -2,33 +2,33 @@
 name: set_l3_system_mtu
 pack: network_essentials
 runner_type: run-python
-description: Set L3 system global MTU.
+description: This sets the L3 system global MTU.
 enabled: true
 entry_point: set_l3_system_mtu.py
 parameters:
   mgmt_ip:
     type: string
-    description: Virtual IP of the VCS Fabric or management IP of the switch.
+    description: The virtual IP of the VCS Fabric or management IP of the switch.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   mtu_size:
     type: integer
-    description: MTU size in bytes <Number:1300-9100> for IPV4, <Number:1280-9100>
-      for IPV6 , for MLX IPv4 <576-9198> , IPv6 <1280-8982>
+    description: The MTU size in bytes <Number:1300-9100> for IPV4, <Number:1280-9100>
+      for IPV6 , for MLX IPv4 <576-9198> , IPv6 <1280-8982>.
     required: true
     position: 3
   afi:
     type: string
-    description: IP version
+    description: The IP version.
     position: 4
     required: false
     enum:

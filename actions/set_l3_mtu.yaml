@@ -2,22 +2,22 @@
 name: set_l3_mtu
 pack: network_essentials
 runner_type: run-python
-description: Set L3 MTU size on physical or port channel interface
+description: This sets the L3 MTU size on physical or port channel interface.
 enabled: true
 entry_point: set_l3_mtu.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -31,13 +31,13 @@ parameters:
       - port_channel
       - ve
     default: tengigabitethernet
-    description: Interface type
+    description: The interface type.
     required: true
     position: 3
   intf_name:
     type: array
-    description: Interface names, can be comma separated physical ports, port channel
-      numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9
+    description: The interface names which can be comma separated physical ports, or port channel
+      numbers. Examples are 224/0/1, 224/0/2 or 7, 8, 9.
     required: true
     position: 4
   mtu_size:
@@ -49,7 +49,7 @@ parameters:
     position: 5
   afi:
     type: string
-    description: IP version
+    description: The IP version.
     position: 6
     required: false
     enum:

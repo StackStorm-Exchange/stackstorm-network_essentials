@@ -2,29 +2,29 @@
 name: delete_logical_interface_on_bridge_domain
 pack: network_essentials 
 runner_type: run-python
-description: Delete logical interfaces under a bridge domain. 
+description: This deletes the logical interfaces under a bridge domain. 
 enabled: true
 entry_point: delete_logical_interface_on_bridge_domain.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device..
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     default: admin
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     default: password
     secret: true
     position: 2
   bridge_domain_id:
     type: string 
-    description: Bridge-domain IDs.
+    description: The bridge domain IDs.
       <1-4096> on SLX9140,SLX9850 and <1-3566> on SLX9240.
     required: true
     position: 3
@@ -33,7 +33,7 @@ parameters:
     enum:
       - p2mp
       - p2p
-    description: bridge domain service type.
+    description: The bridge domain service type.
       `p2p` is not supported on SLX9140 and SLX9240 platforms.
     position: 4
     default: p2mp
@@ -43,7 +43,7 @@ parameters:
       - ethernet
       - port_channel
       - both 
-    description: Interface type to be deleted from the bridge_domain.
+    description: The interface type to be deleted from the bridge_domain.
     default: ethernet 
     position: 5 
   logical_interface_number:

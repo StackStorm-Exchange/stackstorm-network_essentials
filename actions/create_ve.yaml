@@ -2,45 +2,45 @@
 name: create_ve
 pack: network_essentials
 runner_type: run-python
-description: Create a VE and assign IP addresses, VRF on one or more switches.
+description: This creates a VE and assign IP addresses, VRF on one or more switches.
 enabled: true
 entry_point: create_ve.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   rbridge_id:
     type: array
-    description: Single or list of RBridge IDs separated by comma, for example, 1
-      or 1,2, 4.  This parameter is only applicable for VDX switches.
+    description: A single or list of RBridge IDs separated by comma, for example, 1
+      or 1,2, 4. This parameter is only applicable for VDX switches.
     required: false
     position: 3
   vlan_id:
     type: string
-    description: VLAN ID. Allowed range for SLX <NUMBER:1-4090>, for VDX <NUMBER:1-4090/8191>
-      greater than 4090 only if VF is enabled, for MLX range is <NUMBER:1-4090>
+    description: The VLAN ID. The allowed range for SLX <NUMBER:1-4090>, for VDX <NUMBER:1-4090/8191>
+      greater than 4090 only if VF is enabled, and for MLX, the range is <NUMBER:1-4090>.
     required: true
     position: 4
   ve_id:
     type: string
-    description: VE interface ID. For NOS range is 1-4090, MLX range is 1-255,
-      SLX range is 1-4096. For MLX this is a mandatory field.
+    description: The VE interface ID. For NOS range is 1-4090, MLX range is 1-255,
+      SLX range is 1-4096. For MLX, this is a mandatory field.
     required: false
     position: 5
   ip_address:
     type: array
-    description: Single or list of IPv4/IPv6 addresses to be configured on the VE.
+    description: A single or list of IPv4/IPv6 addresses to be configured on the VE.
       IPv4/subnet-length or IPv6/prefix-length, for example 10.0.0.10/22, 30.0.0.10/22.
     position: 6
   vrf_name:

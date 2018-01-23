@@ -2,22 +2,22 @@
 name: delete_vrrpe
 pack: network_essentials
 runner_type: run-python
-description: Delete VRRPe group
+description: This deletes VRRPe group.
 enabled: true
 entry_point: delete_vrrpe.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -25,26 +25,26 @@ parameters:
     enum:
       - ethernet
       - ve
-    description: Interface type, VDX/SLX supports only ve and MLX supports both
+    description: The interface type, VDX/SLX supports only ve and MLX supports both ve and ethernet.
     required: true
     position: 3
   intf_name:
     type: string
-    description: name of the interface, for ethernet slot/port, for ve, ve-id like 10,20
+    description: The name of the interface, for ethernet slot/port, for ve, ve-id like 10,20.
     required: true
     position: 4
   rbridge_id:
     type: array
-    description: RBridge IDs of the VDX switches, for example 51 or 51,52. This parameter
+    description: The RBridge IDs of the VDX switches, for example 51 or 51,52. This parameter
       is only applicable for VDX switches.
     position: 5
   vrrpe_group:
     type: string
-    description: Virtual extender group ID
+    description: The virtual extender group ID
     position: 6
   ip_version:
     type: string
-    description: IPv4 or IPv6 group
+    description: The IPv4 or IPv6 group.
     default: IPv4
     position: 7
 
