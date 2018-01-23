@@ -2,22 +2,22 @@
 name: create_l2_port_channel
 pack: network_essentials
 runner_type: run-python
-description: Create an L2 port channel (LAG or vLAG) in Static or LACP mode
+description: This create an L2 port channel (LAG or vLAG) in Static or LACP mode.
 enabled: true
 entry_point: create_l2_port_channel.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -29,13 +29,13 @@ parameters:
       - hundredgigabitethernet
       - ethernet
     default: tengigabitethernet
-    description: Interface type ethernet/gigabitethernet/tengigabitethernet/fortygigabitethernet/hundredgigabitethernet
+    description: The interface type - ethernet/gigabitethernet/tengigabitethernet/fortygigabitethernet/hundredgigabitethernet.
     required: true
     position: 3
   ports:
     type: array
-    description: Single or list of ports that are members of the port channel. Examples
-      for VDX, SLX are  24/0/1, 24/0/2 or 1/13, 1/14
+    description: A single or a list of ports that are members of the port channel. Examples
+      for VDX, SLX are  24/0/1, 24/0/2 or 1/13, 1/14.
     required: true
     position: 4
   port_speed:
@@ -46,7 +46,7 @@ parameters:
       - '25000'
       - '40000'
       - '100000'
-    description: Configurable port speed. Supported on SLX and VDX. 
+    description: The configurable port speed that is supported on SLX and VDX. 
     position: 5
   port_channel_id:
     type: string
@@ -56,7 +56,7 @@ parameters:
     position: 6
   mode:
     type: string
-    description: Port channel type. SLX and MLX supports standard type only.
+    description: The port channel type. SLX and MLX supports standard type only.
     enum:
       - standard
       - brocade
@@ -64,7 +64,7 @@ parameters:
     position: 7
   protocol:
     type: string
-    description: Port channel mode. For MLX use active for dynamic and modeon
+    description: The port channel mode. For MLX, use active for dynamic and modeon
             for static. 
     enum:
       - active
@@ -74,6 +74,6 @@ parameters:
     position: 8
   port_channel_desc:
     type: string
-    description: Port channel interface description.For MLX this is mandatory
+    description: The port channel interface description. For MLX, this is mandatory.
             field.
     position: 9

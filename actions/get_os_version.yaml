@@ -2,21 +2,21 @@
 name: get_os_version
 pack: network_essentials
 runner_type: run-python
-description: Get Operating System (OS) version of the network device
+description: This will get the Operating System (OS) version of the network device.
 enabled: true
 entry_point: get_os_version.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2

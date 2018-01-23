@@ -41,6 +41,11 @@ class ValidateInterfaceVlan(NosDeviceAction):
             # Check is the user input for VLANS is correct
 
             vlan_list = self.expand_vlan_range(vlan_id=vlan_id, device=device)
+            if not device.interface.interface_exists(int_type=intf_type,
+                                                    name=intf_name):
+                self.logger.error('Interface %s %s not present on the device'
+                                  % (intf_type, intf_name))
+                sys.exit(-1)
 
             if vlan_list:
                 changes['vlan'] = self._validate_interface_vlan(device,

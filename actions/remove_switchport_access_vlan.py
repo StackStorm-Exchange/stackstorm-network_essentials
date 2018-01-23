@@ -28,7 +28,7 @@ class RemoveSwitchPort(NosDeviceAction):
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
-            self.logger.info('successfully connected to %s to create switchport on Interface',
+            self.logger.info('successfully connected to %s to remove access vlan on Interface',
                              self.host)
 
             try:

@@ -2,28 +2,28 @@
 name: delete_l2_port_channel
 pack: network_essentials
 runner_type: run-python
-description: Delete the port channel interface and delete the port chanel configuration
-  from all the member ports
+description: This deletes the port channel interface and deletes the port chanel configuration
+  from all the member ports.
 enabled: true
 entry_point: delete_l2_port_channel.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   port_channel_id:
     type: integer
-    description: Port-channel interface number <NUMBER:1-6144>. For MLX
-            range is <1-256>
+    description: The Port-channel interface number <NUMBER:1-6144>. For MLX, the 
+            range is <1-256>.
     required: true
     position: 3

@@ -2,22 +2,22 @@
 name: apply_acl
 pack: network_essentials
 runner_type: run-python
-description: Apply an ACL to a physical port, port channel, VE or management interface.
+description: This apply an ACL to a physical port, port channel, VE or management interface.
 enabled: true
 entry_point: apply_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -34,15 +34,15 @@ parameters:
       - management
       - vlan
     default: tengigabitethernet
-    description: Interface type, can be a physical port, port channel, VE or management
-      interface
+    description: The interface type, can be a physical port, port channel, VE or management
+      interface.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   intf_name:
     type: array
-    description: Interface names, can be comma separated physical ports, port channel
+    description: The interface names, can be comma separated physical ports, port channel
       numbers or VEs. Examples are 224/0/1, 224/0/2 or 4, 5, 6 or 80, 81.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
@@ -50,7 +50,7 @@ parameters:
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch under which VE will be configured, only
+    description: The RBridge ID of the VDX switch under which the VE will be configured, only
       needed for VDX device.
         required-by:- [None]
         accepted-by:- [NOS]
@@ -58,14 +58,14 @@ parameters:
     position: 5
   acl_name:
     type: string
-    description: Name of the access list
+    description: The name of the access control list.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 6
   acl_direction:
     type: string
-    description: Direction of ACL binding on the specified interface
+    description: The direction of ACL binding on the specified interface.
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -76,7 +76,7 @@ parameters:
     default: in
   traffic_type:
     type: string
-    description: Traffic type for the ACL being applied
+    description: The traffic type for the ACL being applied.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     required: false

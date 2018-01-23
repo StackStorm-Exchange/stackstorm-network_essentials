@@ -2,22 +2,22 @@
 name: create_acl
 pack: network_essentials
 runner_type: run-python
-description: Create an Access Control List
+description: This creates an Access Control List.
 enabled: true
 entry_point: create_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     position: 2
   address_type:
     type: string
@@ -25,7 +25,7 @@ parameters:
       - ip
       - ipv6
       - mac
-    description: ACL address type, ip or ipv6 or mac
+    description: The ACL address type, ip or ipv6 or mac.
         required-by:- [SLX, NOS, MLX]
         accepted-by:- [SLX, NOS, MLX]
     default: ip
@@ -35,13 +35,13 @@ parameters:
     enum:
       - standard
       - extended
-    description: ACL type, extended or standard
+    description: The ACL type, extended or standard.
         required-by:- [SLX, NOS]
         accepted-by:- [SLX, NOS, MLX]
     position: 4
   acl_name:
     type: string
-    description: Unique name for ACL which must begin with a-z, A-Z.
+    description: The unique name for the ACL which must begin with a-z, A-Z.
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 5
