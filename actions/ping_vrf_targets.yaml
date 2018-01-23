@@ -2,52 +2,52 @@
 name: ping_vrf_targets
 pack: network_essentials
 runner_type: run-python
-description: Ping target IPs from the switch using the specified VRF, uses the default
-  VRF if VRF is not provided
+description: The PING target IPs from the switch using the specified VRF, uses the default
+  VRF if VRF is not provided.
 enabled: true
 entry_point: ping_vrf_targets.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   targets:
     type: array
-    description: One or more comma separated target IP addresses
+    description: One or more comma separated target IP addresses.
     required: true
     position: 3
   vrf:
     type: string
-    description: VRF name
+    description: The VRF name.
     required: false
     default: default-vrf
     position: 4
   timeout_value:
     type: integer
-    description: Timeout parameter for the ping command. Specifies the time (in seconds)
-      to wait for a response. Default value 1 sec for SLX/VDX and 50 sec for MLX.
+    description: The timeout parameter for the PING command. This specifies the time (in seconds)
+      to wait for a response. Default value is 1 sec for SLX/VDX and 50 secs for MLX.
     required: false
     position: 5
   count:
     type: integer
-    description: Count parameter for the ping command. Specifies the number of transmissions
-      (pings).
+    description: The count parameter for the PING command. This specifies the number of transmissions
+      (PINGs).
     required: false
     default: 4
     position: 6
   size:
     type: integer
-    description: Datagram size
+    description: The datagram size.
     required: false
     default: 56
     position: 7

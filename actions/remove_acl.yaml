@@ -2,22 +2,22 @@
 name: remove_acl
 pack: network_essentials
 runner_type: run-python
-description: Remove an ACL from physical port, port channel, VE or mgmt interface.
+description: This removes an ACL from physical port, port channel, VE or mgmt interface.
 enabled: true
 entry_point: remove_acl.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
@@ -34,22 +34,22 @@ parameters:
       - management
       - vlan
     default: tengigabitethernet
-    description: Interface type
+    description: The interface type.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   intf_name:
     type: array
-    description: Interface names, can be comma separated physical ports, port channel
-      numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9
+    description: The interface names, can be comma separated physical ports, port channel
+      numbers or VEs. Examples are 224/0/1, 224/0/2 or 7, 8, 9.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 4
   rbridge_id:
     type: string
-    description: RBridge ID of the VDX switch under which VE will be configured, only
+    description: The RBridge ID of the VDX switch under which VE will be configured, only
       needed for VDX device.
         required-by:- [None]
         accepted-by:- [NOS]
@@ -57,14 +57,14 @@ parameters:
     position: 5
   acl_name:
     type: string
-    description: ACL name
+    description: The ACL name.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 6
   acl_direction:
     type: string
-    description: ACL direction
+    description: The ACL direction.
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -75,7 +75,7 @@ parameters:
     default: in
   traffic_type:
     type: string
-    description: Traffic type for the ACL being removed
+    description: The traffic type for the ACL being removed.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     required: false

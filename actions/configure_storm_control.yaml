@@ -2,27 +2,27 @@
 name: configure_storm_control
 pack: network_essentials
 runner_type: run-python
-description: Configure Storm/BUM control on an interface
+description: This configures Storm/BUM control on an interface.
 enabled: true
 entry_point: configure_storm_control.py
 parameters:
   mgmt_ip:
     type: string
-    description: Management IP address of the target device
+    description: The management IP address of the target device.
     required: true
     position: 0
   username:
     type: string
-    description: Login user name to connect to the device
+    description: The login user name to connect to the device.
     position: 1
   password:
     type: string
-    description: Login password to connect to the device
+    description: The login password to connect to the device.
     secret: true
     position: 2
   intf_type:
     type: string
-    description: Interface type
+    description: The interface type.
     enum:
       - ethernet
       - tengigabitethernet
@@ -34,7 +34,7 @@ parameters:
     position: 3
   intf_name:
     type: string
-    description: Interface name physical port or port channel number. E.g:0/1 or 7
+    description: The interface name of the physical port or port channel number. E.g:0/1 or 7.
     required: true
     position: 4
   broadcast_limit_type:
@@ -46,12 +46,12 @@ parameters:
     position: 5
   broadcast_limit_value:
     type: string
-    description: If broadcast_limit_type=limit-bps,Valid Values are <0-100000000000>
+    description: If broadcast_limit_type=limit-bps, the Valid Values are <0-100000000000>.
       else <0-100>
     position: 6
   broadcast_limit_action:
     type: string
-    description: Broadcast Action
+    description: The Broadcast Action
     enum:
       - shutdown
       - monitor
@@ -59,19 +59,19 @@ parameters:
     position: 7
   multicast_limit_type:
     type: string
-    description: Multicast rate limit format
+    description: The Multicast rate limit format
     enum:
       - limit-bps
       - limit-percent
     position: 8
   multicast_limit_value:
     type: string
-    description: If multicast_limit_type=limit-bps,Valid Values are <0-100000000000>
+    description: If multicast_limit_type=limit-bps, the Valid Values are <0-100000000000>.
       else <0-100>
     position: 9
   multicast_limit_action:
     type: string
-    description: Multicast Action
+    description: The Multicast Action
     enum:
       - shutdown
       - monitor
@@ -79,19 +79,19 @@ parameters:
     position: 10
   unknown_unicast_limit_type:
     type: string
-    description: Unknown Unicast rate limit format
+    description: The Unknown Unicast rate limit format.
     enum:
       - limit-bps
       - limit-percent
     position: 11
   unknown_unicast_limit_value:
     type: string
-    description: If unknown_unicast_limit_type=limit-bps,Valid Values are <0-100000000000>
+    description: If unknown_unicast_limit_type=limit-bps, the Valid Values are <0-100000000000>
       else <0-100>
     position: 12
   unknown_unicast_limit_action:
     type: string
-    description: Unknown Unicast Action
+    description: The Unknown Unicast Action
     enum:
       - shutdown
       - monitor
