@@ -88,37 +88,43 @@ parameters:
     position: 10
   urg: &urg
     type: string
-    description: This enables the urg for the rule.
+    description: This enables the urg for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 11
   ack: &ack
     type: string
-    description: This enables the ack for the rule.
+    description: This enables the ack for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 12
   push: &push
     type: string
-    description: This enables the push for the rule.
+    description: This enables the push for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 13
   fin: &fin
     type: string
-    description: This enables the fin for the rule.
+    description: This enables the fin for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 14
   rst: &rst
     type: string
-    description: This enables the rst for the rule
+    description: This enables the rst for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 15
   sync: &sync
     type: string
-    description: This enables the sync for the rule
+    description: This enables the sync for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 16
@@ -130,26 +136,30 @@ parameters:
     position: 17
   count: &count
     type: string
-    description: This enables the statistics for the rule.
+    description: This enables the statistics for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 18
   log: &log
     type: string
     description: This enables the logging for the rule (Available for permit or deny only).
+        Use "True" or "False" to enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 19
   mirror: &mirror
     type: string
-    description: This enables the mirror for the rule.
+    description: This enables the mirror for the rule. Use "True" or "False" to
+        enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 20
   copy_sflow: &copy_sflow
     type: string
-    description: This enables the copy-sflow for the rule.
+    description: This enables the copy-sflow for the rule. Use "True" or
+        "False" to enable or disable respectively.
         required-by:- [None]
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
