@@ -68,13 +68,16 @@ class ConfigureBridgeDomain(NosDeviceAction):
                     int_type = intf_type.split(',')
 
             re_pat1 = '\d+r'
-            if vlan_id is not None and re.match(re_pat1, device.firmware_version):
-                self.logger.error('Bridge Domain association with router interface'
-                                  ' is not supported on this device')
-                raise ValueError('Bridge Domain association with router interface'
-                                 ' is not supported on this device')
+            if re.match(re_pat1, device.firmware_version) and bridge_domain_service_type == 'p2p'\
+                    or bpdu_drop_enable or local_switching or peer_ip is not None:
+                self.logger.error('bpdu_drop_enable, local_switching, peer_ip'
+                                  ' and service type `p2p` are not supported on this platform')
+                raise ValueError('bpdu_drop_enable, local_switching, peer_ip '
+                                 'and service type `p2p` are not supported on this platform')
 
-            changes['pre_check_bd'] = self._check_bd_presence(device,
+            changes['pre_check_bd'] = True
+            if re.match(re_pat1, device.firmware_version):
+                changes['pre_check_bd'] = self._check_bd_presence(device,
                                                               bridge_domain_id,
                                                               bridge_domain_service_type, vc_id,
                                                               pw_profile_name, peer_ip)
@@ -85,19 +88,19 @@ class ConfigureBridgeDomain(NosDeviceAction):
                                                                      bpdu_drop_enable,
                                                                      local_switching,
                                                                      pw_profile_name)
-                if logical_interface_number is not None:
-                    changes['bd_lif_config'] = self._configure_lif(device, bridge_domain_id,
+            if logical_interface_number is not None:
+                changes['bd_lif_config'] = self._configure_lif(device, bridge_domain_id,
                                                                bridge_domain_service_type,
                                                                logical_interface_number.split(','),
                                                                int_type)
-                if peer_ip is not None:
-                    changes['bd_peer_config'] = self._configure_peer_ip(device,
-                                                                        bridge_domain_id,
-                                                                        bridge_domain_service_type,
-                                                                        peers=peer_ip)
-                if vlan_id is not None:
-                    changes['bd_ve_config'] = self._configure_router_interface(device,
-                                                                        bridge_domain_id,
+            if peer_ip is not None and re.match(re_pat1, device.firmware_version):
+                changes['bd_peer_config'] = self._configure_peer_ip(device,
+                                                                    bridge_domain_id,
+                                                                    bridge_domain_service_type,
+                                                                    peers=peer_ip)
+            if vlan_id is not None:
+                changes['bd_ve_config'] = self._configure_router_interface(device,
+                                                                     bridge_domain_id,
                                                                         bridge_domain_service_type,
                                                                         vlan_id)
 
