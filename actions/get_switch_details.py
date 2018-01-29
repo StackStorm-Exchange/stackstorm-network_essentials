@@ -61,7 +61,8 @@ class GetSwitchDetails(NosDeviceAction):
 
                 sw_list.append(vcs['node-switch-ip'])
         else:
-            sw_info['os_type'] = 'slxos'
+            self.logger.error('Operation is not supported on SLX/MLX devices')
+            raise ValueError('Operation is not supported on SLX/MLX  device')
 
         sw_info['rbridge_id'] = rb_list
         sw_info['switch_ip'] = sw_list

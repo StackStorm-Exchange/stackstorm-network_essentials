@@ -3,6 +3,7 @@ name: get_switch_details
 pack: network_essentials
 runner_type: run-python
 description: This gets the switch details from a device.
+   accepted-by:- [NOS]
 enabled: true
 entry_point: get_switch_details.py
 parameters:
