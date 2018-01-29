@@ -42,6 +42,7 @@ parameters:
   acl_name:
     type: string
     description: The unique name for the ACL which must begin with a-z, A-Z.
+        Keywords "all" and "test" can not be used as acl_name.
         accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 5
