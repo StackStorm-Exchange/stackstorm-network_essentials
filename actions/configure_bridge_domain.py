@@ -88,19 +88,19 @@ class ConfigureBridgeDomain(NosDeviceAction):
                                                                      bpdu_drop_enable,
                                                                      local_switching,
                                                                      pw_profile_name)
-            if logical_interface_number is not None:
-                changes['bd_lif_config'] = self._configure_lif(device, bridge_domain_id,
+                if logical_interface_number is not None:
+                    changes['bd_lif_config'] = self._configure_lif(device, bridge_domain_id,
                                                                bridge_domain_service_type,
                                                                logical_interface_number.split(','),
                                                                int_type)
-            if peer_ip is not None and re.match(re_pat1, device.firmware_version):
-                changes['bd_peer_config'] = self._configure_peer_ip(device,
+                if peer_ip is not None and re.match(re_pat1, device.firmware_version):
+                    changes['bd_peer_config'] = self._configure_peer_ip(device,
                                                                     bridge_domain_id,
                                                                     bridge_domain_service_type,
                                                                     peers=peer_ip)
-            if vlan_id is not None:
-                changes['bd_ve_config'] = self._configure_router_interface(device,
-                                                                     bridge_domain_id,
+                if vlan_id is not None:
+                    changes['bd_ve_config'] = self._configure_router_interface(device,
+                                                                        bridge_domain_id,
                                                                         bridge_domain_service_type,
                                                                         vlan_id)
 
