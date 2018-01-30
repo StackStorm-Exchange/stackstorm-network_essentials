@@ -61,7 +61,9 @@ class ConfigureBridgeDomain(NosDeviceAction):
             if intf_type is not None:
                 int_type = []
                 tmp_intf = intf_type[:]
-                if len(logical_interface_number.split(',')) > 1 and len(intf_type.split(',')) == 1:
+                if logical_interface_number is not None and\
+                        len(logical_interface_number.split(',')) > 1\
+                        and len(intf_type.split(',')) == 1:
                     for e in range(1, len(logical_interface_number.split(',')) + 1):
                         int_type.append(tmp_intf)
                 else:
@@ -120,34 +122,33 @@ class ConfigureBridgeDomain(NosDeviceAction):
         bd_check = device.interface.bridge_domain(bridge_domain=bridge_domain_id,
                                      bridge_domain_service_type=bridge_domain_service_type,
                                      get=True)
-
         if bd_check is not None:
-            if bd_check['bridge_domain_type'] == str(bridge_domain_service_type):
-                if vc_id is not None:
-                    if bd_check['vc_id'] == str(vc_id):
-                        if bd_check['pw_profile'] == str(pw_profile_name):
-                            self.logger.info('bridge_domain_id %s configs are pre-existing',
-                                             bridge_domain_id)
-                            return False
-                        else:
-                            self.logger.info('bridge_domain_id %s configs are pre-existing with'
-                                             ' different pw_profile %s', bridge_domain_id,
-                                             bd_check['pw_profile'])
-                            return False
-                    elif bd_check['vc_id'] != str(vc_id) and bd_check['vc_id'] is not None:
-                        self.logger.info('bridge_domain_id %s configs are pre-existing with'
-                                         ' different vc_id %s',
-                                         bridge_domain_id, bd_check['vc_id'])
-                        return False
-                else:
-                    self.logger.info('bridge_domain_id %s configs are pre-existing',
-                                     bridge_domain_id)
-                    return False
-            else:
+            if bd_check['bridge_domain_type'] != str(bridge_domain_service_type):
                 self.logger.info('bridge_domain_id %s configs are pre-existing with'
                                  ' different bridge_domain_type %s', bridge_domain_id,
                                  bd_check['bridge_domain_type'])
                 return False
+            if vc_id is not None:
+                if bd_check['vc_id'] is not None:
+                    if bd_check['vc_id'] != vc_id:
+                        self.logger.info('bridge_domain_id %s configs are pre-existing with'
+                                         ' different vc_id %s',
+                                         bridge_domain_id, bd_check['vc_id'])
+                        return False
+                    elif bd_check['vc_id'] == vc_id:
+                        self.logger.info('bridge_domain_id %s configs are pre-existing with'
+                                         ' same vc_id %s',
+                                         bridge_domain_id, bd_check['vc_id'])
+            if bd_check['pw_profile'] != str(pw_profile_name):
+                self.logger.info('bridge_domain_id %s configs are pre-existing with'
+                                 ' different pw_profile %s',
+                                 bridge_domain_id, bd_check['pw_profile'])
+                return False
+            elif bd_check['pw_profile'] == str(pw_profile_name):
+                self.logger.info('bridge_domain_id %s configs are pre-existing with'
+                                 ' same pw_profile %s',
+                                 bridge_domain_id, bd_check['pw_profile'])
+
         return True
 
     def _configure_bridge_domain(self, device, bridge_domain_id, bridge_domain_service_type, vc_id,

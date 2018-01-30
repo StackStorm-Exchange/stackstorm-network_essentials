@@ -86,4 +86,5 @@ parameters:
   vlan_id:
     type: string
     description: The VLAN ID to map the broadcast domain to a router interface.
+      Valid range <1-4096>
     position: 13
