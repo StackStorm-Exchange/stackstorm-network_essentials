@@ -48,10 +48,6 @@ class ConfigureLogicalInterface(NosDeviceAction):
 
             re_pattern = '\d+r'
             lif_name = logical_interface_number.split(',')
-            self._check_interface_presence(device, intf_type, intf_name, lif_name)
-            self._platform_checks(device, vlan_id, inner_vlan_id, vlan_type,
-                                  re_pattern, logical_interface_number, intf_name, intf_type)
-
             if vlan_id is not None:
                 vlan_id = list(itertools.chain.from_iterable(range(int(ranges[0]),
                                   int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
@@ -62,6 +58,10 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                   int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
                                   for el in (miniRange.split('-')
                                   for miniRange in inner_vlan_id.split(',')))))
+
+            self._check_interface_presence(device, intf_type, intf_name)
+            self._platform_checks(device, vlan_id, inner_vlan_id, vlan_type,
+                                  re_pattern, logical_interface_number, intf_name, intf_type)
 
             if vlan_type == 'double_tagged':
                 conf_list = self._check_inner_vlan_id(device, intf_type, intf_name,
@@ -94,7 +94,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
         return changes
 
     def _platform_checks(self, device, vlan_id, inner_vlan_id, vlan_type,
-                         re_pattern, logical_interface_number, intf_name, intf_type):
+                         re_pattern, lif_name, intf_name, intf_type):
 
         if device.os_type == 'nos':
             self.logger.error('Operation is not supported on this platform')
@@ -104,7 +104,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
             if vlan_id is None:
                 self.logger.error('vlan_id is mandatory args if vlan_type is tagged')
                 raise ValueError('vlan_id is mandatory args if vlan_type is tagged')
-            if len(logical_interface_number.split(',')) != len(vlan_id.split(',')):
+            if len(lif_name.split(',')) != len(vlan_id):
                 self.logger.error('vlan_id and lif ids must be of same length')
                 raise ValueError('vlan_id and lif ids must be of same length')
             if inner_vlan_id is not None:
@@ -118,6 +118,9 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                   'configure untag vlan on a logical interface')
                 raise ValueError('Invalid Switchport mode while configuring untag vlan '
                                  'on a logical interface')
+            if inner_vlan_id is not None:
+                self.logger.error('inner_vlan_id is invalid args if vlan_type is untagged')
+                raise ValueError('inner_vlan_id is invalid args if vlan_type is untagged')
 
         if not re.match(re_pattern, device.firmware_version):
             if vlan_type == 'untagged':
@@ -126,7 +129,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                       'untagged on this platform')
                     raise ValueError('vlan_id is invalid args if vlan_type is '
                                      'untagged on this platform')
-                if len(logical_interface_number.split(',')) > 1:
+                if len(lif_name.split(',')) > 1:
                     self.logger.error('Only one untagged logical interface is allowed'
                                       ' per parent interface')
                     raise ValueError('Only one untagged logical interface is allowed'
@@ -141,9 +144,9 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                       ' if vlan_type is double_tagged')
                     raise ValueError('vlan_id & inner_vlan_id are mandatory args'
                                      ' if vlan_type is double_tagged')
-                if len(logical_interface_number.split(',')) != len(vlan_id.split(',')) or\
-                        len(logical_interface_number.split(',')) != len(inner_vlan_id.split(','))\
-                        or len(vlan_id.split(',')) != len(inner_vlan_id.split(',')):
+                if len(lif_name.split(',')) != len(vlan_id) or\
+                        len(lif_name.split(',')) != len(inner_vlan_id)\
+                        or len(vlan_id) != len(inner_vlan_id):
                     self.logger.error('vlan_id, inner_vlan_id and lif ids must be of same length')
                     raise ValueError('vlan_id, inner_vlan_id and lif ids must be of same length')
             elif vlan_type == 'untagged' and vlan_id is None:
@@ -152,7 +155,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
                 raise ValueError('vlan_id is mandatory args if vlan_type is untagged'
                                  ' on this platform')
 
-    def _check_interface_presence(self, device, intf_type, intf_name, lif_name):
+    def _check_interface_presence(self, device, intf_type, intf_name):
 
         if intf_type not in device.interface.valid_int_types:
             self.logger.error('Interface type is not valid. '
@@ -173,7 +176,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
                              % (intf_type, intf_name))
 
     def _check_untag_vlan_id(self, device, intf_type, intf_name, lif_name, vlan_id):
-        """ outer vlan id verification """
+        """ untag vlan id verification """
 
         dut_vlan = device.interface.logical_interface_create(get=True, intf_type=intf_type,
                                                 intf_name=intf_name,
@@ -185,6 +188,31 @@ class ConfigureLogicalInterface(NosDeviceAction):
                 return False
 
         return True
+
+    def _check_vlan_id(self, device, intf_type, intf_name, lif_name, vlan_id):
+        """ outer vlan id verification """
+
+        tmp = zip(*zip(lif_name, vlan_id))
+        tmp_lif = list(tmp[0])[:]
+        tmp_vlan = list(tmp[1])[:]
+        dut_vlan = device.interface.logical_interface_create(get=True, intf_type=intf_type,
+                                                intf_name=intf_name,
+                                                firmware_version=device.firmware_version)
+        for each_lif, each_vl in zip(dut_vlan, tmp_vlan):
+            if each_lif['intf_name'] in lif_name:
+                if each_lif['outer_vlan'] is not None:
+                    if int(each_lif['outer_vlan']) in tmp_vlan:
+                        self.logger.info('outer vlan_id %s is pre-existing on lif_name %s',
+                            each_lif['outer_vlan'], each_lif['intf_name'])
+                        tmp_vlan.remove(int(each_lif['outer_vlan']))
+                        tmp_lif.remove(each_lif['intf_name'])
+                    else:
+                        self.logger.info('Outer vlan_id %s is pre-existing on lif_name %s',
+                                         each_lif['outer_vlan'], each_lif['intf_name'])
+                        tmp_vlan.remove(each_vl)
+                        tmp_lif.remove(each_lif['intf_name'])
+
+        return zip(tmp_lif, tmp_vlan)
 
     def _check_inner_vlan_id(self, device, intf_type, intf_name, lif_name, vlan_id, inner_vlan_id):
         """ inner vlan id verification """
@@ -200,7 +228,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
             if each_lif['intf_name'] in lif_name:
                 if each_lif['outer_vlan'] is not None and each_lif['inner_vlan'] is not None:
                     if int(each_lif['outer_vlan']) in tmp_vlan and\
-                            int(each_lif['outer_vlan']) in tmp_in_vlan:
+                            int(each_lif['inner_vlan']) in tmp_in_vlan:
                         self.logger.info('outer vlan_id %s and inner_vlan_id %s are pre-existing'
                                          ' on lif_name %s', each_lif['outer_vlan'],
                                          each_lif['inner_vlan'], each_lif['intf_name'])
