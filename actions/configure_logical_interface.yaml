@@ -38,7 +38,7 @@ parameters:
   logical_interface_number:
     type: string 
     description: The interface name of the physical port or port channel number. E.g:0/1.1 or
-      7.1.
+      7.1. Format for the logical interfaces is <physical/port-channel number>.<number>.
     required: true
     position: 5
   vlan_type:
@@ -52,9 +52,12 @@ parameters:
   vlan_id:
     type: string
     description: A single or a list of VLANIDs. VLAN ID range is 1-4090.
+      If `vlan_type` is `tagged`, `vlan_id` needs to be specified.
+      If `vlan_type` is `double_tagged`, `vlan_id` needs to be specified and is interpreted as outer_vlan_id..
+      If `vlan_type` is `untagged`, `vlan_id` needs to be specified. Valid only on SLX9850,SLX9540.
     position: 7
   inner_vlan_id:
     type: string
-    description: This configures a single VLAN or a list of Inner VLANs for the logical interface.vlan.
-      id range <1-4090>
+    description: This configures a single VLAN or a list of Inner VLANs for the logical interface.
+      Valid vlan id range <1-4090>. Valid only if `vlan_type` is `double_tagged`.
     position: 8
