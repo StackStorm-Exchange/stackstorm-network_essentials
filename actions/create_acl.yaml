@@ -36,6 +36,7 @@ parameters:
       - standard
       - extended
     description: The ACL type, extended or standard.
+        acl_type is required by MLX for ip/ipv6 acl.
         required-by:- [SLX, NOS]
         accepted-by:- [SLX, NOS, MLX]
     position: 4
