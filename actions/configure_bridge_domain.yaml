@@ -23,6 +23,7 @@ parameters:
   bridge_domain_id:
     type: string
     description: The Bridge-domain ID.
+      Valid values are <1-4096> on SLX9140,SLX9850,SLX9540 and <1-3566> on SLX9240.
     required: true
     position: 3
   bridge_domain_service_type:
@@ -31,35 +32,41 @@ parameters:
       - p2mp
       - p2p
     description: The bridge domain service type.
+      `p2p` is valid only on SLX9850,SLX9540.
     position: 4
     default: p2mp
   vc_id:
     type: string
     description: The VC Id under the VPLS Instance. Range <1-4294967295>.
+      Valid only on SLX9850,SLX9540.
     position: 5
   statistics:
     type: boolean
-    description: The configure Statistics.
+    description: Configure Statistics.
     position: 6
     default: true
   bpdu_drop_enable:
     type: boolean
-    description: The drop BPDU packets.
+    description: Drop BPDU packets.
+      Valid only on SLX9850,SLX9540.
     position: 7
-    default: true
+    default: false 
   local_switching:
     type: boolean
-    description: The configured local switching.
+    description: Configured local switching.
+      Valid only on SLX9850,SLX9540.
     position: 8
-    default: true
+    default: false
   peer_ip:
     type: array
     description: A single or a list of IPv4/IPv6 addresses to be configured on the bridge_domain.
       IPv4, for example 10.0.0.10.
+      Valid only on SLX9850,SLX9540.
     position: 9
   pw_profile_name:
     type: string
     description: The pw-profile name (Max Size - 64).
+      Valid only on SLX9850,SLX9540.
     position: 10
     default: default
   intf_type:
@@ -72,10 +79,12 @@ parameters:
     position: 11
   logical_interface_number:
     type: string 
-    description: The physical port or port channel number list. Logical Interace ID. E.g
-      '0/34.11,21.1,0/35.1,22.1'
+    description: The physical port or port channel number list. 
+      Format for the logical interfaces is <physical/port-channel number>.<number>.
+      For E.g '0/34.11,21.1,0/35.1,22.1'
     position: 12
   vlan_id:
     type: string
     description: The VLAN ID to map the broadcast domain to a router interface.
+      Valid range <1-4096>
     position: 13
