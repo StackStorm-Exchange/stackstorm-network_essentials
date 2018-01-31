@@ -48,6 +48,7 @@ parameters:
     type: string
     description: The type of IP packets to be filtered based on the protocol. Valid values
       are <0-255> or key words tcp, udp, icmp or ip.
+      This parameter is required for extended ACL.
       For MLX - Valid values are <0-255> or supported protocol keywords.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
