@@ -36,7 +36,6 @@ class CreateSwitchPort(NosDeviceAction):
 
             if mac_group_id is not None:
                 mac_group_id = [str(e) for e in mac_group_id]
-                
             # Validate MAC group id before we proceed with the switch call
             self._validate_macgroup_id(mac_group_id)
             if mac_group_id is not None:
