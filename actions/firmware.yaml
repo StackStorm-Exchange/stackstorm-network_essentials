@@ -1,7 +1,7 @@
 ---
 name: firmware_download
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This downloads Firmware and checks the status.
 enabled: true
 entry_point: firmware.py

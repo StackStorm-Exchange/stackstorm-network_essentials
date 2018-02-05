@@ -1,7 +1,7 @@
 ---
 name: set_l3_mtu
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This sets the L3 MTU size on physical, port channel or ve interface.
 enabled: true
 entry_point: set_l3_mtu.py

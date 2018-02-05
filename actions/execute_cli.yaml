@@ -1,7 +1,7 @@
 ---
 name: execute_cli
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Executes CLI command and returns the result. The device type should be
              appropriate to get reliable output.
 enabled: true

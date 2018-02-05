@@ -1,7 +1,7 @@
 ---
 name: get_vlan_id_list
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This expands the range for a given list of VLAN IDs.  
 enabled: true
 entry_point: get_vlan_id_list.py

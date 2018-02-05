@@ -1,7 +1,7 @@
 ---
 name: delete_bridge_domain
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: This deletes the bridge domain.
 enabled: true
 entry_point: delete_bridge_domain.py

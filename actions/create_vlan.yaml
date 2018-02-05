@@ -1,7 +1,7 @@
 ---
 name: create_vlan
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This creates a single or range of VLANs on a switch.
 enabled: true
 entry_point: create_vlan.py

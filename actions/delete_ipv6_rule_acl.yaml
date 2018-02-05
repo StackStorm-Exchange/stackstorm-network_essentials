@@ -1,7 +1,7 @@
 ---
 name: delete_ipv6_rule_acl
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This deletes the IPv6 ACL rule from an existing IPv6 ACL.
 enabled: true
 entry_point: delete_ipv6_rule_acl.py

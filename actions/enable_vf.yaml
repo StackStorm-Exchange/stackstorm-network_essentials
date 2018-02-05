@@ -1,7 +1,7 @@
 ---
 name: enable_vf
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This enable or disable VCS virtual-fabric on a VCS fabric, when enabled, expands
   the VLAN ID address space beyond the 802.1Q limit in the fabric, allowing VLANs
   with IDs greater than 4095, up through 8191.
