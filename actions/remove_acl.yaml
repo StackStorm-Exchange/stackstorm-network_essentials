@@ -1,7 +1,7 @@
 ---
 name: remove_acl
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This removes an ACL from physical port, port channel, VE or mgmt interface.
 enabled: true
 entry_point: remove_acl.py

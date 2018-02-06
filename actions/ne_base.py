@@ -21,7 +21,7 @@ import ipaddress
 import pyswitch.device
 import pyswitchlib.asset
 import requests.exceptions
-from st2actions.runners.pythonrunner import Action
+from st2common.runners.base_action import Action
 
 
 class NosDeviceAction(Action):

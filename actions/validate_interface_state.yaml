@@ -1,7 +1,7 @@
 ---
 name: validate_interface_state
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This validates L1 and L2 state for port channel, physical, ve, loopback interface.
   is UP.
 enabled: true

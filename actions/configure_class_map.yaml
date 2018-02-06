@@ -1,7 +1,7 @@
 ---
 name: configure_class_map 
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: This creates the Class Map and sets the match criteris.
 enabled: true
 entry_point: configure_class_map.py

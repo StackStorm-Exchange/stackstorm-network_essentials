@@ -12,14 +12,15 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
         seq_id, action, source, srchost, src_mac_addr_mask, dst, dsthost,
         dst_mac_addr_mask, vlan_tag_format, vlan, ethertype, arp_guard, pcp,
         drop_precedence_force, count, log, mirror, copy_sflow, drop_precedence,
-        priority, priority, priority_force, priority_mapping
+        priority, priority, priority_force, priority_mapping, acl_rules
     """
 
     def run(self, delete, mgmt_ip, username, password, acl_name, seq_id,
             action, source, srchost, src_mac_addr_mask, dst, dsthost,
             dst_mac_addr_mask, vlan_tag_format, vlan, ethertype, arp_guard,
             pcp, drop_precedence_force, count, log, mirror, copy_sflow,
-            drop_precedence, priority, priority_force, priority_mapping):
+            drop_precedence, priority, priority_force, priority_mapping,
+            acl_rules):
         """Run helper methods to add an L2 ACL rule to an existing ACL
         """
         self.setup_connection(host=mgmt_ip, user=username, passwd=password)
@@ -29,7 +30,8 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                                      ethertype, arp_guard, pcp,
                                      drop_precedence_force, count, log, mirror,
                                      copy_sflow, drop_precedence, priority,
-                                     priority_force, priority_mapping)
+                                     priority_force, priority_mapping,
+                                     acl_rules)
 
     @log_exceptions
     def switch_operation(self, delete, acl_name, seq_id, action, source,
@@ -37,7 +39,7 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                          dst_mac_addr_mask, vlan_tag_format, vlan, ethertype,
                          arp_guard, pcp, drop_precedence_force, count, log,
                          mirror, copy_sflow, drop_precedence, priority,
-                         priority_force, priority_mapping):
+                         priority_force, priority_mapping, acl_rules):
 
         parameters = locals()
         parameters .pop('self', None)
@@ -52,12 +54,27 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                 self.logger.info('Deleting Rule from L2 ACL: {}'
                                  .format(acl_name))
 
-                output = device.acl.delete_l2_acl_rule(**parameters)
+                if seq_id.isdigit():
+                    parameters['seq_id'] = int(parameters['seq_id'])
+                    output = device.acl.delete_l2_acl_rule(**parameters)
+                else:
+                    output = device.acl.delete_l2_acl_rule_bulk(**parameters)
+
             else:
                 self.logger.info('Adding Rule to L2 ACL: {}'
                                  .format(acl_name))
 
-                output = device.acl.add_l2_acl_rule(**parameters)
+                if acl_rules:
+                    for x in acl_rules:
+                        if 'seq_id' not in x:
+                            break
+                        x['seq_id'] = int(x['seq_id'])
+                    output = device.acl.add_l2_acl_rule_bulk(acl_name=acl_name,
+                                                             acl_rules=acl_rules)
+                else:
+                    if parameters['seq_id']:
+                        parameters['seq_id'] = int(parameters['seq_id'])
+                    output = device.acl.add_l2_acl_rule(**parameters)
 
             self.logger.info(output)
             return True

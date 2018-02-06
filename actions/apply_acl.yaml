@@ -1,7 +1,7 @@
 ---
 name: apply_acl
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This apply an ACL to a physical port, port channel, VE or management interface.
 enabled: true
 entry_point: apply_acl.py

@@ -1,7 +1,7 @@
 ---
 name: add_or_remove_l2_acl_rule
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This adds or removes an ACL rule to or from an L2 ACL.
 enabled: true
 entry_point: add_or_remove_l2_acl_rule.py
@@ -34,15 +34,20 @@ parameters:
     description: The name of the access control list.
     required: true
     position: 4
-  seq_id:
-    type: integer
-    description: The sequence number of the rule. For add operation, if not specified,
-      the rule is added at the end of the list.
-      For delete operation seq_id is required-by parameter for MLX, SLX, VDX.
+  seq_id: &seq_id
+    type: string
+    description: The sequence numbers of rules to be deleted
+                 { seq id | all | comman and hyphen separated seq ids }
+        Example:- { 10 | all | 1,2,3-10,20,35-  }
+        Note:-
+            1. Range operation is only supported for delete operation.
+            2. "-" separated values will look for seq_ids inthe range including
+               the values and 35- is equal to starting from 35 delete all
+               configured sequence ids, including 35.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 5
-  action:
+  action: &action
     type: string
     description: The action to apply on the traffic, either to drop (deny), allow (permit)
       or force drop (hard-drop)
@@ -54,7 +59,7 @@ parameters:
       - hard-drop
     default: deny
     position: 6
-  source:
+  source: &source
     type: string
     description: The source filter, which can be 'any' or 'host', or the actual MAC in HHHH.HHHH.HHHH format
                  MLX - Source filter, can be 'any' or the actual MAC in HHHH.HHHH.HHHH format.
@@ -62,20 +67,20 @@ parameters:
         accepted-by:- [SLX, NOS, MLX]
     default: any
     position: 7
-  srchost:
+  srchost: &srchost
     type: string
     description: The source MAC in HHHH.HHHH.HHHH format. The value is required only
       when the source is 'host'.
         required-by:- [None]
         accepted-by:- [SLX, NOS]
     position: 8
-  src_mac_addr_mask:
+  src_mac_addr_mask: &src_mac_addr_mask
     type: string
     description: The mask for the source MAC in HHHH.HHHH.HHHH format.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 9
-  dst:
+  dst: &dst
     type: string
     description: The destination filter, this can be 'any' or 'host', or the actual MAC of
       the destination in HHHH.HHHH.HHHH format.
@@ -85,20 +90,20 @@ parameters:
         accepted-by:- [SLX, NOS, MLX]
     default: any
     position: 10
-  dsthost:
+  dsthost: &dsthost
     type: string
     description: The destination MAC in HHHH.HHHH.HHHH format. The value is required only
       when the dst is 'host'
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 11
-  dst_mac_addr_mask:
+  dst_mac_addr_mask: &dst_mac_addr_mask
     type: string
     description: The mask for the destination MAC in HHHH.HHHH.HHHH format.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 12
-  vlan_tag_format:
+  vlan_tag_format: &vlan_tag_format
     type: string
     description: The action to apply on the traffic, either to drop (deny), allow (permit) or force drop (hard-drop)
         required-by:- [None]
@@ -109,20 +114,20 @@ parameters:
        - single-tagged
        - double-tagged
     position: 13
-  vlan:
+  vlan: &vlan
     type: string
     description: The VLAN IDs - 'any' or 1-4096, Mask 0xHHH. Format{(<VlanID> [<Mask>]) | (<OuterVlan> [<Mask>] <InnerVlan> [<Mask>])}.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 14
-  ethertype:
+  ethertype: &ethertype
     type: string
     description: The EtherType, this can be 'arp', 'fcoe', 'ipv4' or custom value between 1536 and 65535.
                  For MLX EtherType, can be 'arp', 'fcoe', 'ipv4-l5', 'ipv6' or custom value between integers 1536 and 65535.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 15
-  arp_guard:
+  arp_guard: &arp_guard
     type: string
     description: This enables the arp-guard for the rule.
         required-by:- [None]
@@ -130,14 +135,14 @@ parameters:
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 16
-  pcp:
+  pcp: &pcp
     type: string
     description: The PCP value between 0 and 7. Format {<pcp>[,<pcp-force>]}.
         required-by:- [None]
         accepted-by:- [SLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 17
-  drop_precedence_force:
+  drop_precedence_force: &drop_precedence_force
     type: string
     description: This matches the specified value against the drop_precedence value of the packet to filter. Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
@@ -145,21 +150,21 @@ parameters:
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 18
-  count:
+  count: &count
     type: string
     description: This enables the packet count.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 19
-  log:
+  log: &log
     type: string
     description: This enables logging.
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     default: 'False'
     position: 20
-  mirror:
+  mirror: &mirror
     type: string
     description: This enables the mirror for the rule.
         required-by:- [None]
@@ -167,7 +172,7 @@ parameters:
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 21
-  copy_sflow:
+  copy_sflow: &copy_sflow
     type: string
     description: This enables the copy-sflow for the rule.
         required-by:- [None]
@@ -175,7 +180,7 @@ parameters:
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     default: 'False'
     position: 22
-  drop_precedence:
+  drop_precedence: &drop_precedence
     type: string
     description: This matches the specified value against the drop_precedence value of the packet to filter. Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
@@ -183,21 +188,75 @@ parameters:
         accepted-by:- [SLX, MLX]
         (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
     position: 23
-  priority:
+  priority: &priority
     type: integer
     description: This matches the specified value against the priority value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 24
-  priority_force:
+  priority_force: &priority_force
     type: integer
     description: This matches the specified value against the priority_force value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 25
-  priority_mapping:
+  priority_mapping: &priority_mapping
     type: integer
     description: This matches the specified value against the priority_mapping value of the packet to filter. Allowed values are 0 through 7.
         required-by:- [None]
         accepted-by:- [MLX]
     position: 26
+  acl_rules:
+    type: array
+    description: This bulk operation is supported to create more than one ACL rule
+        in one action execution. The parameters are passed to create multiple
+        rules that will follow the constraints similar to a single rule creation.
+        NOTE- if rules are specified in acl_rules, the rule specified outside
+        of the array will be ignored and only the rules in the acl_array will be processed
+    position: 27
+    items:
+      properties:
+        seq_id:
+          << : *seq_id
+        action:
+          << : *action
+        source:
+          << : *source
+        srchost:
+          << : *srchost
+        src_mac_addr_mask:
+          << : *src_mac_addr_mask
+        dst:
+          << : *dst
+        dsthost:
+          << : *dsthost
+        dst_mac_addr_mask:
+          << : *dst_mac_addr_mask
+        vlan_tag_format:
+          << : *vlan_tag_format
+        vlan:
+          << : *vlan
+        ethertype:
+          << : *ethertype
+        arp_guard:
+          << : *arp_guard
+        pcp:
+          << : *pcp
+        drop_precedence_force:
+          << : *drop_precedence_force
+        count:
+          << : *count
+        log:
+          << : *log
+        mirror:
+          << : *mirror
+        copy_sflow:
+          << : *copy_sflow
+        drop_precedence:
+          << : *drop_precedence
+        priority:
+          << : *priority
+        priority_force:
+          << : *priority_force
+        priority_mapping:
+          << : *priority_mapping
