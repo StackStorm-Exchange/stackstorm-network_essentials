@@ -30,7 +30,11 @@ class CliCMD(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
         result = {}
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         auth_snmp = self.auth_snmp
         if not username:
             username = auth_snmp[0]

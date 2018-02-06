@@ -8,7 +8,11 @@ class set_l2_system_mtu(NosDeviceAction):
     def run(self, mgmt_ip, username, password, mtu_size):
         """Run helper methods to set system L2 MTU on.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         output = self.switch_operation(mtu_size)
         return output
 

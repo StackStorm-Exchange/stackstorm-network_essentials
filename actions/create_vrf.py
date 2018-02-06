@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 from execute_cli import CliCMD
@@ -28,7 +30,11 @@ class CreateVRF(NosDeviceAction):
     def run(self, mgmt_ip, username, password, vrf_name, rbridge_id, afi, rd):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = {}
 
         return self.switch_operation(afi, changes, rbridge_id, vrf_name, rd)

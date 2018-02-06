@@ -28,7 +28,11 @@ class DeleteVe(NosDeviceAction):
     def run(self, mgmt_ip, username, password, vlan_id, ve_id, rbridge_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = {}
 
         with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:

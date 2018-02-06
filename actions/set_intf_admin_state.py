@@ -28,7 +28,11 @@ class SetIntfAdminState(NosDeviceAction):
             intf_desc):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = {}
 
         intf_type = intf_type.lower()

@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -23,7 +24,11 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
             acl_rules):
         """Run helper methods to add an L2 ACL rule to an existing ACL
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(delete, acl_name, seq_id, action, source,
                                      srchost, src_mac_addr_mask, dst, dsthost,
                                      dst_mac_addr_mask, vlan_tag_format, vlan,

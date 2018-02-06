@@ -35,7 +35,11 @@ class CreateSwitchPort(NosDeviceAction):
             trunk_no_default_native):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = self.switch_operation(intf_name, intf_type, vlan_id, c_tag,
                                         trunk_no_default_native)
         return changes

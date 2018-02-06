@@ -45,6 +45,9 @@ class NosDeviceAction(Action):
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
         self.conn = (host, '22')
+        user = self._lookup_st2_store('user')
+        if not user:
+            raise ValueError("Device is not registered")
         self.auth_snmp = self._get_auth(host=host, user=user, passwd=passwd)
 
     def _lookup_st2_store(self, key, decrypt=False):

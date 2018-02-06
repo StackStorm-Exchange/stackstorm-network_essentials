@@ -46,7 +46,11 @@ class validate_vrrpe_state(NosDeviceAction):
             host = each_host[0]
             user = each_host[1]
             passwd = each_host[2]
+        try:
             self.setup_connection(host=host, user=user, passwd=passwd)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
             device = self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp)
 
             # validate supported interface type for vrrpe

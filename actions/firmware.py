@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 from threading import Timer
@@ -30,7 +32,11 @@ class Firmware(NosDeviceAction):
     def run(self, mgmt_ip, username, password, host_ip, protocol_type,
             proto_username, proto_password, disruptive_download, firmware_path):
 
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
 
         return self.switch_operation(host_ip, protocol_type,
             proto_username, proto_password, disruptive_download, firmware_path)

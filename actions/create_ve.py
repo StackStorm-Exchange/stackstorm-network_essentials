@@ -33,7 +33,11 @@ class CreateVe(NosDeviceAction):
             vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(rbridge_id, vlan_id, ve_id, ip_address,
                                      vrf_name, ipv6_use_link_local_only, skip_vlan_config)
 
