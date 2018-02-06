@@ -1,7 +1,7 @@
 ---
 name: remove_switchport_trunk_allowed_vlan
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This removes the switch port trunk allowed VLAN from an interface for
   SLX/NOS or remove a tagged port from a VLAN or list of VLANs for MLX.
 enabled: true

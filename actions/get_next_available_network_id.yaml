@@ -1,7 +1,7 @@
 ---
 name: get_next_available_network_id
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This returns the next lowest available VF ID (4096-8191) on VDX platform and
   bridge-domain ID on SLX platforms.
 enabled: true

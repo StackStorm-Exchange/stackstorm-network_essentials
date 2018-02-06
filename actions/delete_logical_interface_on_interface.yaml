@@ -1,7 +1,7 @@
 ---
 name: delete_logical_interface_on_interface
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: This deletes the logical interface under the physical/port-channel interface.
 enabled: true
 entry_point: delete_logical_interface_on_interface.py

@@ -1,7 +1,7 @@
 ---
 name: attach_service_policy_to_interface 
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: The attach Input/Output Policy Map.
 enabled: true
 entry_point: attach_service_policy_to_interface.py

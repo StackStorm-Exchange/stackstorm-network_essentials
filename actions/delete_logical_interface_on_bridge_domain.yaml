@@ -1,7 +1,7 @@
 ---
 name: delete_logical_interface_on_bridge_domain
 pack: network_essentials 
-runner_type: run-python
+runner_type: python-script
 description: This deletes the logical interfaces under a bridge domain. 
 enabled: true
 entry_point: delete_logical_interface_on_bridge_domain.py

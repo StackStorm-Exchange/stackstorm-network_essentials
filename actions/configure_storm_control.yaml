@@ -1,7 +1,7 @@
 ---
 name: configure_storm_control
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This configures Storm/BUM control on an interface.
 enabled: true
 entry_point: configure_storm_control.py
