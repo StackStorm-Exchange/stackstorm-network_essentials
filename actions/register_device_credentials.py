@@ -16,7 +16,7 @@ import sys
 import time
 import paramiko
 import socket
-from st2actions.runners.pythonrunner import Action
+from st2common.runners.base_action import Action
 from pyswitch.snmp.snmpconnector import SnmpConnector as SNMPDevice
 from pyswitch.snmp.snmpconnector import SNMPError as SNMPError
 from pyswitch.snmp.SnmpMib import SnmpMib as MIB
