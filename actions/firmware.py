@@ -41,6 +41,10 @@ class Firmware(NosDeviceAction):
         try:
             with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
                 self.logger.info('successfully connected to %s to download firmware', self.host)
+
+                if device.os_type == 'NI':
+                    self.logger.error('Operation is not supported on this device')
+                    raise ValueError('Operation is not supported on this device')
                 self.firmware_download_start_action(device)
                 fwdl_status_dictlist = device.firmware.download_firmware(
                     protocol=protocol_type,

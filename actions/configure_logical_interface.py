@@ -46,6 +46,10 @@ class ConfigureLogicalInterface(NosDeviceAction):
                 'Successfully connected to %s to configure logical interface',
                 self.host)
 
+            if device.os_type == 'nos' or device.os_type == 'NI':
+                self.logger.error('Operation is not supported on this platform')
+                raise ValueError('Operation is not supported on this platform')
+
             re_pattern = '\d+r'
             lif_name = logical_interface_number.split(',')
             if vlan_id is not None:
@@ -95,10 +99,6 @@ class ConfigureLogicalInterface(NosDeviceAction):
 
     def _platform_checks(self, device, vlan_id, inner_vlan_id, vlan_type,
                          re_pattern, lif_name, intf_name, intf_type):
-
-        if device.os_type == 'nos':
-            self.logger.error('Operation is not supported on this platform')
-            raise ValueError('Operation is not supported on this platform')
 
         if vlan_type == 'tagged':
             if vlan_id is None:
