@@ -238,9 +238,10 @@ parameters:
     required: false
     position: 29
   tos: &tos
-    type: integer
+    type: string
     description: This will match packets with given TOS value.
-        Allowed value in decimal <0-15>.
+        Allowed values are { <0-15> | 'max-reliability' | 'max-throughput' |
+                             'min-delay' | 'normal' }
         required-by:- [None]
         accepted-by:- [MLX]
     required: false
