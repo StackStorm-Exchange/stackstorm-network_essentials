@@ -13,6 +13,7 @@
 # limitations under the License.
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
+import time
 
 
 class PersistConfigs(NosDeviceAction):
@@ -61,9 +62,15 @@ class PersistConfigs(NosDeviceAction):
     def _persist_config(self, device, source_name):
 
         try:
-            device.system.persist_config(src_name=source_name, dst_name='startup-config')
+            response = device.system.persist_config(src_name=source_name, dst_name='startup-config')
+            time.sleep(5)
+            save_status = device.system.persist_config_status(session_id=response)
         except (ValueError, KeyError) as e:
             self.logger.error('Persist configuration operation failed due to %s',
                 e.message)
+            raise ValueError('Persist configuration operation failed')
+
+        if save_status != 'completed':
+            self.logger.error('Persist configuration operation failed')
             raise ValueError('Persist configuration operation failed')
         return True
