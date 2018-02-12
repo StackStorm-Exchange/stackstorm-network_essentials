@@ -76,7 +76,7 @@ parameters:
     required: false
     position: 11
   vlan_id:
-    type: integer
+    type: string
     description: The VLAN interface to which the ACL is bound.
     required: false
     position: 12
