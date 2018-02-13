@@ -25,7 +25,11 @@ class ConfigureMacMoveDetection(NosDeviceAction):
     def run(self, mgmt_ip, username, password, move_threshold):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = {}
         if move_threshold > 500 or move_threshold < 5:
             raise ValueError('Mac Move Threshold is Invalid. Not in <5-500> range')

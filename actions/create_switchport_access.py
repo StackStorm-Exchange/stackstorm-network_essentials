@@ -28,7 +28,11 @@ class CreateSwitchPort(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id, mac_group_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as err:
+            self.logger.error(err.message)
+            sys.exit(-1)
         changes = {}
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to create switchport on Interface',

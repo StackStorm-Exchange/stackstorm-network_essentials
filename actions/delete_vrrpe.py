@@ -28,7 +28,11 @@ class DeleteVrrpe(NosDeviceAction):
          rbridge_id, vrrpe_group, ip_version):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = {}
 
         with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:

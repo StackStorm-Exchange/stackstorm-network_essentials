@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -7,7 +8,11 @@ class Delete_Ipv6_Rule_Acl(NosDeviceAction):
         """Run helper methods to delete an L3 IPV6 ACL rule of an existing ACL.
 
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(acl_name, seq_id)
 
     @log_exceptions

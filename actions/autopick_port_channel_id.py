@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -28,7 +30,11 @@ class AutoPickPortChannel(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
 
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         changes = self.switch_operation()
         return changes
 

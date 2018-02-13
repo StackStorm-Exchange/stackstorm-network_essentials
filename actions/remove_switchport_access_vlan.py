@@ -26,7 +26,11 @@ class RemoveSwitchPort(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type, intf_name, vlan_id):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to remove access vlan on Interface',
                              self.host)

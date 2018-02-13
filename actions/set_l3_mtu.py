@@ -1,4 +1,5 @@
 import re
+import sys
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
@@ -9,7 +10,11 @@ class set_l3_mtu(NosDeviceAction):
             afi):
         """Run helper methods to set L3 MTU on desired interface.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         output = self.switch_operation(afi, intf_type, mtu_size, intf_name)
         return output
 

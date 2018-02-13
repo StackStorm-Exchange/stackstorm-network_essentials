@@ -1,3 +1,4 @@
+import sys
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 
@@ -7,7 +8,11 @@ class Apply_Acl(NosDeviceAction):
             rbridge_id, acl_name, acl_direction, traffic_type):
         """Run helper methods to apply ACL on desired interface.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(intf_type, intf_name,
                                      rbridge_id, acl_name,
                                      acl_direction, traffic_type)
