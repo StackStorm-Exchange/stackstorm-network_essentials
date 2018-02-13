@@ -1,7 +1,7 @@
 ---
 name: add_ipv4_rule_acl
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: Add a Layer 3 IPv4 ACL rule to an already existing ACL.
 enabled: true
 entry_point: add_ipv4_rule_acl.py
@@ -238,9 +238,10 @@ parameters:
     required: false
     position: 29
   tos: &tos
-    type: integer
+    type: string
     description: This will match packets with given TOS value.
-        Allowed value in decimal <0-15>.
+        Allowed values are { <0-15> | 'max-reliability' | 'max-throughput' |
+                             'min-delay' | 'normal' }
         required-by:- [None]
         accepted-by:- [MLX]
     required: false

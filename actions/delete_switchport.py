@@ -47,6 +47,10 @@ class DeleteSwitchport(NosDeviceAction):
                 'successfully connected to %s to Delete Switch Port on the interfaces'
                 ' on the device', self.host)
 
+            if device.os_type == 'NI':
+                self.logger.error('Operation is not supported on this device')
+                raise ValueError('Operation is not supported on this device')
+
             intf_list = self.expand_interface_range(intf_type=intf_type, intf_name=intf_name,
                                                     rbridge_id='')
             if intf_list is not None:

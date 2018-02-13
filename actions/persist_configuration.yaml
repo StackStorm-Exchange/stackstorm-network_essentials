@@ -1,0 +1,31 @@
+---
+name: persist_configuration 
+pack: network_essentials 
+runner_type: python-script
+description: This action saves the running/default configurations to startup configurations on the SLX devices. 
+enabled: true
+entry_point: persist_configuration.py
+parameters:
+  mgmt_ip:
+    type: array 
+    description: A single or list management IP address of the target devices.
+    required: true
+    position: 0
+  username:
+    type: array 
+    description: A single or list of login user names to connect to the devices.
+    position: 1
+  password:
+    type: array 
+    description: A single or list of the login passwords to connect to the devices.
+    secret: true
+    position: 2
+  source_name:
+    type: string
+    enum:
+      - running-config
+      - default-config
+    description: Save the running/default configurations to startup configurations.
+      Applicable to SLX9840, SLX9850, SLX9140, SLX9240. 
+    default: running-config 
+    position: 3

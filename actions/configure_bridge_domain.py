@@ -57,7 +57,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
                 'Successfully connected to %s to configure bridge domain',
                 self.host)
 
-            if device.os_type == 'nos':
+            if device.os_type == 'nos' or device.os_type == 'NI':
                 self.logger.error('Operation is not supported on this device')
                 raise ValueError('Operation is not supported on this device')
             if logical_interface_number is not None and intf_type is None:

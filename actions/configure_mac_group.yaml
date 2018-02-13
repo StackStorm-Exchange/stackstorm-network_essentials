@@ -1,7 +1,7 @@
 ---
 name: configure_mac_group
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This creates a new MAC group on a device and configures the member MAC addresses.
 enabled: true
 entry_point: configure_mac_group.py

@@ -50,6 +50,10 @@ class DeleteLogicalInterfaceOnBridgeDomain(NosDeviceAction):
                 'successfully connected to %s to Delete logical interfaces on'
                 ' bridge domain', self.host)
 
+            if device.os_type == 'nos' or device.os_type == 'NI':
+                self.logger.error('Operation is not supported on this device')
+                raise ValueError('Operation is not supported on this device')
+
             changes['pre_check_bd'] = self._check_bd_presence(device,
                                                               bridge_domain_id, intf_type,
                                                               bridge_domain_service_type)

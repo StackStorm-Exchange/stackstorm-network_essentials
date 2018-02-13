@@ -1,7 +1,7 @@
 ---
 name: configure_mac_move_detection
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This configures the switch to enable MAC move detection and set the threshold
   for the number of MAC moves in time-window to trigger the detection.
 enabled: true

@@ -1,7 +1,7 @@
 ---
 name: create_ve
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This creates a VE and assign IP addresses, VRF on one or more switches.
 enabled: true
 entry_point: create_ve.py
@@ -42,6 +42,7 @@ parameters:
     type: array
     description: A single or list of IPv4/IPv6 addresses to be configured on the VE.
       IPv4/subnet-length or IPv6/prefix-length, for example 10.0.0.10/22, 30.0.0.10/22.
+      List of IP addresses is valid only in VDX Cluster Nodes.
     position: 6
   vrf_name:
     type: string

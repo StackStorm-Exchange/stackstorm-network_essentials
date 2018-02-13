@@ -1,7 +1,7 @@
 ---
 name: delete_vlan
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This deletes one or more VLANs on a switch.
 enabled: true
 entry_point: delete_vlan.py

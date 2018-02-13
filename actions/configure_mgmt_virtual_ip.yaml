@@ -1,7 +1,7 @@
 ---
 name: configure_mgmt_virtual_ip
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This configures management virtual IP on the principal switch of a VCS cluster.
 enabled: true
 entry_point: configure_mgmt_virtual_ip.py

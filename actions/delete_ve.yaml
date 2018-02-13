@@ -1,7 +1,7 @@
 ---
 name: delete_ve
 pack: network_essentials
-runner_type: run-python
+runner_type: python-script
 description: This deletes a VE on multiple switches.
 enabled: true
 entry_point: delete_ve.py

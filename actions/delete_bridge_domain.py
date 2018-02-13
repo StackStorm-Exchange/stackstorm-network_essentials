@@ -48,6 +48,11 @@ class DeleteBridgeDomain(NosDeviceAction):
             self.logger.info(
                 'successfully connected to %s to Delete bridge domain',
                 self.host)
+
+            if device.os_type == 'nos' or device.os_type == 'NI':
+                self.logger.error('Operation is not supported on this device')
+                raise ValueError('Operation is not supported on this device')
+
             bridge_domain_list = list(itertools.chain.from_iterable(range(int(ranges[0]),
                                       int(ranges[1]) + 1) for ranges in ((el + [el[0]])[:2]
                                       for el in (miniRange.split('-')

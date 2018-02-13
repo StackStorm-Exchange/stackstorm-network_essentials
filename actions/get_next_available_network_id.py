@@ -48,6 +48,11 @@ class AutoPickNetworkID(NosDeviceAction):
             self.logger.info(
                 'Successfully connected to %s to fetch Network ID',
                 self.host)
+
+            if device.os_type == 'NI':
+                self.logger.error('Operation is not supported on this device')
+                raise ValueError('Operation is not supported on this device')
+
             changes['network_id'] = str(
                 self._no_vfab_number(device, length_of_the_range))
             self.logger.info('Closing connection to %s after'

@@ -99,8 +99,6 @@ class CreateVrrpe(NosDeviceAction):
                     rbridge_id=rbridge_id,
                     vrid=vrid,
                     ip_version=ip_version)
-        else:
-            sys.exit(-1)
 
         self.logger.info(
             'closing connection to %s after Enabling VRRPE - all done!',
@@ -148,7 +146,6 @@ class CreateVrrpe(NosDeviceAction):
             if not config[0]:
                 self.logger.error('Ve %s is not available' % intf_name)
                 raise ValueError('Ve %s is not present on the device' % (intf_name))
-            return str(config[1])
 
         if intf_type == 'ethernet':
             eth_list = device.interface.get_eth_l3_interfaces()
@@ -158,7 +155,11 @@ class CreateVrrpe(NosDeviceAction):
             if not config[0]:
                 self.logger.error('eth l3 intf %s is not available' % intf_name)
                 raise ValueError('eth l3 intf %s is not present on the device' % (intf_name))
-            return str(config[1])
+
+        if str(config[1]) == '' and config[2] is False:
+            sys.exit(-1)
+
+        return str(config[1])
 
     def _validate_vip_vrid(self, device, intf_list, intf_type, intf_name,
               ip_version, virtual_ip, vrid, rbridge_id):
@@ -167,6 +168,7 @@ class CreateVrrpe(NosDeviceAction):
         """
 
         intf_present = False
+        idempotent_check = False
         if intf_type == 'Ve':
             int_type = 've'
         else:
@@ -187,11 +189,12 @@ class CreateVrrpe(NosDeviceAction):
                     for each_entry in vip_get:
                         if self._is_same_vip(each_entry['vip'], virtual_ip) \
                                 and each_entry['vrid'] == vrid:
-                            self.logger.error(
+                            self.logger.info(
                                 'VRRP Extended group %s & associations '
                                 'are pre-existing in %s %s' %
                                 (vrid, intf_type, intf_name))
                             ip_version = ''
+                            idempotent_check = True
                         elif self._is_same_vip(each_entry['vip'], virtual_ip)\
                                 and each_entry['vrid'] != vrid:
                             self.logger.error(
@@ -225,7 +228,7 @@ class CreateVrrpe(NosDeviceAction):
                                               (virtual_ip, intf_type,
                                                each_intf['if-name'].split()[1]))
                             ip_version = ''
-        return (intf_present, ip_version)
+        return (intf_present, ip_version, idempotent_check)
 
     def _is_same_vip(self, vip_list, vip):
         """
