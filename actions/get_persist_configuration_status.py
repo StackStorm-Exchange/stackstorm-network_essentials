@@ -52,5 +52,5 @@ class GetPersistConfig(NosDeviceAction):
             else:
                 self.logger.warning('Persist configuration operation is still in progess and '
                                 'is taking longer time than expected. '
-                                'Retry after some time the status using the action')
+                                'Retry after some time')
                 return {'switch_ip': self.host, 'session_id': session_id}
