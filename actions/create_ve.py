@@ -70,6 +70,9 @@ class CreateVe(NosDeviceAction):
                 if ip_address is None:
                     tmp_list = [1]
                 else:
+                    if len(ip_address) > 1:
+                        self.logger.error('ip_address list is not supported on this platform')
+                        sys.exit(-1)
                     tmp_list = zip([None], ip_address)
             if device.interface.is_ve_id_required():
                 if ve_id is None:
