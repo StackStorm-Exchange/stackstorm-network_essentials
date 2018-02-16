@@ -20,6 +20,8 @@ from st2common.runners.base_action import Action
 from pyswitch.snmp.snmpconnector import SnmpConnector as SNMPDevice
 from pyswitch.snmp.snmpconnector import SNMPError as SNMPError
 from pyswitch.snmp.SnmpMib import SnmpMib as MIB
+from pyswitch.XMLAsset import XMLAsset
+from pyswitchlib.exceptions import (RestInterfaceError, RestProtocolTypeError)
 
 
 class RegisterDeviceCredentials(Action):
@@ -47,7 +49,7 @@ class RegisterDeviceCredentials(Action):
 
     def run(self, mgmt_ip, username, password, enable_password, snmp_port,
             snmp_version, snmp_v2c, snmpv3_user, snmpv3_auth,
-            auth_pass, snmpv3_priv, priv_pass):
+            auth_pass, snmpv3_priv, priv_pass, rest_protocol):
 
         devprefix = self._get_lookup_prefix(mgmt_ip)
         self.devcredentials = self.action_service.list_values(local=False, prefix=devprefix)
@@ -77,13 +79,16 @@ class RegisterDeviceCredentials(Action):
             else:
                 self.snmpconfig['privpass'] = ''
 
-        self._validate_input_credentials(mgmt_ip, username, password, enable_password)
+        if not rest_protocol:
+            rest_protocol = 'http'
+
+        self._validate_input_credentials(mgmt_ip, username, password, enable_password, rest_protocol)
 
         if self.devcredentials:
             # update case as already exists for this device
-            self._update_device(mgmt_ip, username, password, enable_password)
+            self._update_device(mgmt_ip, username, password, enable_password, rest_protocol)
         else:
-            self._register_device(mgmt_ip, username, password, enable_password)
+            self._register_device(mgmt_ip, username, password, enable_password, rest_protocol)
 
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
@@ -91,7 +96,7 @@ class RegisterDeviceCredentials(Action):
     def _get_lookup_prefix(self, host):
         return 'switch.%s.' % host
 
-    def _validate_input_credentials(self, host, user=None, passwd=None, enable_pass=None):
+    def _validate_input_credentials(self, host, user=None, passwd=None, enable_pass=None, rest_proto=None):
 
         """
            Method to validate user input for device credentials
@@ -100,6 +105,7 @@ class RegisterDeviceCredentials(Action):
                 user       : Username for ssh/cli login
                 passwd     : Password for ssh/cli login
                 enable_pass: Privilege Exec Password
+                rest_proto : REST protocol used for REST requests
 
            Return Value:
         """
@@ -140,12 +146,29 @@ class RegisterDeviceCredentials(Action):
         if user and passwd:
             self.ostype = self._validate_ssh_connection(host, user, passwd)
 
-        if self.ostype == 'ni':
-            ret = self._validate_snmp_credentials(host)
-            if not ret:
-                sys.exit(-1)
-        else:
-            self.logger.warning("Skip SNMP credentials storage for this device")
+            if self.ostype == 'unknown':
+                # Still test for REST if SSH test fails above
+                if rest_proto:
+                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd, rest_proto)
+                    if not ret:
+                        sys.exit(-1)
+            elif self.ostype == 'ni':
+                self.logger.warning("Skip REST protocol storage for this device")
+
+                ret = self._validate_snmp_credentials(host)
+                if not ret:
+                    sys.exit(-1)
+            elif self.ostype == 'slx' or self.ostype == 'nos':
+                self.logger.warning("Skip SNMP credentials storage for this device")
+
+                if enable_pass:
+                    self.logger.warning("Skip enable password storage for this device")
+
+                if rest_proto:
+                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd, rest_proto)
+                    if not ret:
+                        sys.exit(-1)
+
         return
 
     def _validate_snmp_credentials(self, host):
@@ -257,7 +280,51 @@ class RegisterDeviceCredentials(Action):
 
         return ostype
 
-    def _update_device(self, host, user, passwd, enablepass):
+    def _validate_rest_connection(self, host, user, passwd, rest_proto):
+
+        """
+            Method to validate ssh cli connection and obtain os_version
+            Input Params:
+                 host       : Device management IP address
+                 user       : Username for rest login
+                 passwd     : Password for rest login
+                 rest_proto : Protocol used for rest requests
+
+            Return Value:
+                 True - if rest connection using the specified rest_proto is successful
+                 False - if rest connection using the specified rest_prot is not successful
+        """
+
+        asset = None
+        enabled_protocols = []
+
+        try:
+            asset = XMLAsset(ip_addr=host, auth=(user, passwd), rest_proto=rest_proto)
+        except RestProtocolTypeError as error:
+            self.logger.error("Rest Protocol Type Error: %s", error)
+            return False
+        except RestInterfaceError as error:
+            self.logger.error("Rest Interface Error: %s", error)
+            return False
+        except: 
+            raise
+            
+        enabled_protocols = asset.get_enabled_rest_protocols()
+
+        if self.ostype == 'unknown':
+            self.ostype = asset.get_os_type()
+
+        if enabled_protocols:
+            if rest_proto not in enabled_protocols:
+                self.logger.error("Specified rest protocol: %s is not enabled on the device.", rest_proto)
+                return False
+        else:
+            self.logger.error("Failed to retrieve enabled rest protocols.")
+            return False
+
+        return True 
+
+    def _update_device(self, host, user, passwd, enablepass, restproto):
         """
           Method to update the device credentials. While update
           if user has not specified any existing values then it will
@@ -280,11 +347,17 @@ class RegisterDeviceCredentials(Action):
             authpass = privpass = None
             snmpport = None
 
-        if self.ostype == 'slx' or self.ostype == 'vdx':
+        if self.ostype == 'slx' or self.ostype == 'nos':
             snmpver = 'None'
+            enablepass = None
+        else:
+            if self.ostype != 'unknown':
+                restproto = None
 
         is_snmpver_set = False
         is_snmpport_set = False
+        is_enablepass_set = False
+        is_restproto_set = False
 
         # For encrypted values we are overwriting the values
         # since it involves another get_value query.
@@ -301,8 +374,14 @@ class RegisterDeviceCredentials(Action):
                 self.action_service.set_value(name=lookup_key, value=passwd,
                                               local=False, encrypt=True)
             elif lookup_key == self._get_lookup_key(host, 'enablepass') and enablepass:
+                is_enablepass_set = True
                 self.action_service.set_value(name=lookup_key, value=enablepass,
                                               local=False, encrypt=True)
+            elif lookup_key == self._get_lookup_key(host, 'restproto') and restproto:
+                is_restproto_set = True
+                if restproto != item.value:
+                    self.action_service.set_value(name=lookup_key,
+                                                  value=restproto, local=False)
             elif lookup_key == self._get_lookup_key(host, 'ostype') and self.ostype:
                 if self.ostype != item.value:
                     self.action_service.set_value(name=lookup_key, value='unknown',
@@ -320,6 +399,17 @@ class RegisterDeviceCredentials(Action):
             else:
                 # lookup key found but user input is not present hence removing
                 self.action_service.delete_value(name=item.name, local=False)
+
+        # This is a case for USER.DEFAULT
+        if enablepass and is_enablepass_set is False:
+            lookup_key = self._get_lookup_key(host, 'enablepass')
+            self.action_service.set_value(name=lookup_key, value=enablepass,
+                                          local=False, encrypt=True)
+
+        # This is a case for USER.DEFAULT
+        if restproto and is_restproto_set is False:
+            lookup_key = self._get_lookup_key(host, 'restproto')
+            self.action_service.set_value(name=lookup_key, value=restproto, local=False)
 
         # This is a case for USER.DEFAULT
         if is_snmpver_set is False:
@@ -378,7 +468,7 @@ class RegisterDeviceCredentials(Action):
         self.action_service.set_value(name=lookup_key, value=value,
                                       local=False, encrypt=encrypt)
 
-    def _register_device(self, host, user, passwd, enable_pass=None):
+    def _register_device(self, host, user, passwd, enable_pass=None, rest_proto=None):
         """
            This method store the device credentials into st2 store
         """
@@ -390,13 +480,13 @@ class RegisterDeviceCredentials(Action):
         if passwd:
             self._store_value(host=host, key='passwd', value=passwd, encrypt=True)
 
-        if enable_pass:
-            self._store_value(host=host, key='enablepass', value=enable_pass, encrypt=True)
-
         self._store_value(host=host, key='ostype', value=self.ostype)
 
         snmp_ver = 'None'
         if self.ostype == 'ni' or host == 'USER.DEFAULT':
+            if enable_pass:
+                self._store_value(host=host, key='enablepass', value=enable_pass, encrypt=True)
+
             if self.snmpconfig:
                 snmp_port = self.snmpconfig['snmpport']
                 snmp_ver = self.snmpconfig['snmpver']
@@ -422,5 +512,11 @@ class RegisterDeviceCredentials(Action):
                 self._store_value(host=host, key='authpass', value=authpass, encrypt=True)
                 self._store_value(host=host, key='privpass', value=privpass, encrypt=True)
 
+            if rest_proto and host == 'USER.DEFAULT':
+                self._store_value(host=host, key='restproto', value=rest_proto)
+
         else:
             self._store_value(host=host, key='snmpver', value='None')
+
+            if rest_proto:
+                self._store_value(host=host, key='restproto', value=rest_proto)
