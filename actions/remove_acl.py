@@ -35,6 +35,9 @@ class Remove_Acl(NosDeviceAction):
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
 
+            if device.connection_type == 'NETCONF':
+                parameters['device'] = device
+
             self.logger.info('Removing ACL %s on int-type - %s int-name- %s',
                          acl_name, intf_type, str(intf_name))
 
