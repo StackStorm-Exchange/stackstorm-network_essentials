@@ -1055,7 +1055,8 @@ def log_exceptions(func):
                 status_code)
             raise ValueError(error_msg)
 
-class ValidateErrorCodes(Enum):      
+
+class ValidateErrorCodes(Enum):
     SUCCESS = 0
     INVALID_USER_INPUT = 1
     DEVICE_CONNECTION_ERROR = 2
