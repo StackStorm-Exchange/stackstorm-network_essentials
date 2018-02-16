@@ -47,13 +47,16 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                          priority_force, priority_mapping, acl_rules):
 
         parameters = locals()
-        parameters .pop('self', None)
+        parameters.pop('self', None)
 
         self.logger.info('add_or_remove_l2_acl_rule Operation: Initiated')
 
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
+
+            if device.connection_type == 'NETCONF':
+                parameters['device'] = device
 
             if delete:
                 self.logger.info('Deleting Rule from L2 ACL: {}'
@@ -75,7 +78,8 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                             break
                         x['seq_id'] = int(x['seq_id'])
                     output = device.acl.add_l2_acl_rule_bulk(acl_name=acl_name,
-                                                             acl_rules=acl_rules)
+                                                             acl_rules=acl_rules,
+                                                             device=device)
                 else:
                     if parameters['seq_id']:
                         parameters['seq_id'] = int(parameters['seq_id'])
