@@ -9,7 +9,11 @@ class set_l2_mtu(NosDeviceAction):
         """Run helper methods to set L2 MTU on desired interface.
         """
 
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         output = self.switch_operation(intf_type, mtu_size, intf_name)
         return output
 

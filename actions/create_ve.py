@@ -33,7 +33,11 @@ class CreateVe(NosDeviceAction):
             vrf_name, ipv6_use_link_local_only, skip_vlan_config):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(rbridge_id, vlan_id, ve_id, ip_address,
                                      vrf_name, ipv6_use_link_local_only, skip_vlan_config)
 
@@ -66,6 +70,9 @@ class CreateVe(NosDeviceAction):
                 if ip_address is None:
                     tmp_list = [1]
                 else:
+                    if len(ip_address) > 1:
+                        self.logger.error('ip_address list is not supported on this platform')
+                        sys.exit(-1)
                     tmp_list = zip([None], ip_address)
             if device.interface.is_ve_id_required():
                 if ve_id is None:

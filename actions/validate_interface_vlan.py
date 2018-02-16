@@ -28,7 +28,11 @@ class ValidateInterfaceVlan(NosDeviceAction):
     def run(self, mgmt_ip, username, password, vlan_id, intf_type, intf_name, intf_mode):
         """Run helper methods to implement the desired state.
         """
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         return self.switch_operation(intf_mode, intf_type, intf_name, vlan_id)
 
     @log_exceptions

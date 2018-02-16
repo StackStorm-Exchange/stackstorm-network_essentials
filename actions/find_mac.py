@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
 from ne_base import NosDeviceAction
 
 
@@ -24,7 +26,11 @@ class FindMAC(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
 
-        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        try:
+            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
+        except Exception as e:
+            self.logger.error(e.message)
+            sys.exit(-1)
         results = []
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to find mac address', self.host)
