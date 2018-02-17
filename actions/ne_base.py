@@ -179,7 +179,7 @@ class NosDeviceAction(Action):
         """
            Method to retrieve rest protocol from st2 persistent store.
         """
-        
+
         rest_proto = self._lookup_st2_store('restproto')
 
         return rest_proto
@@ -192,7 +192,8 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
-            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp, rest_proto=self.rest_proto)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp,
+                                rest_proto=self.rest_proto)
             self.logger.info('successfully connected to %s',
                              self.host)
             return device

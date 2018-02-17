@@ -82,13 +82,16 @@ class RegisterDeviceCredentials(Action):
         if not rest_protocol:
             rest_protocol = 'http'
 
-        self._validate_input_credentials(mgmt_ip, username, password, enable_password, rest_protocol)
+        self._validate_input_credentials(mgmt_ip, username, password, enable_password,
+                                         rest_protocol)
 
         if self.devcredentials:
             # update case as already exists for this device
-            self._update_device(mgmt_ip, username, password, enable_password, rest_protocol)
+            self._update_device(mgmt_ip, username, password, enable_password,
+                                rest_protocol)
         else:
-            self._register_device(mgmt_ip, username, password, enable_password, rest_protocol)
+            self._register_device(mgmt_ip, username, password, enable_password,
+                                  rest_protocol)
 
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
@@ -96,7 +99,8 @@ class RegisterDeviceCredentials(Action):
     def _get_lookup_prefix(self, host):
         return 'switch.%s.' % host
 
-    def _validate_input_credentials(self, host, user=None, passwd=None, enable_pass=None, rest_proto=None):
+    def _validate_input_credentials(self, host, user=None, passwd=None, enable_pass=None,
+                                    rest_proto=None):
 
         """
            Method to validate user input for device credentials
@@ -149,7 +153,8 @@ class RegisterDeviceCredentials(Action):
             if self.ostype == 'unknown':
                 # Still test for REST if SSH test fails above
                 if rest_proto:
-                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd, rest_proto)
+                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
+                                                                           rest_proto)
                     if not ret:
                         sys.exit(-1)
             elif self.ostype == 'ni':
@@ -165,7 +170,8 @@ class RegisterDeviceCredentials(Action):
                     self.logger.warning("Skip enable password storage for this device")
 
                 if rest_proto:
-                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd, rest_proto)
+                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
+                                                                           rest_proto)
                     if not ret:
                         sys.exit(-1)
 
@@ -291,24 +297,25 @@ class RegisterDeviceCredentials(Action):
                  rest_proto : Protocol used for rest requests
 
             Return Value:
-                 True - if rest connection using the specified rest_proto is successful
-                 False - if rest connection using the specified rest_prot is not successful
+                 True - if rest connection using the specified rest_proto
+                        is successful
+                 False - if rest connection using the specified rest_proto
+                         is not successful
         """
 
         asset = None
         enabled_protocols = []
 
         try:
-            asset = XMLAsset(ip_addr=host, auth=(user, passwd), rest_proto=rest_proto)
+            asset = XMLAsset(ip_addr=host, auth=(user, passwd),
+                             rest_proto=rest_proto)
         except RestProtocolTypeError as error:
             self.logger.error("Rest Protocol Type Error: %s", error)
             return False
         except RestInterfaceError as error:
             self.logger.error("Rest Interface Error: %s", error)
             return False
-        except: 
-            raise
-            
+
         enabled_protocols = asset.get_enabled_rest_protocols()
 
         if self.ostype == 'unknown':
@@ -316,13 +323,14 @@ class RegisterDeviceCredentials(Action):
 
         if enabled_protocols:
             if rest_proto not in enabled_protocols:
-                self.logger.error("Specified rest protocol: %s is not enabled on the device.", rest_proto)
+                self.logger.error("Specified rest protocol: %s is not enabled on the device.",
+                                  rest_proto)
                 return False
         else:
             self.logger.error("Failed to retrieve enabled rest protocols.")
             return False
 
-        return True 
+        return True
 
     def _update_device(self, host, user, passwd, enablepass, restproto):
         """
