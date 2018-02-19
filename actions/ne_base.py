@@ -261,7 +261,7 @@ class NosDeviceAction(Action):
         for vid in vlan_id:
             if device.os_type == 'NI':
                 if vid > 4090:
-                    self.logger.error("Not a valid vlan %s", vid)
+                    self.logger.error("VLAN %s is out of range", vid)
                     return None
             if vid > 4096:
                 extended = "true"
@@ -1040,15 +1040,15 @@ class NosDeviceAction(Action):
 
         for vid in vlan_id:
             if device.os_type == 'slxos' and vid > 4096:
-                self.logger.error("Not a valid VE %s."
+                self.logger.error("VE %s is out of range."
                                   " Valid range is 1-4096", vid)
                 return None
             if device.os_type == 'nos' and vid > 8191:
-                self.logger.error("Not a valid VE %s."
+                self.logger.error("VE %s is out of range."
                                   " Valid range is 1-4096/8191", vid)
                 return None
             if device.os_type == 'NI' and vid > 255:
-                self.logger.error("Not a valid VE %s"
+                self.logger.error("VE %s is out of range."
                                   " Valid range is 1-255", vid)
                 return None
         return vlan_id
@@ -1067,6 +1067,8 @@ class NosDeviceAction(Action):
         return ve_list
 
 # log_exceptions decorator
+
+
 def log_exceptions(func):
     def wrapper(*args, **kwds):
         logger = args[0].logger
