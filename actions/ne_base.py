@@ -261,7 +261,7 @@ class NosDeviceAction(Action):
         for vid in vlan_id:
             if device.os_type == 'NI':
                 if vid > 4090:
-                    self.logger.error("Not a valid vlan %s", vid)
+                    self.logger.error("VLAN %s is out of range", vid)
                     return None
             if vid > 4096:
                 extended = "true"
