@@ -5,7 +5,7 @@ from ne_base import log_exceptions
 
 class Remove_Acl(NosDeviceAction):
     def run(self, mgmt_ip, username, password, intf_type, intf_name,
-            rbridge_id, acl_name, acl_direction, traffic_type):
+            rbridge_id, acl_name, acl_direction):
         """Run helper methods to remove ACL on desired interface.
         """
         try:
@@ -15,11 +15,11 @@ class Remove_Acl(NosDeviceAction):
             sys.exit(-1)
         return self.switch_operation(intf_type, intf_name,
                                      rbridge_id, acl_name,
-                                     acl_direction, traffic_type)
+                                     acl_direction)
 
     @log_exceptions
     def switch_operation(self, intf_type, intf_name,
-                         rbridge_id, acl_name, acl_direction, traffic_type):
+                         rbridge_id, acl_name, acl_direction):
         parameters = locals()
         parameters.pop('self', None)
 
