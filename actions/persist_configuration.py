@@ -13,7 +13,7 @@
 # limitations under the License.
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import time
+import sys
 
 
 class PersistConfigs(NosDeviceAction):
@@ -26,6 +26,7 @@ class PersistConfigs(NosDeviceAction):
         """Run helper methods to implement the desired state.
         """
 
+        changes = []
         if username is None:
             username = []
             for index in range(len(mgmt_ip)):
@@ -41,36 +42,24 @@ class PersistConfigs(NosDeviceAction):
                 password.append(None)
 
         for each_host in zip(mgmt_ip, username, password):
-            self.setup_connection(host=each_host[0], user=each_host[1], passwd=each_host[2])
-            self.switch_operation(source_name)
+            try:
+                self.setup_connection(host=each_host[0], user=each_host[1], passwd=each_host[2])
+            except Exception as e:
+                self.logger.error(e.message)
+                sys.exit(-1)
+            changes.append(self.switch_operation(source_name))
+        return changes
 
     @log_exceptions
     def switch_operation(self, source_name):
-        changes = {}
+
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
-            self.logger.info(
-                'Successfully connected to %s to perform persist configuration operation',
-                self.host)
 
-            changes['persist_config'] = self._persist_config(device, source_name)
-
-            self.logger.info('Closing connection to %s after'
-                             ' performing persist configuration operation  -- all done!',
-                             self.host)
-        return changes
-
-    def _persist_config(self, device, source_name):
-
-        try:
-            response = device.system.persist_config(src_name=source_name, dst_name='startup-config')
-            time.sleep(5)
-            save_status = device.system.persist_config_status(session_id=response)
-        except (ValueError, KeyError) as e:
-            self.logger.error('Persist configuration operation failed due to %s',
-                e.message)
-            raise ValueError('Persist configuration operation failed')
-
-        if save_status != 'completed':
-            self.logger.error('Persist configuration operation failed')
-            raise ValueError('Persist configuration operation failed')
-        return True
+            response_id = device.system.persist_config(src_name=source_name,
+                                                       dst_name='startup-config')
+            self.logger.warning('Persist Configuration on the switch %s is complete.'
+                                'To check the status, use the action '
+                                '`get_persist_configuration_status` '
+                                'by inputting the session_id %s', self.host,
+                                response_id)
+        return {'switch_ip': self.host, 'session_id': response_id}
