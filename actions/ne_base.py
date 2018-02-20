@@ -1014,7 +1014,7 @@ class NosDeviceAction(Action):
         re_pattern2 = r"^(\d+)\-?(\d+)$"
         re_pattern3 = r"^(\d+)\,?(\d+)$"
 
-        ve_id = vlan_id
+        vlan_id = ve_id
         if re.search(re_pattern1, vlan_id):
             try:
                 vlan_id = (int(vlan_id),)
