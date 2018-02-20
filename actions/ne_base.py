@@ -22,6 +22,7 @@ import pyswitch.device
 import pyswitchlib.asset
 import requests.exceptions
 from st2common.runners.base_action import Action
+from enum import Enum
 
 
 class NosDeviceAction(Action):
@@ -1114,3 +1115,12 @@ def log_exceptions(func):
                 "REST Operation failed with status code %s",
                 status_code)
             raise ValueError(error_msg)
+
+
+class ValidateErrorCodes(Enum):
+    SUCCESS = 0
+    INVALID_USER_INPUT = 1
+    DEVICE_CONNECTION_ERROR = 2
+    DEVICE_VALIDATION_ERROR = 3
+    # Add new error codes here
+    UNKNOWN_ERROR = 255
