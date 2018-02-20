@@ -165,7 +165,7 @@ class RegisterDeviceCredentials(Action):
 
             if rest_proto:
                 ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
-                                                                           rest_proto)
+                                                                       rest_proto)
                 if not ret:
                     sys.exit(-1)
 
