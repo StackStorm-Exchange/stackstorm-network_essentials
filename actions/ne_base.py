@@ -1006,7 +1006,7 @@ class NosDeviceAction(Action):
         vlan_list = list(itertools.chain.from_iterable(vlan_list))
         return vlan_list
 
-    def expand_ve_range(self, vlan_id, device):
+    def expand_ve_range(self, ve_id, device):
         """Fail the task if vlan id is zero or one or above 4096 .
         """
 
@@ -1014,6 +1014,7 @@ class NosDeviceAction(Action):
         re_pattern2 = r"^(\d+)\-?(\d+)$"
         re_pattern3 = r"^(\d+)\,?(\d+)$"
 
+        ve_id = vlan_id
         if re.search(re_pattern1, vlan_id):
             try:
                 vlan_id = (int(vlan_id),)
@@ -1058,7 +1059,7 @@ class NosDeviceAction(Action):
         ve_list = []
         velist = ve_id.split(',')
         for val in velist:
-            temp = self.expand_ve_range(vlan_id=val, device=device)
+            temp = self.expand_ve_range(ve_id=val, device=device)
             if temp is None:
                 raise ValueError('Invalid VE IDs passed in args `ve_id`')
             ve_list.append(temp)
