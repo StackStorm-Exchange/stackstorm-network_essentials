@@ -150,30 +150,24 @@ class RegisterDeviceCredentials(Action):
         if user and passwd:
             self.ostype = self._validate_ssh_connection(host, user, passwd)
 
-            if self.ostype == 'unknown':
-                # Still test for REST if SSH test fails above
-                if rest_proto:
-                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
-                                                                           rest_proto)
-                    if not ret:
-                        sys.exit(-1)
-            elif self.ostype == 'ni':
-                self.logger.warning("Skip REST protocol storage for this device")
+        if self.ostype == 'ni':
+            self.logger.warning("Skip REST protocol storage for this device")
 
-                ret = self._validate_snmp_credentials(host)
+            ret = self._validate_snmp_credentials(host)
+            if not ret:
+                sys.exit(-1)
+
+        if self.ostype == 'slx' or self.ostype == 'nos':
+            self.logger.warning("Skip SNMP credentials storage for this device")
+
+            if enable_pass:
+                self.logger.warning("Skip enable password storage for this device")
+
+            if rest_proto:
+                ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
+                                                                           rest_proto)
                 if not ret:
                     sys.exit(-1)
-            elif self.ostype == 'slx' or self.ostype == 'nos':
-                self.logger.warning("Skip SNMP credentials storage for this device")
-
-                if enable_pass:
-                    self.logger.warning("Skip enable password storage for this device")
-
-                if rest_proto:
-                    ret = self.rest_proto = self._validate_rest_connection(host, user, passwd,
-                                                                           rest_proto)
-                    if not ret:
-                        sys.exit(-1)
 
         return
 
