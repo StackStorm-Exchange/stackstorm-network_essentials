@@ -23,6 +23,9 @@ import pyswitchlib.asset
 import requests.exceptions
 from st2common.runners.base_action import Action
 from enum import Enum
+from pyswitch.exceptions import InvalidInterfaceName
+from pyswitch.exceptions import InvalidInterfaceType
+from pyswitch.exceptions import InvalidVlanId
 
 
 class NosDeviceAction(Action):
@@ -1124,3 +1127,51 @@ class ValidateErrorCodes(Enum):
     DEVICE_VALIDATION_ERROR = 3
     # Add new error codes here
     UNKNOWN_ERROR = 255
+
+
+def capture_exceptions(func):
+    def wrapper(*args, **kwds):
+        changes = {}
+        try:
+            return func(*args, **kwds)
+        except AttributeError as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except ValueError as e:
+            reason_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except requests.exceptions.ConnectionError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except pyswitchlib.asset.RestInterfaceError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidInterfaceName as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidInterfaceType as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidVlanId as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except Exception as e:
+            reason_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+    return wrapper
