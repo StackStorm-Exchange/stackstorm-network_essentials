@@ -14,7 +14,7 @@
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import sys
+from ne_base import ValidateErrorCodes
 
 
 class ValidateInterfaceVlan(NosDeviceAction):
@@ -28,11 +28,15 @@ class ValidateInterfaceVlan(NosDeviceAction):
     def run(self, mgmt_ip, username, password, vlan_id, intf_type, intf_name, intf_mode):
         """Run helper methods to implement the desired state.
         """
+        changes = {}
         try:
             self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         except Exception as e:
             self.logger.error(e.message)
-            sys.exit(-1)
+            error_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = error_code.value
+            changes['reason'] = e.message
+            return (False, changes)
         return self.switch_operation(intf_mode, intf_type, intf_name, vlan_id)
 
     @log_exceptions
@@ -44,34 +48,74 @@ class ValidateInterfaceVlan(NosDeviceAction):
                 self.host)
             # Check is the user input for VLANS is correct
 
-            vlan_list = self.expand_vlan_range(vlan_id=vlan_id, device=device)
-            if not device.interface.interface_exists(int_type=intf_type,
-                                                    name=intf_name):
-                self.logger.error('Interface %s %s not present on the device'
-                                  % (intf_type, intf_name))
-                sys.exit(-1)
+            try:
+                ifname = intf_type + " " + intf_name
+                intf_exists = device.interface.interface_exists(int_type=intf_type,
+                                                    name=intf_name)
+                if not intf_exists:
+                    reason = "Interface " + ifname +  \
+                             " is not present on the device"
+                    self.logger.error(reason)
+                    error_code = ValidateErrorCodes.INVALID_USER_INPUT
+                    changes['reason_code'] = error_code.value
+                    changes['reason'] = reason
+                    changes['intf_name'] = ifname
+                    return (False, changes)
+            except Exception as e:
+                self.logger.error(e.message)
+                error_code = ValidateErrorCodes.INVALID_USER_INPUT
+                changes['reason_code'] = error_code.value
+                changes['reason'] = e.message
+                changes['intf_name'] = ifname
+                return (False, changes)
 
+            vlan_list = self.expand_vlan_range(vlan_id=vlan_id, device=device)
             if vlan_list:
-                changes['vlan'] = self._validate_interface_vlan(device,
+                result, changes = self._validate_interface_vlan(device,
                                                                 vlan_list=vlan_list,
                                                                 intf_type=intf_type,
                                                                 intf_name=intf_name,
                                                                 intf_mode=intf_mode)
+                changes['vlan'] = vlan_id
             else:
-                raise ValueError('Input is not a valid vlan')
+                error_code = ValidateErrorCodes.INVALID_USER_INPUT
+                changes['reason_code'] = error_code.value
+                changes['reason'] = "Invalid VLAN"
+                changes['vlan'] = vlan_id
+                return (False, changes)
+
             self.logger.info(
                 'closing connection to %s after Validating interface vlan -- all done!',
                 self.host)
-        return changes
+
+        return result, changes
 
     def _validate_interface_vlan(self, device, vlan_list, intf_type, intf_name,
                                  intf_mode):
         """validate interface vlan .
         """
+        changes = {}
         try:
             result = device.interface.validate_interface_vlan(vlan_list=vlan_list,
                         intf_type=intf_type, intf_name=intf_name, intf_mode=intf_mode)
+
         except Exception as e:
-            self.logger.error('Validate interface vlan failed %s' % (e.message))
-            sys.exit(-1)
-        return result
+            reason = "Validate interface vlan failed " + e.message
+            self.logger.error(reason)
+            error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = error_code.value
+            changes['reason'] = reason
+            return (False, changes)
+        if not result:
+            reason = "Interface to VLAN mapping doesnt exist"
+            self.logger.error(reason)
+            error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = error_code.value
+            changes['reason'] = reason
+        else:
+            error_code = ValidateErrorCodes.SUCCESS
+            changes['reason_code'] = error_code.value
+            reason = "Validate interface vlan is successful"
+            changes['reason'] = reason
+            self.logger.info(reason)
+        return (result, changes)

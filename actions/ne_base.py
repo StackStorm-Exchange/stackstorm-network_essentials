@@ -265,7 +265,7 @@ class NosDeviceAction(Action):
         for vid in vlan_id:
             if device.os_type == 'NI':
                 if vid > 4090:
-                    self.logger.error("Not a valid vlan %s", vid)
+                    self.logger.error("VLAN %s is out of range", vid)
                     return None
             if vid > 4096:
                 extended = "true"
@@ -1009,6 +1009,67 @@ class NosDeviceAction(Action):
 
         vlan_list = list(itertools.chain.from_iterable(vlan_list))
         return vlan_list
+
+    def expand_ve_range(self, ve_id, device):
+        """Fail the task if vlan id is zero or one or above 4096 .
+        """
+
+        re_pattern1 = r"^(\d+)$"
+        re_pattern2 = r"^(\d+)\-?(\d+)$"
+        re_pattern3 = r"^(\d+)\,?(\d+)$"
+
+        vlan_id = ve_id
+        if re.search(re_pattern1, vlan_id):
+            try:
+                vlan_id = (int(vlan_id),)
+            except ValueError:
+                self.logger.info("Could not convert data to an integer.")
+                return None
+        elif re.search(re_pattern2, vlan_id):
+            try:
+                vlan_id = re.match(re_pattern2, vlan_id)
+            except ValueError:
+                self.logger.info("Not in valid range format.")
+                return None
+
+            if int(vlan_id.groups()[0]) == int(vlan_id.groups()[1]):
+                self.logger.warning("Use range command only for diff vlans")
+            vlan_id = range(int(vlan_id.groups()[0]), int(
+                vlan_id.groups()[1]) + 1)
+        elif re.search(re_pattern3, vlan_id):
+            vlan_id = vlan_id.split(",")
+            vlan_id = map(int, vlan_id)
+        else:
+            self.logger.info("Invalid VE format")
+            return None
+
+        for vid in vlan_id:
+            if device.os_type == 'slxos' and vid > 4096:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-4096", vid)
+                return None
+            if device.os_type == 'nos' and vid > 8191:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-4096/8191", vid)
+                return None
+            if device.os_type == 'NI' and vid > 255:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-255", vid)
+                return None
+        return vlan_id
+
+    def get_ve_list(self, ve_id, device):
+        """ Expand the vlan_id values into a list """
+        ve_list = []
+        velist = ve_id.split(',')
+        for val in velist:
+            temp = self.expand_ve_range(ve_id=val, device=device)
+            if temp is None:
+                raise ValueError('Invalid VE IDs passed in args `ve_id`')
+            ve_list.append(temp)
+
+        ve_list = list(itertools.chain.from_iterable(ve_list))
+        return ve_list
 
 # log_exceptions decorator
 
