@@ -48,15 +48,24 @@ class ValidateInterfaceVlan(NosDeviceAction):
                 self.host)
             # Check is the user input for VLANS is correct
 
-            if not device.interface.interface_exists(int_type=intf_type,
-                                                    name=intf_name):
+            try:
                 ifname = intf_type + " " + intf_name
-                reason = "Interface " + ifname +  \
-                         " is not present on the device"
-                self.logger.error(reason)
+                intf_exists = device.interface.interface_exists(int_type=intf_type,
+                                                    name=intf_name)
+                if not intf_exists:
+                    reason = "Interface " + ifname +  \
+                             " is not present on the device"
+                    self.logger.error(reason)
+                    error_code = ValidateErrorCodes.INVALID_USER_INPUT
+                    changes['reason_code'] = error_code.value
+                    changes['reason'] = reason
+                    changes['intf_name'] = ifname
+                    return (False, changes)
+            except Exception as e:
+                self.logger.error(e.message)
                 error_code = ValidateErrorCodes.INVALID_USER_INPUT
                 changes['reason_code'] = error_code.value
-                changes['reason'] = reason
+                changes['reason'] = e.message
                 changes['intf_name'] = ifname
                 return (False, changes)
 
