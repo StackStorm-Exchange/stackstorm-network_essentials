@@ -73,13 +73,3 @@ parameters:
       - in
       - out
     default: in
-  traffic_type:
-    type: string
-    description: The traffic type for the ACL being removed.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
-    required: false
-    position: 8
-    enum:
-      - switched
-      - routed
