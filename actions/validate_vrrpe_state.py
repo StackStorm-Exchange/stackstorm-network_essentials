@@ -13,10 +13,13 @@
 # limitations under the License.
 
 from ne_base import NosDeviceAction
+from ne_base import capture_exceptions
+from ne_base import ValidateErrorCodes
 import pyswitch.utilities
 import re
-import sys
 from execute_cli import CliCMD
+from pyswitch.exceptions import InvalidInterfaceName
+from pyswitch.exceptions import InvalidVlanId
 
 
 class validate_vrrpe_state(NosDeviceAction):
@@ -24,11 +27,14 @@ class validate_vrrpe_state(NosDeviceAction):
        Implements the logic to validate the vrrpe protocol state on VDX switches.
     """
 
+    @capture_exceptions
     def run(self, mgmt_ip, username, password, intf_type, intf_name, vrrpe_group):
         """Run helper methods to implement the desired state.
         """
 
         changes = {}
+        reason_code = ValidateErrorCodes.SUCCESS
+        changes['reason_code'] = reason_code.value
         vrrpe_roles = []
         check_roles = []
         final_check = []
@@ -46,11 +52,7 @@ class validate_vrrpe_state(NosDeviceAction):
             host = each_host[0]
             user = each_host[1]
             passwd = each_host[2]
-        try:
             self.setup_connection(host=host, user=user, passwd=passwd)
-        except Exception as e:
-            self.logger.error(e.message)
-            sys.exit(-1)
             device = self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp)
 
             # validate supported interface type for vrrpe
@@ -84,10 +86,9 @@ class validate_vrrpe_state(NosDeviceAction):
         if check_roles.count('Master') > 1:
             self.logger.info('There are more than one VRRPe Master in the given IP list')
             return changes
-            sys.exit(1)
         if False in final_check:
             return changes
-            sys.exit(1)
+
         return changes
 
     def _validate_if_ve_exists(self, device, vlan_id, vrid):
@@ -95,11 +96,11 @@ class validate_vrrpe_state(NosDeviceAction):
         """
 
         if not self.validate_interface('ve', vlan_id, os_type=device.os_type):
-            raise ValueError('Interface %s is not valid' % (vlan_id))
+            raise InvalidInterfaceName('Interface %s is not valid' % (vlan_id))
 
         valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
         if not valid_vlan:
-            raise ValueError('Invalid Vlan_id %s', vlan_id)
+            raise InvalidVlanId('Invalid Vlan_id %s', vlan_id)
         is_exists = False
         vlan_list = device.interface.ve_interfaces()
 
@@ -115,7 +116,7 @@ class validate_vrrpe_state(NosDeviceAction):
         """
 
         if not self.validate_interface('ethernet', intf_name, os_type=device.os_type):
-            raise ValueError('Interface %s is not valid' % (intf_name))
+            raise InvalidInterfaceName('Interface %s is not valid' % (intf_name))
 
         is_exists = False
         eth_list = device.interface.get_eth_l3_interfaces()
@@ -186,8 +187,10 @@ class validate_vrrpe_state(NosDeviceAction):
                 self.logger.info('vrrpe mode mis-match on Vlan_id %s on IP %s', vlan_id, host_ip)
                 mode_check = False
         else:
-            self.logger.info('vrrpe-group %s is not configured on Vlan_id %s on IP %s',
-                             vrid, vlan_id, host_ip)
+            msg = 'vrrpe-group {} is not configured'.format(vrid)
+            ms = 'on intf_name {} on IP {}'.format(vlan_id, host_ip)
+            log_msg = msg + ms
+            self.logger.info(log_msg)
             vrid_check = False
         if vrid_check:
             vrrpe_role = vrrpe_role_match.group(1)
@@ -203,7 +206,7 @@ class validate_vrrpe_state(NosDeviceAction):
                      'vrrpe_role': tmproles,
                      'check': check}
         else:
-            sys.exit(1)
+            raise ValueError(log_msg)
 
         return roles
 
@@ -266,8 +269,9 @@ class validate_vrrpe_state(NosDeviceAction):
                         intf_name, host_ip)
                 mode_check = False
         else:
-            self.logger.info('vrrpe-group %s is not configured on intf_name %s on IP %s',
-                             vrid, intf_name, host_ip)
+            msg = 'vrrpe-group {} is not configured'.format(vrid)
+            ms = 'on intf_name {} on IP {}'.format(intf_name, host_ip)
+            log_msg = msg + ms
             vrid_check = False
         if vrid_check:
             vrrpe_role = vrrpe_role_match.group(1).title()
@@ -283,6 +287,6 @@ class validate_vrrpe_state(NosDeviceAction):
                      'vrrpe_role': tmproles,
                      'check': check}
         else:
-            sys.exit(1)
+            raise ValueError(log_msg)
 
         return roles

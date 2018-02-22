@@ -22,6 +22,10 @@ import pyswitch.device
 import pyswitchlib.asset
 import requests.exceptions
 from st2common.runners.base_action import Action
+from enum import Enum
+from pyswitch.exceptions import InvalidInterfaceName
+from pyswitch.exceptions import InvalidInterfaceType
+from pyswitch.exceptions import InvalidVlanId
 
 
 class NosDeviceAction(Action):
@@ -38,13 +42,15 @@ class NosDeviceAction(Action):
         self.conn = None
         self.auth = None
         self.auth_snmp = None
+        self.rest_proto = None
         self.asset = pyswitchlib.asset.Asset
         self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
-        self.conn = (host, '22')
+        self.rest_proto = self._get_rest_proto(host=host)
+        self.conn = (host, '22', self.rest_proto)
         user = self._lookup_st2_store('user')
         if not user:
             raise ValueError('Device is not registered.'
@@ -173,6 +179,15 @@ class NosDeviceAction(Action):
 
         return (user, passwd, enablepass, snmpconfig)
 
+    def _get_rest_proto(self, host):
+        """
+           Method to retrieve rest protocol from st2 persistent store.
+        """
+
+        rest_proto = self._lookup_st2_store('restproto')
+
+        return rest_proto
+
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
 
@@ -181,7 +196,8 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
-            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp,
+                                rest_proto=self.rest_proto)
             self.logger.info('successfully connected to %s',
                              self.host)
             return device
@@ -261,7 +277,7 @@ class NosDeviceAction(Action):
         for vid in vlan_id:
             if device.os_type == 'NI':
                 if vid > 4090:
-                    self.logger.error("Not a valid vlan %s", vid)
+                    self.logger.error("VLAN %s is out of range", vid)
                     return None
             if vid > 4096:
                 extended = "true"
@@ -1006,6 +1022,67 @@ class NosDeviceAction(Action):
         vlan_list = list(itertools.chain.from_iterable(vlan_list))
         return vlan_list
 
+    def expand_ve_range(self, ve_id, device):
+        """Fail the task if vlan id is zero or one or above 4096 .
+        """
+
+        re_pattern1 = r"^(\d+)$"
+        re_pattern2 = r"^(\d+)\-?(\d+)$"
+        re_pattern3 = r"^(\d+)\,?(\d+)$"
+
+        vlan_id = ve_id
+        if re.search(re_pattern1, vlan_id):
+            try:
+                vlan_id = (int(vlan_id),)
+            except ValueError:
+                self.logger.info("Could not convert data to an integer.")
+                return None
+        elif re.search(re_pattern2, vlan_id):
+            try:
+                vlan_id = re.match(re_pattern2, vlan_id)
+            except ValueError:
+                self.logger.info("Not in valid range format.")
+                return None
+
+            if int(vlan_id.groups()[0]) == int(vlan_id.groups()[1]):
+                self.logger.warning("Use range command only for diff vlans")
+            vlan_id = range(int(vlan_id.groups()[0]), int(
+                vlan_id.groups()[1]) + 1)
+        elif re.search(re_pattern3, vlan_id):
+            vlan_id = vlan_id.split(",")
+            vlan_id = map(int, vlan_id)
+        else:
+            self.logger.info("Invalid VE format")
+            return None
+
+        for vid in vlan_id:
+            if device.os_type == 'slxos' and vid > 4096:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-4096", vid)
+                return None
+            if device.os_type == 'nos' and vid > 8191:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-4096/8191", vid)
+                return None
+            if device.os_type == 'NI' and vid > 255:
+                self.logger.error("VE %s is out of range."
+                                  " Valid range is 1-255", vid)
+                return None
+        return vlan_id
+
+    def get_ve_list(self, ve_id, device):
+        """ Expand the vlan_id values into a list """
+        ve_list = []
+        velist = ve_id.split(',')
+        for val in velist:
+            temp = self.expand_ve_range(ve_id=val, device=device)
+            if temp is None:
+                raise ValueError('Invalid VE IDs passed in args `ve_id`')
+            ve_list.append(temp)
+
+        ve_list = list(itertools.chain.from_iterable(ve_list))
+        return ve_list
+
 # log_exceptions decorator
 
 
@@ -1053,3 +1130,60 @@ def log_exceptions(func):
                 "REST Operation failed with status code %s",
                 status_code)
             raise ValueError(error_msg)
+
+
+class ValidateErrorCodes(Enum):
+    SUCCESS = 0
+    INVALID_USER_INPUT = 1
+    DEVICE_CONNECTION_ERROR = 2
+    DEVICE_VALIDATION_ERROR = 3
+    # Add new error codes here
+    UNKNOWN_ERROR = 255
+
+
+def capture_exceptions(func):
+    def wrapper(*args, **kwds):
+        changes = {}
+        try:
+            return func(*args, **kwds)
+        except AttributeError as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except ValueError as e:
+            reason_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except requests.exceptions.ConnectionError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except pyswitchlib.asset.RestInterfaceError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidInterfaceName as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidInterfaceType as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except InvalidVlanId as e:
+            reason_code = ValidateErrorCodes.INVALID_USER_INPUT
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except Exception as e:
+            reason_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+    return wrapper

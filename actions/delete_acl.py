@@ -26,6 +26,9 @@ class DeleteAcl(NosDeviceAction):
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
 
+            if device.connection_type == 'NETCONF':
+                params_config['device'] = device
+
             output = device.acl.delete_acl(**params_config)
 
             self.logger.info(output)
