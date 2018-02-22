@@ -17,7 +17,6 @@ from ipaddress import ip_interface
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
 import sys
-import time
 
 
 class CreateVe(NosDeviceAction):
@@ -92,19 +91,16 @@ class CreateVe(NosDeviceAction):
                     temp_address = each_rb[1]
                 if device.os_type != 'nos':
                     rbridge_id = None
-                start = time.time()
                 ves = device.interface.ve_interfaces(rbridge_id=rbridge_id)
-                end = time.time()
-                print "time:", end-start
+                ve_exists =\
+                    self._check_requirements_ve(device,
+                                                rbridge_id=rbridge_id,
+                                                vlan_id=vlan_id,
+                                                ve_name=ve_id,
+                                                ves=ves)
                 if vrf_name is not None and vrf_name != '' and\
                         ip_address is not None and ip_address != '':
                     ip_address = temp_address
-                    ve_exists =\
-                        self._check_requirements_ve(device,
-                                                    rbridge_id=rbridge_id,
-                                                    vlan_id=vlan_id,
-                                                    ve_name=ve_id,
-                                                    ves=ves)
                     changes['pre_validation_vrf'] =\
                         self._check_requirements_vrf(device,
                                                      rbridge_id=rbridge_id,
@@ -120,13 +116,14 @@ class CreateVe(NosDeviceAction):
                                                     ip_address=ip_address,
                                                     ves=ves)
                     if changes['pre_validation_vrf']:
-                        if ve_exists:
+                        if not ve_exists:
                             changes['create_ve'] =\
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
                                                 ve_name=ve_id,
                                                 skip_vlan_config=skip_vlan_config)
+                            ve_exists = True
                         changes['vrf_configs'] =\
                             self._create_vrf_forwarding(device,
                                                         vrf_name=vrf_name,
@@ -139,12 +136,6 @@ class CreateVe(NosDeviceAction):
                                                   ve_name=ve_id,
                                                   ip_address=ip_address)
                 elif vrf_name is not None and vrf_name != '':
-                    ve_exists =\
-                        self._check_requirements_ve(device,
-                                                    rbridge_id=rbridge_id,
-                                                    vlan_id=vlan_id,
-                                                    ve_name=ve_id,
-                                                    ves=ves)
                     changes['pre_validation_vrf'] =\
                         self._check_requirements_vrf(device,
                                                      rbridge_id=rbridge_id,
@@ -153,13 +144,14 @@ class CreateVe(NosDeviceAction):
                                                      ip_address='',
                                                      ves=ves)
                     if changes['pre_validation_vrf']:
-                        if ve_exists:
+                        if not ve_exists:
                             changes['create_ve'] =\
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
                                                 ve_name=ve_id,
                                                 skip_vlan_config=skip_vlan_config)
+                            ve_exists = True
                         changes['vrf_configs'] =\
                             self._create_vrf_forwarding(device,
                                                         vrf_name=vrf_name,
@@ -167,12 +159,6 @@ class CreateVe(NosDeviceAction):
                                                         ve_name=str(ve_id))
                 elif ip_address is not None and ip_address != '':
                     ip_address = temp_address
-                    ve_exists =\
-                        self._check_requirements_ve(device,
-                                                    rbridge_id=rbridge_id,
-                                                    vlan_id=vlan_id,
-                                                    ve_name=ve_id,
-                                                    ves=ves)
                     changes['pre_validation_ip'] =\
                         self._check_requirements_ip(device,
                                                     rbridge_id=rbridge_id,
@@ -181,46 +167,37 @@ class CreateVe(NosDeviceAction):
                                                     ip_address=ip_address,
                                                     ves=ves)
                     if changes['pre_validation_ip']:
-                        if ve_exists:
+                        if not ve_exists:
                             changes['create_ve'] =\
                                 self._create_ve(device,
                                                 rbridge_id=rbridge_id,
                                                 vlan_id=vlan_id,
                                                 ve_name=ve_id,
                                                 skip_vlan_config=skip_vlan_config)
+                            ve_exists = True
                         changes['assign_ip'] =\
                             self._assign_ip_to_ve(device,
                                                   rbridge_id=rbridge_id,
                                                   ve_name=ve_id,
                                                   ip_address=ip_address)
                 elif ip_address is None and vrf_name is None:
-                    ve_exists =\
-                        self._check_requirements_ve(device,
-                                                    rbridge_id=rbridge_id,
-                                                    vlan_id=vlan_id,
-                                                    ve_name=ve_id,
-                                                    ves=ves)
-                    if ve_exists:
+                    if not ve_exists:
                         changes['create_ve'] =\
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
                                             vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
+                        ve_exists = True
                 if ipv6_use_link_local_only:
-                    ve_exists =\
-                        self._check_requirements_ve(device,
-                                                    rbridge_id=rbridge_id,
-                                                    vlan_id=vlan_id,
-                                                    ve_name=ve_id,
-                                                    ves=ves)
-                    if ve_exists:
+                    if not ve_exists:
                         changes['create_ve'] = \
                             self._create_ve(device,
                                             rbridge_id=rbridge_id,
                                             vlan_id=vlan_id,
                                             ve_name=ve_id,
                                             skip_vlan_config=skip_vlan_config)
+                        ve_exists = True
                     self._ipv6_link_local(device, name=ve_id,
                                           rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after creating Ve'
@@ -230,7 +207,7 @@ class CreateVe(NosDeviceAction):
     def _check_requirements_ve(self, device, vlan_id, ve_name, rbridge_id, ves):
         """ Verify if the VE is pre-existing """
 
-        ret = True
+        ret = False
         for each_ve in ves:
             tmp_ve_name = 'Ve ' + ve_name
             if each_ve['if-name'] == tmp_ve_name:
@@ -242,10 +219,10 @@ class CreateVe(NosDeviceAction):
                     if match:
                         self.logger.info('Router VE %s is pre-existing on vlan_id '
                                          '%s', match, ve_name)
-                        ret = False
+                        ret = True
                 else:
-                    ret = False
-        if not ret:
+                    ret = True
+        if ret:
             self._admin_state(device, ve_name=ve_name,
                               rbridge_id=rbridge_id)
         return ret
@@ -390,12 +367,17 @@ class CreateVe(NosDeviceAction):
         try:
             self.logger.info('Creating VE %s on rbridge-id %s',
                              ve_name, rbridge_id)
-            if not skip_vlan_config:
+            # Optimization for NI. No need to call create VLAN as
+            # this is handled in vlan_router_ve
+            if not skip_vlan_config and device.os_type != 'NI':
                 device.interface.add_vlan_int(vlan_id)
             if device.interface.is_vlan_rtr_ve_config_req() and not skip_vlan_config:
                 device.interface.vlan_router_ve(vlan_id=vlan_id, ve_config=ve_name)
-            device.interface.create_ve(enable=True, ve_name=ve_name,
-                                       rbridge_id=rbridge_id)
+            # Optimization for NI. No need to call create VE explicitly as
+            # vlan_router_ve also creates VE interface
+            if device.os_type != 'NI':
+                device.interface.create_ve(enable=True, ve_name=ve_name,
+                                    rbridge_id=rbridge_id)
             self._admin_state(device, ve_name=ve_name,
                               rbridge_id=rbridge_id)
         except (ValueError, KeyError) as e:
@@ -454,7 +436,6 @@ class CreateVe(NosDeviceAction):
 
     def _ipv6_link_local(self, device, name, rbridge_id):
         """ Enable ipv6 link local only on VE """
-
         try:
             link_check =\
                 device.interface.ipv6_link_local(get=True, name=name,
