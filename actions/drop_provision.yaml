@@ -106,7 +106,7 @@ parameters:
     default: false
     position: 16
   seq_id:
-    type: integer
+    type: string
     description: The sequence number of the rule, if not specified, the rule is added at the end of the list. Valid range is 0 to 4294967290.
     required: false
     position: 17
