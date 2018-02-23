@@ -26,6 +26,7 @@ from enum import Enum
 from pyswitch.exceptions import InvalidInterfaceName
 from pyswitch.exceptions import InvalidInterfaceType
 from pyswitch.exceptions import InvalidVlanId
+from pyswitch.AbstractDevice import DeviceCommError
 
 
 class NosDeviceAction(Action):
@@ -1162,6 +1163,16 @@ def capture_exceptions(func):
             changes['reason'] = e.message
             return (False, changes)
         except pyswitchlib.asset.RestInterfaceError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except pyswitchlib.asset.InvalidAuthenticationCredentialsError as e:
+            reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
+            changes['reason_code'] = reason_code.value
+            changes['reason'] = e.message
+            return (False, changes)
+        except DeviceCommError as e:
             reason_code = ValidateErrorCodes.DEVICE_CONNECTION_ERROR
             changes['reason_code'] = reason_code.value
             changes['reason'] = e.message
