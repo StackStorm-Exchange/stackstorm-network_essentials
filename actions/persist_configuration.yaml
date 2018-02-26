@@ -3,6 +3,7 @@ name: persist_configuration
 pack: network_essentials 
 runner_type: python-script
 description: This action saves the running/default configurations to startup configurations on the SLX devices. 
+  Perform `write memory` operation on MLX devices.
 enabled: true
 entry_point: persist_configuration.py
 parameters:
