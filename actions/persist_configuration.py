@@ -58,7 +58,6 @@ class PersistConfigs(NosDeviceAction):
 
             response_id = device.system.persist_config(src_name=source_name,
                                                        dst_name='startup-config')
-            print('aaaaaaaaaaaaaaa', response_id)
             if response_id == 'completed':
                 self.logger.info('Persist Configuration on the switch %s is complete', self.host)
                 return {'switch_ip': self.host, 'status': response_id}
