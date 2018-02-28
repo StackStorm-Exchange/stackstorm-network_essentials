@@ -43,13 +43,15 @@ class NosDeviceAction(Action):
         self.conn = None
         self.auth = None
         self.auth_snmp = None
+        self.rest_proto = None
         self.asset = pyswitchlib.asset.Asset
         self.RestInterfaceError = pyswitchlib.exceptions.RestInterfaceError
         self.ConnectionError = requests.exceptions.ConnectionError
 
     def setup_connection(self, host, user=None, passwd=None):
         self.host = host
-        self.conn = (host, '22')
+        self.rest_proto = self._get_rest_proto(host=host)
+        self.conn = (host, '22', self.rest_proto)
         user = self._lookup_st2_store('user')
         if not user:
             raise ValueError('Device is not registered.'
@@ -178,6 +180,15 @@ class NosDeviceAction(Action):
 
         return (user, passwd, enablepass, snmpconfig)
 
+    def _get_rest_proto(self, host):
+        """
+           Method to retrieve rest protocol from st2 persistent store.
+        """
+
+        rest_proto = self._lookup_st2_store('restproto')
+
+        return rest_proto
+
     def _get_lookup_key(self, host, lookup):
         return 'switch.%s.%s' % (host, lookup)
 
@@ -186,7 +197,8 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
-            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp)
+            device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp,
+                                rest_proto=self.rest_proto)
             self.logger.info('successfully connected to %s',
                              self.host)
             return device
