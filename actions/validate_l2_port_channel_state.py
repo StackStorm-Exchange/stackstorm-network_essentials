@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-
 from ne_base import NosDeviceAction
-from ne_base import log_exceptions
+from ne_base import capture_exceptions
+from ne_base import ValidateErrorCodes
+from pyswitch.exceptions import InvalidInterfaceName
 
 
 class ValidateL2PortChannelState(NosDeviceAction):
@@ -28,52 +27,53 @@ class ValidateL2PortChannelState(NosDeviceAction):
            2. Validating Port-channel
            3. CLosing Connection with VDX or SLX devices
     """
-
+    @capture_exceptions
     def run(self, mgmt_ip, username, password, port_channel_id):
         """Run helper methods to implement the desired state.
         """
-        try:
-            self.setup_connection(host=mgmt_ip, user=username, passwd=password)
-        except Exception as e:
-            self.logger.error(e.message)
-            sys.exit(-1)
+        self.setup_connection(host=mgmt_ip, user=username, passwd=password)
         return self.switch_operation(port_channel_id)
 
-    @log_exceptions
     def switch_operation(self, port_channel_id):
         """connect to switch and perform desired action"""
-        validation = {}
+        changes = {}
 
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to validate'
                              ' l2 port channel', self.host)
 
-            validation = self._validate_l2_port_channel_state_(
+            changes = self._validate_l2_port_channel_state_(
                 device, port_channel_id)
             self.logger.info('closing connection to %s after validation '
                              'of port channel -- all done!', self.host)
 
-        return validation
+        return changes
 
     def _validate_l2_port_channel_state_(self, device, port_channel_id):
         """ Verify if the port channel already exists """
+        if not device.interface.interface_exists(int_type='port_channel',
+                                                 name=port_channel_id):
+            reason = "Interface is not present on the device"
+            self.logger.error(reason)
+            raise InvalidInterfaceName(reason)
         port_channels = device.interface.port_channels
 
         members = next((pc['interfaces'] for pc in port_channels
                        if pc['aggregator_id'] == str(port_channel_id)), None)
 
         # Verify if the port channel to interface mapping is already existing
-        output = {}
-        output['member-ports'] = []
-        output['state'] = ''
+        changes = {}
+        changes['member-ports'] = []
+        changes['state'] = ''
         in_sync_cnt = 0
 
         if not members:
-            self.logger.info('Port Channel cannot be validated')
-            return output
+            msg = 'Port Channel cannot be validated, No member ports exist'
+            self.logger.error(msg)
+            raise ValueError(msg)
         else:
             for member in members:
-                output['member-ports'].append(
+                changes['member-ports'].append(
                     member['interface-type'] + ' ' + member['interface-name'])
                 if member['sync'] == '0':
                     self.logger.info('{} {} is out of sync'
@@ -81,5 +81,7 @@ class ValidateL2PortChannelState(NosDeviceAction):
                                              member['interface-name']))
                 else:
                     in_sync_cnt += 1
-                output['state'] = 'out_of_sync' if in_sync_cnt == 0 else 'in_sync'
-            return output
+                changes['state'] = 'out_of_sync' if in_sync_cnt == 0 else 'in_sync'
+            reason_code = ValidateErrorCodes.SUCCESS
+            changes['reason_code'] = reason_code.value
+            return changes
