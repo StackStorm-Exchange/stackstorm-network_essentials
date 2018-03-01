@@ -40,6 +40,15 @@ parameters:
     description: The virtual extender group ID. <NUMBER:1-255>
     required: true
     position: 5
+  afi:
+    type: string
+    description: The VRRPE type.
+    position: 6
+    required: false
+    enum:
+      - ipv4
+      - ipv6
+    default: ipv4
 tags:
   - name: group
     value: Validate Edge Ports
