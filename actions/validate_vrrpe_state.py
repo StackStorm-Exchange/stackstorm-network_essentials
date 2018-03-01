@@ -28,7 +28,8 @@ class validate_vrrpe_state(NosDeviceAction):
     """
 
     @capture_exceptions
-    def run(self, mgmt_ip, username, password, intf_type, intf_name, vrrpe_group):
+    def run(self, mgmt_ip, username, password, intf_type, intf_name,
+            vrrpe_group, afi):
         """Run helper methods to implement the desired state.
         """
 
@@ -69,9 +70,9 @@ class validate_vrrpe_state(NosDeviceAction):
 
                 if device.os_type == 'NI':
                     roles = self._ni_fetch_vrrpe_state(device, intf_type,
-                                         intf_name, vrid=vrrpe_group)
+                                         intf_name, afi, vrid=vrrpe_group)
                 else:
-                    roles = self._fetch_vrrpe_state(device, intf_name,
+                    roles = self._fetch_vrrpe_state(device, intf_name, afi,
                                             vrid=vrrpe_group)
                 vrrpe_roles.append(roles)
             else:
@@ -128,7 +129,7 @@ class validate_vrrpe_state(NosDeviceAction):
                 break
         return is_exists
 
-    def _fetch_vrrpe_state(self, device, vlan_id, vrid):
+    def _fetch_vrrpe_state(self, device, vlan_id, afi, vrid):
         """validate vrrpe state.
         """
 
@@ -137,7 +138,10 @@ class validate_vrrpe_state(NosDeviceAction):
         host_username = self.auth_snmp[0]
         host_password = self.auth_snmp[1]
         roles = []
-        cli_cmd = 'show vrrp interface ve' + " " + str(vlan_id)
+        if afi == 'ipv4':
+            cli_cmd = 'show vrrp interface ve' + " " + str(vlan_id)
+        else:
+            cli_cmd = 'show ipv6 vrrp interface ve' + " " + str(vlan_id)
 
         mode = 'Mode: VRRPE'
         vrid_pattern = re.compile('VRID (.*)')
@@ -163,7 +167,7 @@ class validate_vrrpe_state(NosDeviceAction):
         role_check = True
         admin_check = True
         spf_check = True
-        if str(vrid_match[0]) == str(vrid) and ve_match is not None:
+        if vrid_match and str(vrid_match[0]) == str(vrid) and ve_match is not None:
             if mode_match is not None:
                 if vrrpe_role_match is not None:
                     if vrrpe_state_match is not None:
@@ -210,7 +214,7 @@ class validate_vrrpe_state(NosDeviceAction):
 
         return roles
 
-    def _ni_fetch_vrrpe_state(self, device, intf_type, intf_name, vrid):
+    def _ni_fetch_vrrpe_state(self, device, intf_type, intf_name, afi, vrid):
         """validate vrrpe state.
         """
 
@@ -219,7 +223,10 @@ class validate_vrrpe_state(NosDeviceAction):
         host_username = self.auth_snmp[0]
         host_password = self.auth_snmp[1]
         roles = []
-        cli_cmd = 'show ip vrrp-extended vrid ' + vrid + " " + intf_type + " " + intf_name
+        if afi == 'ipv4':
+            cli_cmd = 'show ip vrrp-extended vrid ' + vrid + " " + intf_type + " " + intf_name
+        else:
+            cli_cmd = 'show ipv6 vrrp-extended vrid ' + vrid + " " + intf_type + " " + intf_name
 
         vrid_pattern = r'VRID (.*)'
         intf_pattern = r'interface (.*)'
