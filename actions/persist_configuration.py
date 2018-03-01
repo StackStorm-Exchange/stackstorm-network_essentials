@@ -20,6 +20,7 @@ class PersistConfigs(NosDeviceAction):
     """
        Implements the logic to save the running or default configs to startup
        on SLXOS Switches .
+       Perform 'write memory' operation on MLX switches.
     """
 
     def run(self, mgmt_ip, username, password, source_name):
@@ -57,9 +58,16 @@ class PersistConfigs(NosDeviceAction):
 
             response_id = device.system.persist_config(src_name=source_name,
                                                        dst_name='startup-config')
-            self.logger.warning('Persist Configuration on the switch %s is complete.'
-                                'To check the status, use the action '
-                                '`get_persist_configuration_status` '
-                                'by inputting the session_id %s', self.host,
-                                response_id)
-        return {'switch_ip': self.host, 'session_id': response_id}
+            if response_id == 'completed':
+                self.logger.info('Persist Configuration on the switch %s is complete', self.host)
+                return {'switch_ip': self.host, 'status': response_id}
+            elif response_id == 'failed':
+                self.logger.error('Persist Configuration on the switch %s failed', self.host)
+                return {'switch_ip': self.host, 'status': response_id}
+            else:
+                self.logger.warning('Persist Configuration on the switch %s is complete.'
+                                    'To check the status, use the action '
+                                    '`get_persist_configuration_status` '
+                                    'by inputting the session_id %s', self.host,
+                                    response_id)
+                return {'switch_ip': self.host, 'session_id': response_id}

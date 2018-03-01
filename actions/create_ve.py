@@ -253,7 +253,7 @@ class CreateVe(NosDeviceAction):
                                       'different %s on rbridge_id %s',
                                       ip_address, each_ve['if-name'],
                                       rbridge_id)
-                    return False
+                    sys.exit(-1)
                 elif each_ve['if-name'] == tmp_ve_name and\
                         each_ve['ip-address'] != ip_address:
                     self.logger.info('Ve %s is pre-assigned with a different'
@@ -311,6 +311,26 @@ class CreateVe(NosDeviceAction):
         vrf_list = []
         for each_vrf in vrf_output:
             vrf_list.append(each_vrf['vrf_name'])
+        if vrf_name not in vrf_list:
+            self.logger.error('Create VRF %s on rbridge-id %s before '
+                             'assigning it to Ve', vrf_name, rbridge_id)
+            sys.exit(-1)
+
+        vrf_fwd = device.interface.add_int_vrf(get=True, rbridge_id=rbridge_id,
+                                               name=ve_name, int_type='ve',
+                                               vrf_name=vrf_name)
+        if vrf_fwd is not None:
+            config_tmp = vrf_fwd
+            if config_tmp == vrf_name:
+                self.logger.info('VRF %s forwarding is pre-existing on Ve %s'
+                                 ' on rbridge-id %s', vrf_name, ve_name,
+                                 rbridge_id)
+                return False
+            elif config_tmp != vrf_name:
+                self.logger.error('VRF forwarding is enabled on Ve %s but with '
+                                 'a different VRF %s on rbride-id %s',
+                                 ve_name, config_tmp, rbridge_id)
+                sys.exit(-1)
 
         for each_ve in ves:
             tmp_ve = 'Ve ' + ve_name
@@ -338,27 +358,6 @@ class CreateVe(NosDeviceAction):
                                       each_ve['ip-address'], vrf_name,
                                       rbridge_id)
                     return False
-
-        if vrf_name not in vrf_list:
-            self.logger.error('Create VRF %s on rbridge-id %s before '
-                             'assigning it to Ve', vrf_name, rbridge_id)
-            sys.exit(-1)
-
-        vrf_fwd = device.interface.add_int_vrf(get=True, rbridge_id=rbridge_id,
-                                               name=ve_name, int_type='ve',
-                                               vrf_name=vrf_name)
-        if vrf_fwd is not None:
-            config_tmp = vrf_fwd
-            if config_tmp == vrf_name:
-                self.logger.info('VRF %s forwarding is pre-existing on Ve %s'
-                                 ' on rbridge-id %s', vrf_name, ve_name,
-                                 rbridge_id)
-                return False
-            elif config_tmp != vrf_name:
-                self.logger.info('VRF forwarding is enabled on Ve %s but with '
-                                 'a different VRF %s on rbride-id %s',
-                                 ve_name, config_tmp, rbridge_id)
-                return False
         return True
 
     def _create_ve(self, device, rbridge_id, vlan_id, ve_name, skip_vlan_config):
