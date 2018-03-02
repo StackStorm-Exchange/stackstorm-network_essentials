@@ -39,13 +39,18 @@ class validate_vrrpe_state(NosDeviceAction):
         vrrpe_roles = []
         check_roles = []
         final_check = []
+
         if username is None:
             username = []
+
+        if username is None or len(mgmt_ip) != len(username):
             for index in range(len(mgmt_ip)):
                 username.append(None)
 
         if password is None:
             password = []
+
+        if password is None or len(mgmt_ip) != len(password):
             for index in range(len(mgmt_ip)):
                 password.append(None)
 
