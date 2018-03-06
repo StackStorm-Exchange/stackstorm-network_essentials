@@ -321,35 +321,35 @@ class CreatePortChannel(NosDeviceAction):
     def _get_current_port_speed(self, device, intf_type, intf_name):
         """Get the actual line speed on the port.
         """
-
         port_speed = None
         try:
             intf_list = device.interface.get_media_details_request
-            if intf_list is None:
-                return port_speed
-            speed_list = []
-            for each_int in intf_list:
-                if each_int['interface-name'] in intf_name:
-                    speed_list.append(each_int['sfp_speed'])
-
-            if speed_list != [] and len(speed_list) != len(intf_name):
-                self.logger.error('Port channel group member ports %s cannot be of different port'
-                                  ' speeds %s', intf_name, speed_list)
-                raise ValueError('Port channel group member ports cannot '
-                                 'be of different port speeds')
-
-            if speed_list != []:
-                if list(set(speed_list))[0] == "1Gbps":
-                    port_speed = "1000"
-                if list(set(speed_list))[0] == "10Gbps":
-                    port_speed = "10000"
-                if list(set(speed_list))[0] == "25Gbps":
-                    port_speed = "25000"
-                if list(set(speed_list))[0] == "40Gbps":
-                    port_speed = "40000"
-                if list(set(speed_list))[0] == "100Gbps":
-                    port_speed = "100000"
         except:
-            self.logger.info('Unable to fetch the actual line speed of the interfaces')
+            self.logger.error('Unable to fetch the actual line speed of the interfaces')
+            raise ValueError('Unable to fetch the actual line speed of the interfaces')
+
+        if intf_list is None:
+            return port_speed
+
+        speed_list = []
+        for each_int in intf_list:
+            if each_int['interface-name'] in intf_name:
+                speed_list.append(each_int['sfp_speed'])
+        if speed_list != [] and len(speed_list) != len(intf_name):
+            self.logger.error('Port channel group member ports %s cannot be of different port'
+                              ' speeds', intf_name)
+            raise ValueError('Port channel group member ports cannot '
+                             'be of different port speeds')
+        if speed_list != []:
+            if list(set(speed_list))[0] == "1Gbps":
+                port_speed = "1000"
+            if list(set(speed_list))[0] == "10Gbps":
+                port_speed = "10000"
+            if list(set(speed_list))[0] == "25Gbps":
+                port_speed = "25000"
+            if list(set(speed_list))[0] == "40Gbps":
+                port_speed = "40000"
+            if list(set(speed_list))[0] == "100Gbps":
+                port_speed = "100000"
 
         return port_speed
