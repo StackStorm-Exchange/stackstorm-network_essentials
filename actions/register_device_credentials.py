@@ -57,6 +57,7 @@ class RegisterDeviceCredentials(Action):
         try:
             ip_address(mgmt_ip)
         except Exception as err:
+            self.logger.error("Invalid IP address: %s", mgmt_ip)
             raise AttributeError(err.message)
 
         devprefix = self._get_lookup_prefix(mgmt_ip)
