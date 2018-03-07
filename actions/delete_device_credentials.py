@@ -43,7 +43,8 @@ class DeleteDeviceCredentials(Action):
     def _delete_device(self, host):
 
         keylist = ['user', 'passwd', 'enablepass', 'ostype', 'snmpver', 'snmpport',
-                   'snmpv2c', 'v3user', 'v3auth', 'v3priv', 'authpass', 'privpass']
+                   'snmpv2c', 'v3user', 'v3auth', 'v3priv', 'authpass', 'privpass',
+                   'restproto']
 
         for item in keylist:
             lookup_name = self._get_lookup_key(host, item)
