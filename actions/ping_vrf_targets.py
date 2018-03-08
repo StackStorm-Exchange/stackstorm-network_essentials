@@ -16,6 +16,7 @@ import sys
 
 from ne_base import NosDeviceAction
 from ne_base import capture_exceptions
+from ne_base import ValidateErrorCodes
 
 
 class CheckPing(NosDeviceAction):
@@ -38,6 +39,7 @@ class CheckPing(NosDeviceAction):
             (status, ping_output) = device.utils.ping(targets=targets, count=count,
                                            timeout_value=timeout_value, vrf=vrf, size=size)
             result = {}
-            result['reason_code'] = 0
-            result['output'] = ping_output
+            rcode = ValidateErrorCodes.SUCCESS
+            result['reason_code'] = rcode.value
+            result['ping_output'] = ping_output
             return (status, result)
