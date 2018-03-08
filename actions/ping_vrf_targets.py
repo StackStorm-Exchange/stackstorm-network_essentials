@@ -15,6 +15,7 @@
 import sys
 
 from ne_base import NosDeviceAction
+from ne_base import capture_exceptions
 
 
 class CheckPing(NosDeviceAction):
@@ -23,6 +24,7 @@ class CheckPing(NosDeviceAction):
     Implements the logic to check if ping is passing or failing for an ip or list of ips
     """
 
+    @capture_exceptions
     def run(self, mgmt_ip, username, password, targets, count, timeout_value, vrf, size):
 
         ping_output = []
@@ -35,4 +37,7 @@ class CheckPing(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             (status, ping_output) = device.utils.ping(targets=targets, count=count,
                                            timeout_value=timeout_value, vrf=vrf, size=size)
-        return (status, ping_output)
+            result = {}
+            result['reason_code'] = 0
+            result['output'] = ping_output
+            return (status, result)
