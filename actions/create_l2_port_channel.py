@@ -103,6 +103,10 @@ class CreatePortChannel(NosDeviceAction):
             if not r1:
                 raise ValueError('Not a valid interface type or number', intf_type, each)
 
+        r2 = pyswitch.utilities.valid_interface(int_type='port_channel', name=portchannel_num)
+        if not r2:
+            raise ValueError('Port Channel number %s is not a valid value', portchannel_num)
+
         valid_po, reason = pyswitch.utilities.validate_port_channel_id(device.platform_type,
                                                 portchannel_num)
         if not valid_po:
