@@ -185,8 +185,7 @@ parameters:
     description: This matches the specified value against the drop_precedence value of the packet to filter. Allowed values are 0 through 2.
                  For MLX Platform supported range is 0 through 3.
         required-by:- [None]
-        accepted-by:- [SLX, MLX]
-        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
+        accepted-by:- [MLX]
     position: 23
   priority: &priority
     type: integer
