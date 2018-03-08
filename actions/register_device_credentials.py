@@ -16,6 +16,8 @@ import sys
 import time
 import paramiko
 import socket
+from ipaddress import ip_address
+from ne_base import capture_exceptions
 from st2common.runners.base_action import Action
 from pyswitch.snmp.snmpconnector import SnmpConnector as SNMPDevice
 from pyswitch.snmp.snmpconnector import SNMPError as SNMPError
@@ -47,9 +49,16 @@ class RegisterDeviceCredentials(Action):
         self.snmpconfig = {}
         self.devcredentials = None
 
+    @capture_exceptions
     def run(self, mgmt_ip, username, password, enable_password, snmp_port,
             snmp_version, snmp_v2c, snmpv3_user, snmpv3_auth,
             auth_pass, snmpv3_priv, priv_pass, rest_protocol):
+
+        try:
+            ip_address(mgmt_ip)
+        except Exception as err:
+            self.logger.error("Invalid IP address: %s", mgmt_ip)
+            raise AttributeError(err.message)
 
         devprefix = self._get_lookup_prefix(mgmt_ip)
         self.devcredentials = self.action_service.list_values(local=False, prefix=devprefix)
@@ -144,8 +153,8 @@ class RegisterDeviceCredentials(Action):
                         sys.exit(-1)
                 pass
 
-        if host == 'USER.DEFAULT':
-            return
+        # if host == 'USER.DEFAULT':
+        #    return
 
         if user and passwd:
             self.ostype = self._validate_ssh_connection(host, user, passwd)
@@ -485,7 +494,8 @@ class RegisterDeviceCredentials(Action):
         self._store_value(host=host, key='ostype', value=self.ostype)
 
         snmp_ver = 'None'
-        if self.ostype == 'ni' or host == 'USER.DEFAULT':
+        # if self.ostype == 'ni' or host == 'USER.DEFAULT':
+        if self.ostype == 'ni':
             if enable_pass:
                 self._store_value(host=host, key='enablepass', value=enable_pass, encrypt=True)
 

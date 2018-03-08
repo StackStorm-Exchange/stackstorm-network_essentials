@@ -16,6 +16,7 @@ from ne_base import NosDeviceAction
 from ne_base import capture_exceptions
 from ne_base import ValidateErrorCodes
 from pyswitch.exceptions import InvalidInterfaceName
+import pyswitch.utilities
 
 
 class ValidateL2PortChannelState(NosDeviceAction):
@@ -51,6 +52,11 @@ class ValidateL2PortChannelState(NosDeviceAction):
 
     def _validate_l2_port_channel_state_(self, device, port_channel_id):
         """ Verify if the port channel already exists """
+        valid_po, reason = pyswitch.utilities.validate_port_channel_id(device.platform_type,
+                                            port_channel_id)
+        if not valid_po:
+            self.logger.error(reason)
+            raise InvalidInterfaceName(reason)
         if not device.interface.interface_exists(int_type='port_channel',
                                                  name=port_channel_id):
             reason = "Interface is not present on the device"
