@@ -35,10 +35,6 @@ class FindMAC(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to find mac address', self.host)
 
-            if device.os_type == 'NI':
-                self.logger.error('Operation is not supported on this device')
-                raise ValueError('Operation is not supported on this device')
-
             self._check_requirements(macs)
             results = self._find_mac_addresses(device, macs)
             self.logger.info('Closing connection to %s after searching MACs -- all done!',
