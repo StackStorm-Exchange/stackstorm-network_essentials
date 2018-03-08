@@ -51,7 +51,7 @@ parameters:
   port_channel_id:
     type: string
     description: Port channel interface number.<NUMBER:1-6144>. For MLX range
-            is <1-256>. For Pitbull range is <1-64>
+            is <1-256>. For CER/CES range is <1-64>
     required: true
     position: 6
   mode:
