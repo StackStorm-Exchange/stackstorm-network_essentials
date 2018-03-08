@@ -24,6 +24,6 @@ parameters:
   port_channel_id:
     type: integer
     description: The Port-channel interface number <NUMBER:1-6144>. For MLX, the 
-            range is <1-256>.
+            range is <1-256>.For Pitbull range is <1-64>
     required: true
     position: 3

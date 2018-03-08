@@ -14,6 +14,7 @@
 from ne_base import NosDeviceAction
 from pyswitch.device import Device
 import sys
+import pyswitch.utilities
 
 
 class DeletePortChannel(NosDeviceAction):
@@ -38,6 +39,12 @@ class DeletePortChannel(NosDeviceAction):
         with Device(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             self.logger.info('successfully connected to %s to delete l2 port channel',
                              self.host)
+
+            valid_po, reason = pyswitch.utilities.validate_port_channel_id(device.platform_type,
+                                                port_channel_id)
+            if not valid_po:
+                self.logger.error(reason)
+                sys.exit(-1)
             changes['port_channel_configs'] = self._delete_l2_port_channel(device,
                                                portchannel_num=port_channel_id)
 
