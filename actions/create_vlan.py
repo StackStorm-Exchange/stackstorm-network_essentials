@@ -58,6 +58,11 @@ class CreateVlan(NosDeviceAction):
                 valid_desc = self.check_int_description(intf_description=intf_desc)
             if not valid_desc:
                 raise ValueError('Unsupported `vlan_desc` value passed', intf_desc)
+            if device.os_type == 'NI':
+                if len(vlan_list) > 512:
+                    self.logger.error("Error!! Exceeded the maximum number of VLANs (512) "
+                                      "that could be created at a time")
+                    sys.exit(-1)
 
             changes['vlan'] = self._create_vlan(device, vlan_list, intf_desc, vlan_id)
 
