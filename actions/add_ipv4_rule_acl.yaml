@@ -315,6 +315,9 @@ parameters:
         rules that will follow the constraints similar to a single rule creation.
         NOTE- if rules are specified in acl_rules, the rule specified outside
         of the array will be ignored and only the rules in the acl_array will be processed
+        NOTE- On MLX platform, maximum 64 rules can be configured using this
+              parameter. User need to execute this action more than once to
+              configure more than 64 rules.
     position: 34
     items:
       properties:
