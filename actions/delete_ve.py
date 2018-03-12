@@ -72,7 +72,7 @@ class DeleteVe(NosDeviceAction):
 
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
-      
+
         if device.interface.is_vlan_rtr_ve_config_req():
             curr_ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
             if curr_ve_id is None:
