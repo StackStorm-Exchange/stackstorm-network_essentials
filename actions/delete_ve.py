@@ -48,7 +48,8 @@ class DeleteVe(NosDeviceAction):
                     sys.exit(-1)
             else:
                 # TBD change this for SLX as ve_id and vlan_id need not be same
-                ve_id = vlan_id
+                if ve_id is None:
+                    ve_id = vlan_id
             changes['pre_check'] = self._check_req(device, rbridge_id=rbridge_id,
                                                    vlan_id=vlan_id, ve_id=ve_id)
             if changes['pre_check']:
@@ -62,12 +63,16 @@ class DeleteVe(NosDeviceAction):
 
         if device.os_type == 'nos':
             valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
+            if ve_id is not None and vlan_id != ve_id:
+                self.logger.error('vlan_id %s and ve id %s must be same on NOS devices',
+                                  vlan_id, ve_id)
+                sys.exit(-1)
         else:
             valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=False)
 
         if not valid_vlan:
             raise ValueError('Invalid vlan_id', vlan_id)
-
+      
         if device.interface.is_vlan_rtr_ve_config_req():
             curr_ve_id = device.interface.vlan_router_ve(get=True, vlan_id=vlan_id)
             if curr_ve_id is None:
