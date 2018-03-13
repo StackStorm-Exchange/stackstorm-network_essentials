@@ -107,6 +107,12 @@ class CreatePortChannel(NosDeviceAction):
         if not r2:
             raise ValueError('Port Channel number %s is not a valid value', portchannel_num)
 
+        valid_po, reason = pyswitch.utilities.validate_port_channel_id(device.platform_type,
+                                                portchannel_num)
+        if not valid_po:
+            self.logger.error(reason)
+            sys.exit(-1)
+
         valid_desc = True
         if intf_desc:
             valid_desc = self.check_int_description(intf_description=intf_desc)
@@ -323,7 +329,7 @@ class CreatePortChannel(NosDeviceAction):
         """
         port_speed = None
         try:
-            intf_list = device.interface.get_media_details_requesst
+            intf_list = device.interface.get_media_details_request
         except:
             self.logger.error('Unable to fetch the actual line speed of the interfaces')
             raise ValueError('Unable to fetch the actual line speed of the interfaces')

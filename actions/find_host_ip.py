@@ -41,10 +41,6 @@ class FindHostIP(NosDeviceAction):
             self.logger.info(
                 'successfully connected to %s to find IP on a VCS', self.host)
 
-            if device.os_type == 'NI':
-                self.logger.error('Operation is not supported on this device')
-                raise ValueError('Operation is not supported on this device')
-
             self._check_requirements(ip_address)
             results = self._find_ip_addresses(device, ip_address)
             self.logger.info(

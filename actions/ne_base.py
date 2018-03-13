@@ -52,8 +52,9 @@ class NosDeviceAction(Action):
         self.host = host
         self.rest_proto = self._get_rest_proto(host=host)
         self.conn = (host, '22', self.rest_proto)
-        user = self._lookup_st2_store('user')
-        if not user:
+        # check if device is registered
+        check_user = self._lookup_st2_store('user')
+        if not check_user:
             raise ValueError('Device is not registered.'
                              'Register using register_device_credentials action.')
         self.auth_snmp = self._get_auth(host=host, user=user, passwd=passwd)
@@ -65,10 +66,12 @@ class NosDeviceAction(Action):
         lookup_key = self._get_lookup_key(host=self.host, lookup=key)
         user_kv = self.action_service.get_value(name=lookup_key, local=False,
                                                 decrypt=decrypt)
+        """
         if not user_kv:
             lookup_key = self._get_user_default_lookup_key(lookup=key)
             user_kv = self.action_service.get_value(name=lookup_key, local=False,
                                                     decrypt=decrypt)
+        """
         return user_kv
 
     def _get_snmp_credentials(self, host):

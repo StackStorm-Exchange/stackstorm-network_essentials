@@ -37,7 +37,8 @@ class DeleteVlan(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, vlan_id):
         changes = {}
-        with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
+        with self.pmgr(conn=self.conn,
+                       auth_snmp=self.auth_snmp, connection_type='NETCONF') as device:
             self.logger.info(
                 'Successfully connected to %s to delete interface vlans',
                 self.host)
@@ -59,10 +60,9 @@ class DeleteVlan(NosDeviceAction):
 
         try:
             self.logger.info('Deleting Vlans %s', vlan_id)
-            for vlan in vlan_list:
-                device.interface.del_vlan_int(vlan)
+            device.interface.del_vlan_int(vlan_list)
         except (KeyError, ValueError) as e:
-            self.logger.error('VLAN %s deletion failed due to %s' % (vlan, e.message))
+            self.logger.error('VLAN deletion failed due to %s' % (e.message))
             sys.exit(-1)
 
         return True
