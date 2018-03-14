@@ -55,8 +55,8 @@ parameters:
     position: 6
   source: &source
     type: string
-    description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
-      } [ source-operator [ S_port-numbers ] ]
+    description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) |
+        S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -65,7 +65,7 @@ parameters:
   destination: &destination
     type: string
     description: The destination IP address filters { any | S_IPaddress/mask(0.0.0.255) |
-      host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+      S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 8
