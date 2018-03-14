@@ -207,8 +207,9 @@ parameters:
     position: 25
   tcp_operator: &tcp_operator
     type: string
-    description: This specify a comparison operator for the TCP port. This parameter applies
-        only when you specify tcp as the protocol.  Allowed values are [established, syn].
+    description: This specify a comparison operator for the TCP port.
+        This parameter applies only when you specify tcp as the protocol.
+        Allowed values are ['established', 'syn', 'established syn'].
         required-by:- [None]
         accepted-by:- [MLX]
     position: 26
