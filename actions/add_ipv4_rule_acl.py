@@ -10,7 +10,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
             vlan_id, count, log, mirror, copy_sflow, dscp_marking,
             fragment, precedence, option, suppress_rpf_drop,
             priority, priority_force, priority_mapping, tos,
-            established, icmp_filter, drop_precedence, acl_rules):
+            tcp_operator, icmp_filter, drop_precedence,
+            acl_rules):
 
         """Run helper methods to add an L3 IPV4 ACL rule to an existing ACL
         """
@@ -27,7 +28,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                                      fragment, precedence, option,
                                      suppress_rpf_drop, priority,
                                      priority_force, priority_mapping, tos,
-                                     established, icmp_filter,
+                                     tcp_operator, icmp_filter,
                                      drop_precedence, acl_rules)
 
     @log_exceptions
@@ -37,7 +38,8 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
                          log, mirror, copy_sflow, dscp_marking, fragment,
                          precedence, option, suppress_rpf_drop, priority,
                          priority_force, priority_mapping, tos,
-                         established, icmp_filter, drop_precedence, acl_rules):
+                         tcp_operator, icmp_filter,
+                         drop_precedence, acl_rules):
         params_config = locals()
         params_config.pop('self', None)
 
