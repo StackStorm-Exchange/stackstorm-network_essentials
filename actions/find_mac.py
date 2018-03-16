@@ -67,7 +67,7 @@ class FindMAC(NosDeviceAction):
                     for key, value in mac.iteritems():
                         output[key] = value
                     if output['interface_type'] == 'port-channel':
-                        output['member_ports'] = []
+                        output['member-ports'] = []
                         port_channel_num = output['interface_name']
                         port_channels = device.interface.port_channels
                         members = next((pc['interfaces'] for pc in port_channels
