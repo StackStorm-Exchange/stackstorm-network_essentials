@@ -62,7 +62,8 @@ class CreatePortChannel(NosDeviceAction):
                     self.logger.error('NI doesnt support port-channel protocol %s', protocol)
                     sys.exit(-1)
 
-            changes['pre_validation'], po_exists = self._check_requirements(device, ports,
+            changes['pre_validation'], po_exists, po_deployed = self._check_requirements(device,
+                                                                 ports,
                                                                  intf_type,
                                                                  port_channel_id,
                                                                  port_channel_desc)
@@ -75,7 +76,8 @@ class CreatePortChannel(NosDeviceAction):
                                                               channel_type=mode,
                                                               mode_type=protocol,
                                                               intf_desc=port_channel_desc,
-                                                              po_exists=po_exists)
+                                                              po_exists=po_exists,
+                                                              po_deployed=po_deployed)
                 else:
                     changes['port_channel_configs'] = self._create_port_channel(device,
                                                               intf_name=ports,
@@ -98,6 +100,7 @@ class CreatePortChannel(NosDeviceAction):
     def _check_requirements(self, device, intf_name, intf_type, portchannel_num, intf_desc):
         """ Verify if the port channel already exists """
         po_exists = False
+        po_deployed = False
         for each in intf_name:
             r1 = pyswitch.utilities.valid_interface(int_type=intf_type, name=each)
             if not r1:
@@ -135,6 +138,8 @@ class CreatePortChannel(NosDeviceAction):
             if port_chann['interface-name'] == port_chan and \
                port_chann['aggregator_id'] == portchannel_num:
                 if port_chann['aggregator_type'] == 'standard':
+                    if device.os_type == 'NI':
+                        po_deployed = port_chann['deployed']
                     po_exists = True
                     for interfaces in port_chann['interfaces']:
                         if interfaces['interface-name'] in intf_name:
@@ -142,7 +147,17 @@ class CreatePortChannel(NosDeviceAction):
                                 'Port Channel %s to interface %s mapping is'
                                 ' pre-existing',
                                 port_chann['aggregator_id'], interfaces['interface-name'])
-                            return False, po_exists
+                            # Deployed/no deploy is used ONLY for NI based platforms
+                            if device.os_type == 'NI':
+                                if not po_deployed:
+                                    # case where PO exists and not deployed push the config
+                                    # to the switch again
+                                    return True, po_exists, po_deployed
+                                else:
+                                    return False, po_exists, po_deployed
+                            else:
+                                return False, po_exists, po_deployed
+
             else:
                 for interfaces in port_chann['interfaces']:
                     if interfaces['interface-name'] in intf_name:
@@ -151,7 +166,7 @@ class CreatePortChannel(NosDeviceAction):
                                 interfaces['interface-name'], port_chann['aggregator_id'],
                                 port_chann['interface-name'])
                         sys.exit(-1)
-        return True, po_exists
+        return True, po_exists, po_deployed
 
     def _create_port_channel(self, device, intf_name, intf_type, portchannel_num,
                              channel_type, mode_type, intf_desc, port_speed):
@@ -251,7 +266,7 @@ class CreatePortChannel(NosDeviceAction):
         return True
 
     def _create_port_channel_mlx(self, device, intf_name, intf_type, portchannel_num,
-                             channel_type, mode_type, intf_desc, po_exists):
+                             channel_type, mode_type, intf_desc, po_exists, po_deployed):
         """ Configuring the port channel with member ports
         """
         try:
@@ -259,6 +274,7 @@ class CreatePortChannel(NosDeviceAction):
                                            portchannel_num,
                                            mode_type,
                                            po_exists,
+                                           po_deployed,
                                            intf_desc)
             self.logger.info('Configuring port channel %s with type as %s'
                              ' on interfaces %s is done',
