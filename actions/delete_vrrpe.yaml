@@ -41,6 +41,7 @@ parameters:
   vrrpe_group:
     type: string
     description: The virtual extender group ID
+    required: true
     position: 6
   ip_version:
     type: string
