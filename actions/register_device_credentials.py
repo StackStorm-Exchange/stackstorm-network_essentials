@@ -524,8 +524,8 @@ class RegisterDeviceCredentials(Action):
                 self._store_value(host=host, key='authpass', value=authpass, encrypt=True)
                 self._store_value(host=host, key='privpass', value=privpass, encrypt=True)
 
-            if rest_proto and host == 'USER.DEFAULT':
-                self._store_value(host=host, key='restproto', value=rest_proto)
+            # if rest_proto and host == 'USER.DEFAULT':
+            #    self._store_value(host=host, key='restproto', value=rest_proto)
 
         else:
             self._store_value(host=host, key='snmpver', value='None')

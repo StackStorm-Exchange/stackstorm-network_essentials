@@ -55,8 +55,8 @@ parameters:
     position: 6
   source: &source
     type: string
-    description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) | host,S_IPaddress
-      } [ source-operator [ S_port-numbers ] ]
+    description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) |
+        S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [All]
         accepted-by:- [SLX, NOS, MLX]
     required: true
@@ -65,7 +65,7 @@ parameters:
   destination: &destination
     type: string
     description: The destination IP address filters { any | S_IPaddress/mask(0.0.0.255) |
-      host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
+      S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
         required-by:- [None]
         accepted-by:- [SLX, NOS, MLX]
     position: 8
@@ -246,13 +246,13 @@ parameters:
         accepted-by:- [MLX]
     required: false
     position: 30
-  established: &established
-    type: boolean
-    description: This policy applies only to TCP packets that have the ACK or
-        RST bits set on.
+  tcp_operator: &tcp_operator
+    type: string
+    description: This specify a comparison operator for the TCP port.
+        This parameter applies only when you specify tcp as the protocol.
+        Allowed values are ["established", "syn", "established syn"].
         required-by:- [None]
         accepted-by:- [MLX]
-    required: false
     position: 31
   icmp_filter: &icmp_filter
     type: string
@@ -375,8 +375,8 @@ parameters:
           << : *priority_mapping
         tos:
           << : *tos
-        established:
-          << : *established
+        tcp_operator:
+          << : *tcp_operator
         icmp_filter:
           << : *icmp_filter
         drop_precedence:
