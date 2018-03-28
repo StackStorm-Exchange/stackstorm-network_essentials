@@ -1097,28 +1097,28 @@ def log_exceptions(func):
         try:
             return func(*args, **kwds)
         except AttributeError as e:
-            logger.exception(
+            logger.error(
                 'Failed to connect to %s due to %s'
                 % (host,
                    e.message))
             raise
         except ValueError as verr:
-            logger.exception("Error encountered on %s due to %s"
-                             % (host, verr.message))
+            logger.error("Error encountered on %s due to %s"
+                         % (host, verr.message))
             raise
         except requests.exceptions.ConnectionError as cerr:
             # pylint: disable=no-member
-            logger.exception("Connection failed while logging in to %s "
-                             "due to %s"
-                             % (host, cerr.message.reason))
+            logger.error("Connection failed while logging in to %s "
+                         "due to %s"
+                         % (host, cerr.message.reason))
             raise
         except pyswitchlib.asset.RestInterfaceError as rierr:
-            logger.exception(
+            logger.error(
                 "Failed to get a REST response on "
                 "%s due to %s" % (host, rierr.message))
             raise
         except Exception as ex:
-            logger.exception(
+            logger.error(
                 "Error while logging in to %s due to %s"
                 % (host, ex.message))
             raise
