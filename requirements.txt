@@ -2,3 +2,4 @@ netmiko==1.4.3
 git+https://github.com/StackStorm/PySwitchLib.git@master#egg=pyswitchlib
 requests==2.18.4
 six==1.11.0
+xmljson==0.1.9

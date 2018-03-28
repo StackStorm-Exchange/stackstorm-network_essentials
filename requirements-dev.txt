@@ -10,3 +10,4 @@ ruamel.yaml>=0.15
 ipython
 six
 unittest2
+xmljson==0.1.9

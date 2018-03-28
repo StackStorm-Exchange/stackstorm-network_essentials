@@ -50,8 +50,9 @@ parameters:
     position: 5
   port_channel_id:
     type: string
-    description: Port channel interface number.<NUMBER:1-6144>. For MLX range
-            is <1-256>. For CER/CES range is <1-64>
+    description: Port channel interface number.For VDX range is <NUMBER:1-6144>. For MLX range
+            is <1-256>, CER/CES range is <1-64>, Avalanche range is <1-64>, Fusion range is <1-512>
+            Cedar/Freedom range is <1-1024>
     required: true
     position: 6
   mode:

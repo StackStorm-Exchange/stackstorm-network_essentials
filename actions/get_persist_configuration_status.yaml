@@ -26,5 +26,5 @@ parameters:
   session_id:
     type: string
     description: Session id of the persist operation. 
-    secret: true
+    required: true
     position: 3
