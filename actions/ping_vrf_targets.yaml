@@ -36,7 +36,7 @@ parameters:
     type: integer
     description: The timeout parameter for the PING command. This specifies the time (in seconds for SLX/NOS and
       in msec for NI) to wait for a response. For SLX/NOS range is 1 to 60 (default value is 1).
-      For NI minimun range is 50 msecs for NI.
+      For NI minimun range is 50 msecs.
     required: false
     position: 5
   count:
