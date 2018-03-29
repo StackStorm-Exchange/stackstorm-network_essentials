@@ -138,9 +138,8 @@ class CreateSwitchPort(NosDeviceAction):
                                     if vid == vlan_id:
                                         return False, diff_grps, diff_macs
                                     elif int(vid) != 1:
-                                        self.logger.info('Switchport access is pre-existing on '
-                                                         'with a different vlan_id %s', vid)
-                                        return False, diff_grps, diff_macs
+                                        raise AttributeError('Switchport access is pre-existing on '
+                                                         'with a different vlan_id %s' % vid)
                             else:
                                 return True, diff_grps, diff_macs
                         else:
@@ -173,9 +172,12 @@ class CreateSwitchPort(NosDeviceAction):
                 else:
                     diff_grps = zip([vlan_id] * len(mac_group_id), mac_group_id)
 
-        except (ValueError, IndexError, KeyError), e:
+        except (ValueError, IndexError, KeyError) as e:
             self.logger.error('Fetching switch port mode or type check is failed %s',
                             str(e.message))
+            sys.exit(-1)
+        except AttributeError as e:
+            self.logger.error('%s', str(e.message))
             sys.exit(-1)
 
         return True, list(diff_grps), list(diff_macs)

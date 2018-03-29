@@ -46,9 +46,6 @@ class ValidateInterfaceState(NosDeviceAction):
             valid_rbridge_int_types = ['ve', 'loopback']
             if device.os_type == 'nos':
                 if intf_type in valid_rbridge_int_types and rbridge_id is None:
-                    '''raise ValueError('rbridge-id should not be empty. '
-                                     'Specify a valid value.')
-                    '''
                     reason = "rbridge-id should not be empty. Specify a valid value"
                     self.logger.error(reason)
                     error_code = ValidateErrorCodes.INVALID_USER_INPUT
@@ -57,7 +54,10 @@ class ValidateInterfaceState(NosDeviceAction):
                     changes['intf_name'] = ifname
                     return (False, changes)
 
-            valid_intf, reason, error_code = self._check_interface_presence(device,
+            if device.os_type == 'nos' and intf_type in valid_rbridge_int_types:
+                valid_intf = True
+            else:
+                valid_intf, reason, error_code = self._check_interface_presence(device,
                                                     intf_type=intf_type,
                                                     intf_name=intf_name)
 
@@ -86,25 +86,23 @@ class ValidateInterfaceState(NosDeviceAction):
     def _check_interface_presence(self, device, intf_type, intf_name):
 
         reason = "success"
-        retVal = True
         error_code = ValidateErrorCodes.SUCCESS
         if intf_type not in device.interface.valid_int_types:
             reason = "Input is not a valid interface type"
             error_code = ValidateErrorCodes.INVALID_USER_INPUT
-            retVal = False
+            return False, reason, error_code
 
         if not self.validate_interface(intf_type, intf_name, os_type=device.os_type):
             reason = "Invalid interface format " + intf_type + " " + intf_name
             error_code = ValidateErrorCodes.INVALID_USER_INPUT
-            retVal = False
-
+            return False, reason, error_code
         if not device.interface.interface_exists(int_type=intf_type,
                                                  name=intf_name):
             reason = "Interface is not present on the device"
             error_code = ValidateErrorCodes.INVALID_USER_INPUT
-            retVal = False
+            return False, reason, error_code
 
-        return retVal, reason, error_code
+        return True, reason, error_code
 
     def _validate_interface_state(
             self, device, intf_type, intf_name, intf_state, rbridge_id):
@@ -129,13 +127,14 @@ class ValidateInterfaceState(NosDeviceAction):
                 return (status, changes)
 
             if oper_state == intf_state:
-                reason = "Successfully validated interface " + ifname + " state as " + oper_state
-                self.logger.info(reason)
+                self.logger.info("Successfully validated interface " + ifname +
+                        " state as " + oper_state)
+                reason = "Successfully validated interface state as " + oper_state
                 error_code = ValidateErrorCodes.SUCCESS
                 status = True
             else:
-                reason = "Invalid interface " + ifname + " state " + oper_state
-                self.logger.error(reason)
+                self.logger.info("Interface " + ifname + " state is " + oper_state)
+                reason = "Interface state is " + oper_state
                 error_code = ValidateErrorCodes.INVALID_USER_INPUT
                 status = False
             changes['reason_code'] = error_code.value
@@ -162,9 +161,10 @@ class ValidateInterfaceState(NosDeviceAction):
                                 changes['state'] = proto_state
                                 error_code = ValidateErrorCodes.SUCCESS
                                 changes['reason_code'] = error_code.value
-                                reason = "Successfully Validated interface " + ifname + \
-                                         " state as " + proto_state + " in rbridge-id " + rb
-                                self.logger.info(reason)
+                                self.logger.info("Successfully validated interface " + ifname +
+                                        " state as " + proto_state + " in rbridge-id " + str(rb))
+                                reason = "Successfully validated interface state as " + proto_state
+                                changes['reason'] = reason
                                 is_intf_state_present = True
                                 return (True, changes)
                             else:
@@ -174,7 +174,7 @@ class ValidateInterfaceState(NosDeviceAction):
                             changes['intf_name'] = ifname
 
                     if not is_intf_present:
-                        reason = "Invalid interface name/type in rbridge-id " + rb
+                        reason = "Invalid interface name/type in rbridge-id " + str(rb)
                         self.logger.error(reason)
                         error_code = ValidateErrorCodes.INVALID_USER_INPUT
                         changes['reason_code'] = error_code.value
@@ -182,9 +182,9 @@ class ValidateInterfaceState(NosDeviceAction):
                         retVal = False
                     else:
                         if not is_intf_state_present:
-                            reason = "Invalid interface " + ifname + " state " + \
-                                     proto_state + " in rb " + rb
-                            self.logger.error(reason)
+                            self.logger.info("Interface " + ifname + " state is " +
+                                     proto_state + " in rbridge-id " + str(rb))
+                            reason = "Interface state is " + proto_state
                             error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
                             changes['reason_code'] = error_code.value
                             changes['reason'] = reason
@@ -207,9 +207,10 @@ class ValidateInterfaceState(NosDeviceAction):
                             changes['state'] = proto_state
                             error_code = ValidateErrorCodes.SUCCESS
                             changes['reason_code'] = error_code.value
-                            reason = "Successfully validated interface " +  \
-                                     ifname + " state as " + proto_state
-                            self.logger.info(reason)
+                            self.logger.info("Successfully validated interface " +
+                                     ifname + " state as " + proto_state)
+                            reason = "Successfully validated interface state as " + proto_state
+                            changes['reason'] = reason
                             is_intf_state_present = True
                             return (True, changes)
                         else:
@@ -226,8 +227,8 @@ class ValidateInterfaceState(NosDeviceAction):
                     retVal = False
                 else:
                     if not is_intf_state_present:
-                        reason = "Invalid interface " + ifname + " state " + proto_state
-                        self.logger.error(reason)
+                        self.logger.info("Interface " + ifname + " state is " + proto_state)
+                        reason = "Interface state is " + proto_state
                         error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
                         changes['reason_code'] = error_code.value
                         changes['reason'] = reason
@@ -250,15 +251,15 @@ class ValidateInterfaceState(NosDeviceAction):
             if proto_state:
                 if proto_state == intf_state:
                     changes['state'] = proto_state
-                    reason = "Successfully validated interface " + ifname + \
-                             " state as " + proto_state
-                    self.logger.info(reason)
+                    self.logger.info("Successfully validated interface " + ifname +
+                             " state as " + proto_state)
+                    reason = "Successfully validated interface state as " + proto_state
                     error_code = ValidateErrorCodes.SUCCESS
                     changes['reason_code'] = error_code.value
                     retVal = True
                 else:
-                    reason = "Invalid interface " + ifname + " state " + proto_state
-                    self.logger.error(reason)
+                    self.logger.info("Interface " + ifname + " state is " + proto_state)
+                    reason = "Interface state is " + proto_state
                     changes['state'] = proto_state
                     error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
                     changes['reason_code'] = error_code.value
