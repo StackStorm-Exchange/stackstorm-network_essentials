@@ -151,7 +151,7 @@ class validate_vrrpe_state(NosDeviceAction):
         mode = 'Mode: VRRPE'
         vrid_pattern = re.compile('VRID (.*)')
         ve_pattern = 'Interface: Ve ' + vlan_id + ';'
-        vrrpe_role = '(Master|Backup)'
+        vrrpe_role = 'State: (.+)'
         vrrpe_state = 'Admin Status: Enabled'
         spf_state = 'Short-path-forwarding: Enabled'
         device_type = 'ni' if device.os_type == 'NI' else 'nos'
@@ -179,7 +179,7 @@ class validate_vrrpe_state(NosDeviceAction):
                         if spf_match is not None:
                             self.logger.info('vrrpe state validation for vrrp-e group %s and'
                                              ' Vlan_id %s on mgmt IP %s is complete',
-                                             vlan_id, vrid, host_ip)
+                                             vrid, vlan_id, host_ip)
                         else:
                             self.logger.info('SPF is disabled on Vlan_id %s on IP %s',
                                              vlan_id, host_ip)
@@ -235,7 +235,7 @@ class validate_vrrpe_state(NosDeviceAction):
 
         vrid_pattern = r'VRID (.*)'
         intf_pattern = r'interface (.*)'
-        vrrpe_role = '(master|backup)'
+        vrrpe_role = 'state (.+)'
         vrrpe_state = 'administrative-status enabled'
         spf_state = 'short-path-forwarding enabled'
         device_type = 'ni' if device.os_type == 'NI' else 'nos'
@@ -263,7 +263,7 @@ class validate_vrrpe_state(NosDeviceAction):
                         if spf_match is not None:
                             self.logger.info('vrrpe state validation for vrrp-e group %s and'
                                              ' intf name %s on mgmt IP %s is complete',
-                                             intf_name, vrid, host_ip)
+                                             vrid, intf_name, host_ip)
                         else:
                             self.logger.info('SPF is disabled on intf_name %s on IP %s',
                                              intf_name, host_ip)
