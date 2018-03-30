@@ -288,14 +288,16 @@ class NosDeviceAction(Action):
             else:
                 extended = "false"
             tmp_vlan_id = pyswitch.utilities.valid_vlan_id(vid, extended=extended)
-
-            reserved_vlan_list = range(4087, 4096)
             if not tmp_vlan_id:
                 self.logger.error("'Not a valid vlan %s", vid)
                 return None
-            elif vid in reserved_vlan_list:
-                self.logger.info(
-                    "User provided vlans contains reserved vlans %s", vid)
+
+            # this reserved vlan is only for NOS and not for SLX/NI devices
+            if device.os_type == 'nos':
+                reserved_vlan_list = range(4087, 4096)
+                if vid in reserved_vlan_list:
+                    self.logger.info(
+                        "User provided vlans contains reserved vlans %s", vid)
         return vlan_id
 
     def expand_interface_range(self, intf_type, intf_name, rbridge_id):
