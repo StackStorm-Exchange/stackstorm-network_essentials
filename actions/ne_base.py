@@ -288,14 +288,16 @@ class NosDeviceAction(Action):
             else:
                 extended = "false"
             tmp_vlan_id = pyswitch.utilities.valid_vlan_id(vid, extended=extended)
-
-            reserved_vlan_list = range(4087, 4096)
             if not tmp_vlan_id:
                 self.logger.error("'Not a valid vlan %s", vid)
                 return None
-            elif vid in reserved_vlan_list:
-                self.logger.info(
-                    "User provided vlans contains reserved vlans %s", vid)
+
+            # this reserved vlan is only for NOS and not for SLX/NI devices
+            if device.os_type == 'nos':
+                reserved_vlan_list = range(4087, 4096)
+                if vid in reserved_vlan_list:
+                    self.logger.info(
+                        "User provided vlans contains reserved vlans %s", vid)
         return vlan_id
 
     def expand_interface_range(self, intf_type, intf_name, rbridge_id):
@@ -1097,28 +1099,28 @@ def log_exceptions(func):
         try:
             return func(*args, **kwds)
         except AttributeError as e:
-            logger.exception(
+            logger.error(
                 'Failed to connect to %s due to %s'
                 % (host,
                    e.message))
             raise
         except ValueError as verr:
-            logger.exception("Error encountered on %s due to %s"
-                             % (host, verr.message))
+            logger.error("Error encountered on %s due to %s"
+                         % (host, verr.message))
             raise
         except requests.exceptions.ConnectionError as cerr:
             # pylint: disable=no-member
-            logger.exception("Connection failed while logging in to %s "
-                             "due to %s"
-                             % (host, cerr.message.reason))
+            logger.error("Connection failed while logging in to %s "
+                         "due to %s"
+                         % (host, cerr.message.reason))
             raise
         except pyswitchlib.asset.RestInterfaceError as rierr:
-            logger.exception(
+            logger.error(
                 "Failed to get a REST response on "
                 "%s due to %s" % (host, rierr.message))
             raise
         except Exception as ex:
-            logger.exception(
+            logger.error(
                 "Error while logging in to %s due to %s"
                 % (host, ex.message))
             raise
