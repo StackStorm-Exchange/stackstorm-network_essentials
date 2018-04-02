@@ -101,12 +101,9 @@ class validate_vrrpe_state(NosDeviceAction):
         """validate vlan_id
         """
 
-        if not self.validate_interface('ve', vlan_id, os_type=device.os_type):
-            raise InvalidInterfaceName('Interface %s is not valid' % (vlan_id))
-
         valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
         if not valid_vlan:
-            raise InvalidVlanId('Invalid Vlan_id %s', vlan_id)
+            raise InvalidVlanId('Invalid inerface %s', vlan_id)
         is_exists = False
         vlan_list = device.interface.ve_interfaces()
 
