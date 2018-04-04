@@ -23,21 +23,16 @@ parameters:
   acl_name:
     type: string
     description: The name of the access control list
-        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 3
   seq_id: &seq_id
     type: integer
     description: The sequence number of the rule, if not specified, the rule is added
       at the end of the list. Valid range is 0 to 4294967290
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
     position: 4
   action: &action
     type: string
     description: The action performed by the ACL rule.
-        required-by:- [SLX, NOS, MLX]
-        accepted-by:- [SLX, NOS, MLX]
     position: 5
     enum:
       - permit
@@ -50,15 +45,11 @@ parameters:
       are <0-255> or key words tcp, udp, icmp or ip.
       This parameter is required for extended ACL.
       For MLX - Valid values are <0-255> or supported protocol keywords.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
     position: 6
   source: &source
     type: string
     description: The source IP address filters { any | S_IPaddress/mask(0.0.0.255) |
         S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
-        required-by:- [All]
-        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 7
     default: any
@@ -66,184 +57,135 @@ parameters:
     type: string
     description: The destination IP address filters { any | S_IPaddress/mask(0.0.0.255) |
       S_IPaddress/Prefix | host,S_IPaddress } [ source-operator [ S_port-numbers ] ]
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
     position: 8
   dscp: &dscp
     type: string
     description: This matches the specified value against the DSCP value of the packet
       to filter.  Allowed values are 0 through 63.
-        For SLX - dscp value between 0 and 63. Format {<dscp>[,<dscp-force>]}.
-        For NOS - dscp value between 0 and 63. Format {<dscp>]}.
+        For SLX - DSCP value between 0 and 63. Format {<dscp>[,<dscp-force>]}.
+        For NOS - DSCP value between 0 and 63. Format {<dscp>}.
         For MLX - this field will be used for dscp-mapping.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
     required: false
     position: 9
   drop_precedence_force: &drop_precedence_force
     type: string
     description: This matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
-       For MLX - Allowed values are 0 through 3.
-        required-by:- [None]
-        accepted-by:- [SLX, MLX]
-        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
+       For MLX - Allowed values are 0 through 3.  Only supported by MLX, SLX 9850 and 9540 devices.
     position: 10
   urg: &urg
     type: string
     description: This enables the urg for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 11
   ack: &ack
     type: string
     description: This enables the ack for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 12
   push: &push
     type: string
     description: This enables the push for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 13
   fin: &fin
     type: string
     description: This enables the fin for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 14
   rst: &rst
     type: string
     description: This enables the rst for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 15
   sync: &sync
     type: string
     description: This enables the sync for the rule. Use "True" or "False" to enable or
-        disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        disable respectively.  Only supported by SLX and NOS devices.
     position: 16
   vlan_id: &vlan_id
     type: integer
-    description: The VLAN interface to which the ACL is bound
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
+    description: The VLAN interface to which the ACL is bound.
     position: 17
   count: &count
     type: string
     description: This enables the statistics for the rule. Use "True" or "False" to
-        enable or disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS]
+        enable or disable respectively. Only supported by SLX and NOS devices.
     position: 18
   log: &log
     type: string
     description: This enables the logging for the rule. Use "True" or "False" to
         enable or disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, NOS, MLX]
     position: 19
   mirror: &mirror
     type: string
     description: This enables the mirror for the rule. Use "True" or "False" to enable
-        or disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, MLX]
-        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
+        or disable respectively. Only supported by MLX, SLX 9850 and 9540 devices.
     position: 20
   copy_sflow: &copy_sflow
     type: string
     description: This enables the copy-sflow for the rule. Use "True" or "False" to
-        enable or disable respectively.
-        required-by:- [None]
-        accepted-by:- [SLX, MLX]
-        (NOTE:- SLX16r and SLXs devices doesn't support this parameter)
+        enable or disable respectively. Only supported by MLX, SLX 9850 and 9540 devices.
     position: 21
   dscp_marking: &dscp_marking
     type: string
     description: This is the dscp-marking number that is used to mark the DSCP value in the
         incoming packet with the value you specify to filter.
-        Allowed values are 0 through 63.
-        required-by:- [None]
-        accepted-by:- [MLX]
+        Allowed values are 0 through 63. Only supprted by MLX devices.
     required: false
     position: 22
   fragment: &fragment
     type: string
-    description: The fragment keyword used to allow the ACL to filter fragmented packets.
+    description: The fragment keyword used to allow the ACL to filter fragmented packets. Only supprted by MLX devices.
         Use the non-fragment keyword to filter non-fragmented packets.
             - fragment
             - non-fragment
-        required-by:- [None]
-        accepted-by:- [MLX]
     required: false
     position: 23
   precedence: &precedence
     type: string
-    description: This will match packets with given precedence value.
+    description: This will match packets with given precedence value. Only supprted by MLX devices.
         Allowed value { <0 to 7> | critical | flash |
         flash-override | immediate | internet | network |
         priority | routine  }
-        required-by:- [None]
-        accepted-by:- [MLX]
     required: false
     position: 24
   option: &option
     type: string
-    description: This will match match IP option packets.
+    description: This will match IP option packets. Only supprted by MLX devices.
         supported values are - 
             any, eol, extended-security, ignore, loose-source-route,
             no-op, record-route, router-alert, security, streamid,
             strict-source-route, timestamp             
             Allowed value in decimal <0-255>.
-        required-by:- [None]
-        accepted-by:- [MLX]
     required: false
     position: 25
   suppress_rpf_drop: &suppress_rpf_drop
     type: boolean
     description: This will permit packets that fail RPF check. Use true or false to
-        enable or disable respectively.
-        required-by:- [None]
-        accepted-by:- [MLX]
+        enable or disable respectively. Only supported by MLX devices.
     required: false
     position: 26
   priority: &priority
     type: integer
-    description: This will set priority. Allowed value is <0-7>.
-        required-by:- [None]
-        accepted-by:- [MLX]
+    description: This will set priority. Allowed value is <0-7>. Only supprted by MLX devices.
     required: false
     position: 27
   priority_force: &priority_force
     type: integer
-    description: This will force packet outgoing priority. Allowed value is <0-7>.
-        required-by:- [None]
-        accepted-by:- [MLX]
+    description: This will force packet outgoing priority. Allowed value is <0-7>. Only supported by MLX devices.
     required: false
     position: 28
   priority_mapping: &priority_mapping
     type: integer
-    description: This will map incoming packet priority. Allowed value is <0-7>.
-        required-by:- [None]
-        accepted-by:- [MLX]
+    description: This will map incoming packet priority. Allowed value is <0-7>. Only supported by MLX devices.
     required: false
     position: 29
   tos: &tos
     type: string
-    description: This will match packets with given TOS value.
+    description: This will match packets with given TOS value. Only supprted by MLX devices.
         Allowed values are { <0-15> | 'max-reliability' | 'max-throughput' |
                              'min-delay' | 'normal' }
-        required-by:- [None]
-        accepted-by:- [MLX]
     required: false
     position: 30
   tcp_operator: &tcp_operator
@@ -251,14 +193,11 @@ parameters:
     description: This specify a comparison operator for the TCP port.
         This parameter applies only when you specify tcp as the protocol.
         Allowed values are ["established", "syn", "established syn"].
-        required-by:- [None]
-        accepted-by:- [MLX]
+        Only supprted by MLX devices.
     position: 31
   icmp_filter: &icmp_filter
     type: string
-    description: This is the ICMP message type to be filtered.
-        required-by:- [None]
-        accepted-by:- [MLX]
+    description: This is the ICMP message type to be filtered. Only supprted by MLX devices.
     enum:
         - administratively-prohibited
         - any-icmp-type
@@ -304,17 +243,15 @@ parameters:
     type: string
     description: This matches the drop_precedence value of the packet.
        Allowed values are 0 through 2.
-       For MLX - Allowed values are 0 through 3.
-        required-by:- [None]
-        accepted-by:- [MLX]
+       Only supported by MLX devices - Allowed values are 0 through 3.
     position: 33
   acl_rules:
     type: array
     description: This bulk operation is supported to create more than one ACL rule
         in one action execution. The parameters are passed to create multiple
         rules that will follow the constraints similar to a single rule creation.
-        NOTE- if rules are specified in acl_rules, the rule specified outside
-        of the array will be ignored and only the rules in the acl_array will be processed
+        NOTE- If rules are specified in acl_rules, the rule specified outside
+        of the array will be ignored and only the rules in the acl_array will be processed.
         NOTE- On MLX platform, maximum 64 rules can be configured using this
               parameter. User need to execute this action more than once to
               configure more than 64 rules.

@@ -25,9 +25,7 @@ parameters:
       - ip
       - ipv6
       - mac
-    description: The ACL address type, ip or ipv6 or mac.
-        required-by:- [SLX, NOS, MLX]
-        accepted-by:- [SLX, NOS, MLX]
+    description: The ACL address type, IP or IPv6 or MAC.
     default: ip
     position: 3
   acl_type:
@@ -35,15 +33,12 @@ parameters:
     enum:
       - standard
       - extended
-    description: The ACL type, extended or standard.
-        acl_type is required by MLX for ip/ipv6 acl.
-        required-by:- [SLX, NOS]
-        accepted-by:- [SLX, NOS, MLX]
+    description: The ACL type, extended or standard. This is required for SLX and NOS.
+        The acl_type is required by MLX for IP/IPv6 ACL.
     position: 4
   acl_name:
     type: string
     description: The unique name for the ACL which must begin with a-z, A-Z.
         Keywords "all" and "test" can not be used as acl_name.
-        accepted-by:- [SLX, NOS, MLX]
     required: true
     position: 5
