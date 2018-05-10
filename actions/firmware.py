@@ -102,9 +102,6 @@ class Firmware(NosDeviceAction):
                         continue
                     else:
                         self.last_proc_fwdl_entry = index
-                        self.logger.info("Index: %d Blade:%s Time:%s Message:%s", index,
-                                         fwdl_status['blade-name'],
-                                         fwdl_status['timestamp'], fwdl_status['message'])
                         if fwdl_status['message'] == 'Firmware is downloaded successfully.':
                             self.logger.info("All done. Process complete")
                             self.fwdl_complete = True
