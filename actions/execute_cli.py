@@ -87,7 +87,6 @@ class CliCMD(NosDeviceAction):
                 if device_type == 'brocade_netiron':
                     net_connect.enable()
                 if 'host-name' in str(cli_cmd) and device_type == 'brocade_vdx':
-                    net_connect.find_prompt()
                     cli_output['output'] = (net_connect.write_channel('conf t\n'))
                     for cmd in cli_cmd:
                         cli_output['output'] = (net_connect.write_channel(cmd))
@@ -97,7 +96,6 @@ class CliCMD(NosDeviceAction):
                         config_mode_cmd = 'enable ' + enable_passwd + '\n conf t \n'
                     else:
                         config_mode_cmd = 'enable \n conf t \n'
-                    net_connect.find_prompt()
                     cli_output['output'] = (net_connect.write_channel(config_mode_cmd))
                     for cmd in cli_cmd:
                         cli_output['output'] = (net_connect.write_channel(cmd))
