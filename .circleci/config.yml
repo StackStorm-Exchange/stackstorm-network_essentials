@@ -1,38 +1,73 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
+
 jobs:
-  build:
+  build_and_test:
     docker:
-      - image: circleci/python:2.7.13
+      - image: circleci/python:2.7
+      - image: rabbitmq:3
+      - image: mongo:3.4
 
     working_directory: ~/repo
 
+    environment:
+      VIRTUALENV_DIR: "~/virtualenv"
+
     steps:
       - checkout
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
+          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
       - run:
-          name: install dependencies
+          name: Download dependencies
           command: |
-            make requirements
-
+            git clone -b master git@github.com:stackstorm-exchange/ci.git ~/ci
+            ~/ci/.circle/dependencies
+      - run:
+          name: Run tests
+          command: ~/ci/.circle/test
       - save_cache:
+          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
           paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+            - ~/.cache/pip
+            - ~/.apt-cache
+      - persist_to_workspace:
+          root: /
+          paths:
+            - home/circleci/ci
+            - home/circleci/virtualenv
+            - tmp/st2
+            - home/circleci/repo
+            - home/circleci/.gitconfig
 
-      # run tests!
+  deploy:
+    docker:
+      - image: circleci/python:2.7
+
+    working_directory: ~/repo
+
+    environment:
+      VIRTUALENV_DIR: "~/virtualenv"
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-dependency-cache-{{ checksum "requirements.txt" }}
+      - attach_workspace:
+          at: /
       - run:
-          name: run tests
-          command: |
-            make lint
-            make packs-resource-register
-            make packs-tests
+          name: Install dependencies
+          command: sudo apt -y install gmic optipng
+      - run:
+          name: Update exchange.stackstorm.org
+          command:  ~/ci/.circle/deployment
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - build_and_test
+      - deploy:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: master
