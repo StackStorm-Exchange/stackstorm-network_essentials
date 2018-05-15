@@ -21,9 +21,13 @@ jobs:
           command: |
             git clone -b master git@github.com:stackstorm-exchange/ci.git ~/ci
             ~/ci/.circle/dependencies
+            make requirements
       - run:
           name: Run tests
-          command: ~/ci/.circle/test
+          command: |
+            make lint
+            make packs-resource-register
+            make packs-tests
       - save_cache:
           key: v1-dependency-cache-{{ checksum "requirements.txt" }}
           paths:
