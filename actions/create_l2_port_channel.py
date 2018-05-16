@@ -346,7 +346,7 @@ class CreatePortChannel(NosDeviceAction):
         port_speed = None
         try:
             intf_list = device.interface.get_media_details_request
-        except Exception:
+        except:
             self.logger.error('Unable to fetch the actual line speed of the interfaces')
             raise ValueError('Unable to fetch the actual line speed of the interfaces')
 

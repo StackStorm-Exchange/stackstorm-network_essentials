@@ -343,7 +343,7 @@ class NosDeviceAction(Action):
                 for intf in intList:
                     int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
                                     str(intf))
-            except Exception:
+            except:
                 intList = range(int(temp_list.groups()[5]), int(
                     temp_list.groups()[6]) + 1)
                 for intf in intList:
@@ -368,7 +368,7 @@ class NosDeviceAction(Action):
                 for intf in intList:
                     int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
                                     temp_list.groups()[2] + ':' + str(intf))
-            except Exception:
+            except:
                 msg = "Invalid interface format"
         elif re.search(re_pattern8, int_list):
             try:
@@ -384,7 +384,7 @@ class NosDeviceAction(Action):
                 for intf in intList:
                     int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + ':' +
                                     str(intf))
-            except Exception:
+            except:
                 msg = "Invalid interface format"
         else:
             msg = 'Invalid interface format'
@@ -617,7 +617,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
-        except Exception:
+        except:
             pass
         try:
             get = device.ip_access_list_extended_get(acl_name)
@@ -625,7 +625,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
-        except Exception:
+        except:
             pass
         try:
             get = device.mac_access_list_standard_get(acl_name)
@@ -633,7 +633,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
-        except Exception:
+        except:
             pass
         try:
             get = device.mac_access_list_extended_get(acl_name)
@@ -641,7 +641,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
-        except Exception:
+        except:
             pass
         try:
             get = device.ipv6_access_list_standard_get(acl_name)
@@ -649,7 +649,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
-        except Exception:
+        except:
             pass
         try:
             get = device.ipv6_access_list_extended_get(acl_name)
@@ -657,7 +657,7 @@ class NosDeviceAction(Action):
                                    'json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
-        except Exception:
+        except:
             self.logger.error('Cannot get acl-type for  %s', acl_name)
             return None
 
@@ -725,7 +725,7 @@ class NosDeviceAction(Action):
                 self.logger.error('No seq present in acl %s', acl_name)
                 return None
 
-        except Exception:
+        except:
             self.logger.error('cannot get seq in acl %s', acl_name)
             return None
 
@@ -914,7 +914,7 @@ class NosDeviceAction(Action):
                 if 'address' not in ip_intf:
                     try:
                         ip_intf = ip_intf.pop()
-                    except Exception:
+                    except:
                         return None
                 else:
                     ip_intf = ip_intf['address']
@@ -924,7 +924,7 @@ class NosDeviceAction(Action):
                     if 'address' not in ip_intf:
                         try:
                             ip_intf = ip_intf.pop()
-                        except Exception:
+                        except:
                             return None
                     else:
                         return ip_intf['address']
@@ -933,7 +933,7 @@ class NosDeviceAction(Action):
                     if 'ipv6-address' not in ip_intf:
                         try:
                             ip_intf = ip_intf.pop()
-                        except Exception:
+                        except:
                             return None
                     else:
                         ip_intf = ip_intf['ipv6-address']
@@ -942,7 +942,7 @@ class NosDeviceAction(Action):
                     if 'address' not in ip_intf:
                         try:
                             ip_intf = ip_intf.pop()
-                        except Exception:
+                        except:
                             return None
                     else:
                         return ip_intf['address']
