@@ -23,7 +23,7 @@ jobs:
             ~/ci/.circle/dependencies
             make requirements
       - run:
-          name: Run tests
+          name: Run local tests
           command: |
             make lint
             make packs-resource-register
