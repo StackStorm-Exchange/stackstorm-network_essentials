@@ -52,13 +52,13 @@ network_essentials.drop_provision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
-                seq_id: <% $.seq_id %>
+                seq_id: <% str($.seq_id) %>
                 source: <% $.source %>
                 src_mac_addr_mask: <% $.src_mac_addr_mask %>
                 dst: <% $.destination %>
                 dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
                 ethertype: <% $.ethertype %>
-                vlan: <% $.vlan_id %>
+                vlan: <% str($.vlan_id) %>
                 action: <% $.rule_action %>
             on-success:
                 - apply_acl: <% $.acl_exists = true %>
