@@ -58,7 +58,7 @@ network_essentials.drop_provision:
                 dst: <% $.destination %>
                 dst_mac_addr_mask: <% $.dst_mac_addr_mask %>
                 ethertype: <% $.ethertype %>
-                vlan: <% $.vlan_id %>
+                vlan: <% str($.vlan_id) %>
                 action: <% $.rule_action %>
             on-success:
                 - apply_acl: <% $.acl_exists = true %>
