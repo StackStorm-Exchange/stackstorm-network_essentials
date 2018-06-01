@@ -28,7 +28,7 @@ network_essentials.drop_unprovision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
-                seq_id: <% $.seq_id %>
+                seq_id: <% str($.seq_id) %>
                 delete: true
             on-success:
                 - apply_acl
@@ -39,7 +39,7 @@ network_essentials.drop_unprovision:
                 username: <% $.username %>
                 password: <% $.password %>
                 acl_name: <% $.acl_name %>
-                seq_id: <% $.seq_id %>
+                seq_id: <% str($.seq_id) %>
             on-success:
                 - apply_acl
         apply_acl:
