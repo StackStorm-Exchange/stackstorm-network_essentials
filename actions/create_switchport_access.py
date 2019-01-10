@@ -213,7 +213,7 @@ class CreateSwitchPort(NosDeviceAction):
             self.logger.info('Configuring Switch port access on intf_name %s', intf_name)
             device.interface.switchport(int_type=intf_type, name=intf_name)
             device.interface.acc_vlan(int_type=intf_type, name=intf_name, vlan=vlan_id)
-        except (ValueError, IndexError, KeyError), e:
+        except (ValueError, IndexError, KeyError) as e:
             error_msg = str(e.message)
             self.logger.error("Configuring Switch port access failed due to %s", error_msg)
             sys.exit(-1)
@@ -234,13 +234,13 @@ class CreateSwitchPort(NosDeviceAction):
                                                                     intf_type=intf_type,
                                                                     access_vlan_id=str(each_vlan),
                                                                     mac_group_id=each_group)
-        except ValueError, e:
+        except ValueError as e:
             raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
                              "Groups %s Failed due to %s", mac_gps, str(e))
-        except KeyError, e:
+        except KeyError as e:
             raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
                              "Groups %s Failed due to %s", mac_gps, str(e))
-        except Exception, e:
+        except Exception as e:
             raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
                              "Groups %s Failed due to %s", mac_gps, str(e))
         return True
@@ -258,13 +258,13 @@ class CreateSwitchPort(NosDeviceAction):
                                                               intf_type=intf_type,
                                                               access_vlan_id=str(each_vlan),
                                                               mac_address=each_group)
-        except ValueError, e:
+        except ValueError as e:
             raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
                              "Address %s Failed due to %s", mac_ads, str(e))
-        except KeyError, e:
+        except KeyError as e:
             raise ValueError("Configuring Switchport Access Vlan and Associating the Mac "
                              "Address %s Failed due to %s", mac_ads, str(e))
-        except Exception, e:
+        except Exception as e:
             raise KeyError("Configuring Switchport Access Vlan and Associating the Mac "
                            "Address %s Failed due to %s", mac_ads, str(e))
         return True

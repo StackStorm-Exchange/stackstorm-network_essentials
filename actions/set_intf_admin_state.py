@@ -104,7 +104,7 @@ class SetIntfAdminState(NosDeviceAction):
                     except UserWarning as e:
                         self.logger.info('%s', str(e.message))
 
-                    except (ValueError, IndexError, KeyError), e:
+                    except (ValueError, IndexError, KeyError) as e:
                         error_msg = str(e.message)
                         self.logger.error('Setting description is failed %s', error_msg)
                         sys.exit(-1)
