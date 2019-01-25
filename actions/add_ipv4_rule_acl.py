@@ -46,6 +46,7 @@ class Add_Ipv4_Rule_Acl(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
+            # pylint: disable=no-member
             if acl_rules:
                 output = device.acl.add_ipv4_rule_acl_bulk(acl_name=acl_name,
                                                            acl_rules=acl_rules)

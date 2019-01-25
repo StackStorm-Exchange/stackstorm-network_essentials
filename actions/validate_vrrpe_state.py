@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from ne_base import NosDeviceAction
 from ne_base import capture_exceptions
 from ne_base import ValidateErrorCodes
-import pyswitch.utilities
-import re
 from execute_cli import CliCMD
+import pyswitch.utilities
 from pyswitch.exceptions import InvalidInterfaceName
 from pyswitch.exceptions import InvalidVlanId
 
@@ -62,23 +62,23 @@ class validate_vrrpe_state(NosDeviceAction):
             device = self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp)
 
             # validate supported interface type for vrrpe
-            device.interface.vrrpe_supported_intf(intf_type=intf_type)
+            device.interface.vrrpe_supported_intf(intf_type=intf_type)  # pylint: disable=no-member
 
             if intf_type == 've':
                 changes['pre_check'] = self._validate_if_ve_exists(device,
-                                                 intf_name, vrid=vrrpe_group)
+                                                                   intf_name, vrid=vrrpe_group)
             else:
                 changes['pre_check'] = self._validate_if_eth_exists(device,
-                                                 intf_name, vrid=vrrpe_group)
+                                                                    intf_name, vrid=vrrpe_group)
 
             if changes['pre_check']:
 
                 if device.os_type == 'NI':
                     roles = self._ni_fetch_vrrpe_state(device, intf_type,
-                                         intf_name, afi, vrid=vrrpe_group)
+                                                       intf_name, afi, vrid=vrrpe_group)
                 else:
                     roles = self._fetch_vrrpe_state(device, intf_name, afi,
-                                            vrid=vrrpe_group)
+                                                    vrid=vrrpe_group)
                 vrrpe_roles.append(roles)
             else:
                 raise ValueError('{0} intf_name {1} doesnt exist'.format(intf_type, intf_name))
@@ -103,7 +103,7 @@ class validate_vrrpe_state(NosDeviceAction):
 
         valid_vlan = pyswitch.utilities.valid_vlan_id(vlan_id=vlan_id, extended=True)
         if not valid_vlan:
-            raise InvalidVlanId('Invalid inerface %s', vlan_id)
+            raise InvalidVlanId('Invalid interface %s', vlan_id)
         is_exists = False
         vlan_list = device.interface.ve_interfaces()
 
@@ -275,7 +275,7 @@ class validate_vrrpe_state(NosDeviceAction):
                     role_check = False
             else:
                 self.logger.info('vrrpe mode mis-match on intf_name %s on IP %s',
-                        intf_name, host_ip)
+                                 intf_name, host_ip)
                 mode_check = False
         else:
             msg = 'vrrpe-group {} is not configured'.format(vrid)

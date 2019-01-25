@@ -56,7 +56,7 @@ class ConfigureLogicalInterface(NosDeviceAction):
                 self.logger.error('Operation is not supported on this platform')
                 raise ValueError('Operation is not supported on this platform')
 
-            re_pattern = '\d+r'
+            re_pattern = r'\d+r'
             lif_name = logical_interface_number.split(',')
             if vlan_id is not None:
                 vlan_id = list(itertools.chain.from_iterable(range(int(ranges[0]),
@@ -275,9 +275,9 @@ class ConfigureLogicalInterface(NosDeviceAction):
                                                           intf_name=intf_name,
                                                           lif_name=each_lif)
         except ValueError as e:
-                self.logger.exception("Configuring logical interface failed %s"
-                                      % (e.message))
-                raise ValueError("Configuring logical interface failed")
+            self.logger.exception("Configuring logical interface failed %s"
+                                  % (e.message))
+            raise ValueError("Configuring logical interface failed")
         return True
 
     def _dual_tag_lif(self, device, intf_type, intf_name, conf_list):

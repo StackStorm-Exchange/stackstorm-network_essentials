@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 from ne_base import NosDeviceAction
 import pyswitch.utilities
 from pyswitch.device import Device
-import sys
 
 
 class DeleteVe(NosDeviceAction):
@@ -42,6 +42,7 @@ class DeleteVe(NosDeviceAction):
 
             self.logger.info('successfully connected to %s to Delete Ve',
                              self.host)
+            # pylint: disable=no-member
             if device.interface.is_ve_id_required():
                 if ve_id is None:
                     self.logger.error('VE interface id is required for VE deletion on MLX platform')
@@ -56,7 +57,7 @@ class DeleteVe(NosDeviceAction):
                 changes['Ve'] = self._delete_ve(device, ve_name=ve_id, vlan_id=vlan_id,
                                                 rbridge_id=rbridge_id)
             self.logger.info('closing connection to %s after'
-                         ' Deleting Ve -- all done!', self.host)
+                             ' Deleting Ve -- all done!', self.host)
         return changes
 
     def _check_req(self, device, rbridge_id, vlan_id, ve_id):
@@ -80,7 +81,7 @@ class DeleteVe(NosDeviceAction):
                 return False
             elif ve_id != curr_ve_id:
                 self.logger.error('vlan_id %s is mapped to a different router interface ve %s',
-                                 vlan_id, curr_ve_id)
+                                  vlan_id, curr_ve_id)
                 sys.exit(-1)
 
         return True
@@ -118,5 +119,5 @@ class DeleteVe(NosDeviceAction):
                     return False
             except (ValueError, KeyError) as e:
                 self.logger.error('Invalid input value while deleting Ve %s %s'
-                                % (ve_name, e.message))
+                                  % (ve_name, e.message))
                 sys.exit(-1)

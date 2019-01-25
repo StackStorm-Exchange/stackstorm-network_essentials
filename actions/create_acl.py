@@ -30,7 +30,7 @@ class CreateAcl(NosDeviceAction):
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
 
-            output = device.acl.create_acl(**params_config)
+            output = device.acl.create_acl(**params_config)  # pylint: disable=no-member
             self.logger.info(output)
             return True
 

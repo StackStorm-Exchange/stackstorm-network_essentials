@@ -44,9 +44,9 @@ class Remove_Acl(NosDeviceAction):
                 parameters['device'] = device
 
             self.logger.info('Removing ACL %s on int-type - %s int-name- %s',
-                         acl_name, intf_type, str(intf_name))
+                             acl_name, intf_type, str(intf_name))
 
-            output = device.acl.remove_acl(**parameters)
+            output = device.acl.remove_acl(**parameters)  # pylint: disable=no-member
             self.logger.info(output)
 
             return True

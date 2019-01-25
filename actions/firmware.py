@@ -14,9 +14,9 @@
 
 import sys
 
+from threading import Timer
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-from threading import Timer
 
 
 class Firmware(NosDeviceAction):
@@ -39,7 +39,8 @@ class Firmware(NosDeviceAction):
             sys.exit(-1)
 
         return self.switch_operation(host_ip, protocol_type,
-            proto_username, proto_password, disruptive_download, firmware_path)
+                                     proto_username, proto_password, disruptive_download,
+                                     firmware_path)
 
     @log_exceptions
     def switch_operation(self, host_ip, protocol_type, proto_username, proto_password,
@@ -52,6 +53,7 @@ class Firmware(NosDeviceAction):
                     self.logger.error('Operation is not supported on this device')
                     raise ValueError('Operation is not supported on this device')
                 self.firmware_download_start_action(device)
+                # pylint: disable=no-member
                 fwdl_status_dictlist = device.firmware.download_firmware(
                     protocol=protocol_type,
                     host=host_ip,
@@ -72,8 +74,8 @@ class Firmware(NosDeviceAction):
                                          fwdl_status_dict['status_msg'])
                     else:
                         self.logger.info("Download Status code: %d Status message:%s",
-                              fwdl_status_dict['status_code'],
-                              fwdl_status_dict['status_msg'])
+                                         fwdl_status_dict['status_code'],
+                                         fwdl_status_dict['status_msg'])
                     if fwdl_status_dict['status_code'] == 0:
                         num_success += 1
 
@@ -95,6 +97,7 @@ class Firmware(NosDeviceAction):
         try:
             with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
                 self.fwdl_monitor_timer = None
+                # pylint: disable=no-member
                 fwdl_status_list = device.firmware.firmware_download_monitor()
                 for fwdl_status in fwdl_status_list:
                     index = fwdl_status['index']

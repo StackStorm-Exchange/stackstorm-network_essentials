@@ -56,6 +56,7 @@ class PersistConfigs(NosDeviceAction):
 
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
 
+            # pylint: disable=no-member
             response_id = device.system.persist_config(src_name=source_name,
                                                        dst_name='startup-config')
             if response_id == 'completed':

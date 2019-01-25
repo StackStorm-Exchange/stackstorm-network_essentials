@@ -58,8 +58,8 @@ class ValidateInterfaceState(NosDeviceAction):
                 valid_intf = True
             else:
                 valid_intf, reason, error_code = self._check_interface_presence(device,
-                                                    intf_type=intf_type,
-                                                    intf_name=intf_name)
+                                                                                intf_type=intf_type,
+                                                                                intf_name=intf_name)
 
             temp_type = 'port-channel' if intf_type == 'port_channel' else\
                 intf_type
@@ -115,8 +115,7 @@ class ValidateInterfaceState(NosDeviceAction):
             ifname = intf_type + " " + intf_name
             changes['intf_name'] = ifname
             try:
-                oper_state = device.interface.get_oper_state(int_type=intf_type,
-                                                       name=intf_name)
+                oper_state = device.interface.get_oper_state(int_type=intf_type, name=intf_name)
             except Exception as e:
                 reason = e.message
                 self.logger.error(reason)
@@ -127,8 +126,8 @@ class ValidateInterfaceState(NosDeviceAction):
                 return (status, changes)
 
             if oper_state == intf_state:
-                self.logger.info("Successfully validated interface " + ifname +
-                        " state as " + oper_state)
+                self.logger.info("Successfully validated interface " + ifname +  # noqa: W504
+                                 " state as " + oper_state)
                 reason = "Successfully validated interface state as " + oper_state
                 error_code = ValidateErrorCodes.SUCCESS
                 status = True
@@ -161,8 +160,9 @@ class ValidateInterfaceState(NosDeviceAction):
                                 changes['state'] = proto_state
                                 error_code = ValidateErrorCodes.SUCCESS
                                 changes['reason_code'] = error_code.value
-                                self.logger.info("Successfully validated interface " + ifname +
-                                        " state as " + proto_state + " in rbridge-id " + str(rb))
+                                self.logger.info("Successfully validated interface " +  # noqa: W504
+                                                 ifname + " state as " + proto_state +  # noqa: W504
+                                                 " in rbridge-id " + str(rb))
                                 reason = "Successfully validated interface state as " + proto_state
                                 changes['reason'] = reason
                                 is_intf_state_present = True
@@ -182,8 +182,8 @@ class ValidateInterfaceState(NosDeviceAction):
                         retVal = False
                     else:
                         if not is_intf_state_present:
-                            self.logger.info("Interface " + ifname + " state is " +
-                                     proto_state + " in rbridge-id " + str(rb))
+                            self.logger.info("Interface " + ifname + " state is " +  # noqa: W504
+                                             proto_state + " in rbridge-id " + str(rb))
                             reason = "Interface state is " + proto_state
                             error_code = ValidateErrorCodes.DEVICE_VALIDATION_ERROR
                             changes['reason_code'] = error_code.value
@@ -207,8 +207,8 @@ class ValidateInterfaceState(NosDeviceAction):
                             changes['state'] = proto_state
                             error_code = ValidateErrorCodes.SUCCESS
                             changes['reason_code'] = error_code.value
-                            self.logger.info("Successfully validated interface " +
-                                     ifname + " state as " + proto_state)
+                            self.logger.info("Successfully validated interface " +  # noqa: W504
+                                             ifname + " state as " + proto_state)
                             reason = "Successfully validated interface state as " + proto_state
                             changes['reason'] = reason
                             is_intf_state_present = True
@@ -243,7 +243,7 @@ class ValidateInterfaceState(NosDeviceAction):
 
             proto_state = next((pc['interface-proto-state']
                                 for pc in interfaces if pc[
-                                    'interface-name'] == intf_name and
+                                    'interface-name'] == intf_name and  # noqa: W504
                                 pc['interface-type'] == intf_type), None)
             changes = {}
             ifname = intf_type + " " + intf_name
@@ -251,8 +251,8 @@ class ValidateInterfaceState(NosDeviceAction):
             if proto_state:
                 if proto_state == intf_state:
                     changes['state'] = proto_state
-                    self.logger.info("Successfully validated interface " + ifname +
-                             " state as " + proto_state)
+                    self.logger.info("Successfully validated interface " + ifname +  # noqa: W504
+                                     " state as " + proto_state)
                     reason = "Successfully validated interface state as " + proto_state
                     error_code = ValidateErrorCodes.SUCCESS
                     changes['reason_code'] = error_code.value

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ne_base import NosDeviceAction
-from ne_base import log_exceptions
 import sys
 import time
+from ne_base import NosDeviceAction
+from ne_base import log_exceptions
 
 
 class GetPersistConfig(NosDeviceAction):
@@ -36,10 +36,11 @@ class GetPersistConfig(NosDeviceAction):
     @log_exceptions
     def switch_operation(self, session_id):
 
+        # pylint: disable=no-member
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
 
             retry_code = 0
-            while(retry_code < 2):
+            while retry_code < 2:
                 retry_code = retry_code + 1
                 save_status = device.system.persist_config_status(session_id=session_id)
                 if save_status != 'completed':
@@ -51,6 +52,6 @@ class GetPersistConfig(NosDeviceAction):
                     return {'switch_ip': self.host, 'session_id': session_id}
             else:
                 self.logger.warning('Persist configuration operation is still in progess and '
-                                'is taking longer time than expected. '
-                                'Retry after some time')
+                                    'is taking longer time than expected. '
+                                    'Retry after some time')
                 return {'switch_ip': self.host, 'session_id': session_id}

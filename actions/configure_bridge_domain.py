@@ -75,7 +75,7 @@ class ConfigureBridgeDomain(NosDeviceAction):
                 else:
                     int_type = intf_type.split(',')
 
-            re_pat1 = '\d+r'
+            re_pat1 = r'\d+r'
             if re.match(re_pat1, device.firmware_version) and bridge_domain_service_type == 'p2p'\
                     or bpdu_drop_enable or local_switching or peer_ip is not None:
                 self.logger.error('bpdu_drop_enable, local_switching, peer_ip'
@@ -86,9 +86,9 @@ class ConfigureBridgeDomain(NosDeviceAction):
             changes['pre_check_bd'] = True
             if re.match(re_pat1, device.firmware_version):
                 changes['pre_check_bd'] = self._check_bd_presence(device,
-                                                              bridge_domain_id,
-                                                              bridge_domain_service_type, vc_id,
-                                                              pw_profile_name, peer_ip)
+                                                                  bridge_domain_id,
+                                                                  bridge_domain_service_type, vc_id,
+                                                                  pw_profile_name, peer_ip)
             if changes['pre_check_bd']:
                 changes['bd_config'] = self._configure_bridge_domain(device, bridge_domain_id,
                                                                      bridge_domain_service_type,
@@ -103,9 +103,9 @@ class ConfigureBridgeDomain(NosDeviceAction):
                                                                int_type)
                 if peer_ip is not None and re.match(re_pat1, device.firmware_version):
                     changes['bd_peer_config'] = self._configure_peer_ip(device,
-                                                                    bridge_domain_id,
-                                                                    bridge_domain_service_type,
-                                                                    peers=peer_ip)
+                                                                        bridge_domain_id,
+                                                                        bridge_domain_service_type,
+                                                                        peers=peer_ip)
                 if vlan_id is not None:
                     changes['bd_ve_config'] = self._configure_router_interface(device,
                                                                         bridge_domain_id,

@@ -24,8 +24,8 @@ class Add_Ipv6_Rule_Acl(NosDeviceAction):
                                      drop_precedence_force, urg, ack, push,
                                      fin, rst, sync, vlan_id, count, log,
                                      mirror, copy_sflow, dscp_marking, fragment,
-                                    drop_precedence, icmp_filter, tcp_operator,
-                                    acl_rules)
+                                     drop_precedence, icmp_filter, tcp_operator,
+                                     acl_rules)
 
     @log_exceptions
     def switch_operation(self, acl_name, seq_id, action, protocol_type,
@@ -40,6 +40,7 @@ class Add_Ipv6_Rule_Acl(NosDeviceAction):
         with self.pmgr(conn=self.conn, auth=self.auth,
                        auth_snmp=self.auth_snmp,
                        connection_type='NETCONF') as device:
+            # pylint: disable=no-member
             if acl_rules:
                 output = device.acl.add_ipv6_rule_acl_bulk(acl_name=acl_name,
                                                            acl_rules=acl_rules)
