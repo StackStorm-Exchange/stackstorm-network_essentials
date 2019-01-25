@@ -46,6 +46,7 @@ class Add_Or_Remove_L2_Acl_Rule(NosDeviceAction):
                          mirror, copy_sflow, drop_precedence, priority,
                          priority_force, priority_mapping, acl_rules):
 
+        # pylint: disable=no-member
         parameters = locals()
         parameters.pop('self', None)
 

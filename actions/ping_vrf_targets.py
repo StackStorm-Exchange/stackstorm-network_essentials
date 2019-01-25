@@ -35,9 +35,11 @@ class CheckPing(NosDeviceAction):
             self.logger.error(e.message)
             sys.exit(-1)
 
+        # pylint: disable=no-member
         with self.pmgr(conn=self.conn, auth_snmp=self.auth_snmp) as device:
             (status, ping_output) = device.utils.ping(targets=targets, count=count,
-                                           timeout_value=timeout_value, vrf=vrf, size=size)
+                                                      timeout_value=timeout_value,
+                                                      vrf=vrf, size=size)
             result = {}
             rcode = ValidateErrorCodes.SUCCESS
             result['reason_code'] = rcode.value

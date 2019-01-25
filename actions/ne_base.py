@@ -18,15 +18,15 @@ import re
 import socket
 
 import ipaddress
-import pyswitch.device
-import pyswitchlib.asset
-import requests.exceptions
-from st2common.runners.base_action import Action
 from enum import Enum
+import requests.exceptions
+import pyswitchlib.asset
+import pyswitch.device
 from pyswitch.exceptions import InvalidInterfaceName
 from pyswitch.exceptions import InvalidInterfaceType
 from pyswitch.exceptions import InvalidVlanId
 from pyswitch.AbstractDevice import DeviceCommError
+from st2common.runners.base_action import Action
 
 
 class NosDeviceAction(Action):
@@ -35,8 +35,8 @@ class NosDeviceAction(Action):
         super(
             NosDeviceAction,
             self).__init__(
-            config=config,
-            action_service=action_service)
+                config=config,
+                action_service=action_service)
         self.result = {'changed': False, 'changes': {}}
         self.pmgr = pyswitch.device.Device
         self.host = None
@@ -200,6 +200,7 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
+            # pylint: disable=unexpected-keyword-arg
             device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp,
                                 rest_proto=self.rest_proto)
             self.logger.info('successfully connected to %s',
@@ -341,8 +342,8 @@ class NosDeviceAction(Action):
                 intList = range(int(temp_list.groups()[2]), int(
                     temp_list.groups()[3]) + 1)
                 for intf in intList:
-                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                                    str(intf))
+                    int_list.append(temp_list.groups()[0] + '/' +  # noqa: W504
+                                    temp_list.groups()[1] + '/' + str(intf))
             except Exception:
                 intList = range(int(temp_list.groups()[5]), int(
                     temp_list.groups()[6]) + 1)
@@ -366,7 +367,8 @@ class NosDeviceAction(Action):
                 intList = range(int(temp_list.groups()[4]), int(
                     temp_list.groups()[5]) + 1)
                 for intf in intList:
-                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
+                    int_list.append(temp_list.groups()[0] + '/' +  # noqa: W504
+                                    temp_list.groups()[1] + '/' +  # noqa: W504
                                     temp_list.groups()[2] + ':' + str(intf))
             except Exception:
                 msg = "Invalid interface format"
@@ -382,8 +384,8 @@ class NosDeviceAction(Action):
                 intList = range(int(temp_list.groups()[3]), int(
                     temp_list.groups()[4]) + 1)
                 for intf in intList:
-                    int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + ':' +
-                                    str(intf))
+                    int_list.append(temp_list.groups()[0] + '/' +  # noqa: W504
+                                    temp_list.groups()[1] + ':' + str(intf))
             except Exception:
                 msg = "Invalid interface format"
         else:
@@ -452,8 +454,8 @@ class NosDeviceAction(Action):
                 temp_list.groups()[3]) + 1)
             int_list = []
             for intf in intList:
-                int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] + '/' +
-                                str(intf))
+                int_list.append(temp_list.groups()[0] + '/' + temp_list.groups()[1] +  # noqa: W504
+                                '/' + str(intf))
             int_list = int_list
         else:
             msg = 'Invalid interface format'
@@ -613,48 +615,42 @@ class NosDeviceAction(Action):
         acl_type = {}
         try:
             get = device.ip_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
         except Exception:
             pass
         try:
             get = device.ip_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'ip'
             return acl_type
         except Exception:
             pass
         try:
             get = device.mac_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
         except Exception:
             pass
         try:
             get = device.mac_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'mac'
             return acl_type
         except Exception:
             pass
         try:
             get = device.ipv6_access_list_standard_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except Exception:
             pass
         try:
             get = device.ipv6_access_list_extended_get(acl_name)
-            acl_type['type'] = str(get[1][0][self.host]['response'][
-                                   'json']['output'].keys()[0])
+            acl_type['type'] = str(get[1][0][self.host]['response']['json']['output'].keys()[0])
             acl_type['protocol'] = 'ipv6'
             return acl_type
         except Exception:

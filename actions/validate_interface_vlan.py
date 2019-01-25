@@ -50,8 +50,9 @@ class ValidateInterfaceVlan(NosDeviceAction):
 
             try:
                 ifname = intf_type + " " + intf_name
+                # pylint: disable=no-member
                 intf_exists = device.interface.interface_exists(int_type=intf_type,
-                                                    name=intf_name)
+                                                                name=intf_name)
                 if not intf_exists:
                     reason = "Interface " + ifname +  \
                              " is not present on the device"
@@ -97,7 +98,9 @@ class ValidateInterfaceVlan(NosDeviceAction):
         changes = {}
         try:
             result = device.interface.validate_interface_vlan(vlan_list=vlan_list,
-                        intf_type=intf_type, intf_name=intf_name, intf_mode=intf_mode)
+                                                              intf_type=intf_type,
+                                                              intf_name=intf_name,
+                                                              intf_mode=intf_mode)
 
         except Exception as e:
             reason = "Validate interface vlan failed " + e.message

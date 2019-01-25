@@ -25,7 +25,7 @@ class DeleteVrrpe(NosDeviceAction):
     """
 
     def run(self, mgmt_ip, username, password, intf_type, intf_name,
-         rbridge_id, vrrpe_group, ip_version):
+            rbridge_id, vrrpe_group, ip_version):
         """Run helper methods to implement the desired state.
         """
         try:
@@ -41,14 +41,13 @@ class DeleteVrrpe(NosDeviceAction):
                              self.host)
 
             # validate supported interface type for vrrpe
-            device.interface.vrrpe_supported_intf(intf_type=intf_type)
+            device.interface.vrrpe_supported_intf(intf_type=intf_type)  # pylint: disable=no-member
 
             if intf_type == 've':
-                changes['pre_check'] = self._validate_if_ve_exists(device,
-                        intf_name, vrrpe_group)
+                changes['pre_check'] = self._validate_if_ve_exists(device, intf_name, vrrpe_group)
             else:
-                changes['pre_check'] = self._validate_l3_eth_if_exists(device,
-                                        intf_name, vrrpe_group)
+                changes['pre_check'] = self._validate_l3_eth_if_exists(device, intf_name,
+                                                                       vrrpe_group)
             if changes['pre_check']:
                 changes['VRRPe_group'] = self._delete_vrrpe(device,
                           intf_type=intf_type, intf_name=intf_name,

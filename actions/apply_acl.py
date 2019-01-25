@@ -44,8 +44,9 @@ class Apply_Acl(NosDeviceAction):
                 parameters['device'] = device
 
             self.logger.info('Applying ACL %s on int-type - %s int-name- %s',
-                         acl_name, intf_type, str(intf_name))
+                             acl_name, intf_type, str(intf_name))
 
+            # pylint: disable=no-member
             output = device.acl.apply_acl(**parameters)
             self.logger.info(output)
 

@@ -29,7 +29,7 @@ class DeleteAcl(NosDeviceAction):
             if device.connection_type == 'NETCONF':
                 params_config['device'] = device
 
-            output = device.acl.delete_acl(**params_config)
+            output = device.acl.delete_acl(**params_config)  # pylint: disable=no-member
 
             self.logger.info(output)
             return True

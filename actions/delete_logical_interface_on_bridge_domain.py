@@ -66,8 +66,8 @@ class DeleteLogicalInterfaceOnBridgeDomain(NosDeviceAction):
                                                             intf_type)
             else:
                 changes['bd_lif_delete'] = self._delete_lif_all(device, bridge_domain_service_type,
-                                                               bridge_domain_id,
-                                                               intf_type)
+                                                                bridge_domain_id,
+                                                                intf_type)
 
             self.logger.info('Closing connection to %s after Deleting logical interfaces on '
                              'bridge domain -- all done!',
@@ -81,6 +81,7 @@ class DeleteLogicalInterfaceOnBridgeDomain(NosDeviceAction):
                 intf_type not in device.interface.valid_int_types:
             self.logger.error('Interface type %s is not valid. '
                               'Interface type must be one of %s',
+                              intf_type,
                               device.interface.valid_int_types)
             raise ValueError('Interface type is not valid. '
                              'Interface type must be one of %s'

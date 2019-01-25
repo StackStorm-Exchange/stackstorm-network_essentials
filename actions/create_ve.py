@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 from ipaddress import ip_interface
 
 from ne_base import NosDeviceAction
 from ne_base import log_exceptions
-import sys
 
 
 class CreateVe(NosDeviceAction):
@@ -64,7 +64,7 @@ class CreateVe(NosDeviceAction):
                     tmp_list = zip(rbridge_id, ip_address)
                 if ve_id is not None and ve_id != vlan_id:
                     self.logger.error('Vlan ID %s and VE ID %s must be same on NOS platform',
-                        vlan_id, ve_id)
+                                      vlan_id, ve_id)
                     raise ValueError('Vlan ID and VE ID must be same on NOS platform')
             else:
                 if ip_address is None:
@@ -74,7 +74,7 @@ class CreateVe(NosDeviceAction):
                         self.logger.error('ip_address list is not supported on this platform')
                         sys.exit(-1)
                     tmp_list = zip([None], ip_address)
-            if device.interface.is_ve_id_required():
+            if device.interface.is_ve_id_required():  # pylint: disable=no-member
                 if ve_id is None:
                     self.logger.error('VE interface id is required for VE creation on MLX platform')
                     sys.exit(-1)
@@ -87,10 +87,11 @@ class CreateVe(NosDeviceAction):
                 if ip_address is None:
                     rbridge_id = each_rb
                 else:
-                    rbridge_id = each_rb[0]
-                    temp_address = each_rb[1]
+                    rbridge_id = each_rb[0]  # pylint: disable=unsubscriptable-object
+                    temp_address = each_rb[1]  # pylint: disable=unsubscriptable-object
                 if device.os_type != 'nos':
                     rbridge_id = None
+                # pylint: disable=no-member
                 ves = device.interface.ve_interfaces(rbridge_id=rbridge_id)
                 ve_exists =\
                     self._check_requirements_ve(device,
@@ -275,13 +276,13 @@ class CreateVe(NosDeviceAction):
                                                    name=ve_name, int_type='ve',
                                                    vrf_name=vrf_name)
             if vrf_fwd is not None:
-                    config_tmp = vrf_fwd
-                    self.logger.error('There is a VRF %s configured on the'
-                                      ' VE %s on rbridge_id %s ,Remove the'
-                                      ' VRF to configure the IP Address %s',
-                                      config_tmp, ve_name, rbridge_id,
-                                      ip_address)
-                    return False
+                config_tmp = vrf_fwd
+                self.logger.error('There is a VRF %s configured on the'
+                                  ' VE %s on rbridge_id %s ,Remove the'
+                                  ' VRF to configure the IP Address %s',
+                                  config_tmp, ve_name, rbridge_id,
+                                  ip_address)
+                return False
 
         if vrf_name is not None and vrf_name != '':
             ip_version = ip_interface(unicode(ip_address)).version
@@ -313,7 +314,7 @@ class CreateVe(NosDeviceAction):
             vrf_list.append(each_vrf['vrf_name'])
         if vrf_name not in vrf_list:
             self.logger.error('Create VRF %s on rbridge-id %s before '
-                             'assigning it to Ve', vrf_name, rbridge_id)
+                              'assigning it to Ve', vrf_name, rbridge_id)
             sys.exit(-1)
 
         vrf_fwd = device.interface.add_int_vrf(get=True, rbridge_id=rbridge_id,
@@ -328,8 +329,8 @@ class CreateVe(NosDeviceAction):
                 return False
             elif config_tmp != vrf_name:
                 self.logger.error('VRF forwarding is enabled on Ve %s but with '
-                                 'a different VRF %s on rbride-id %s',
-                                 ve_name, config_tmp, rbridge_id)
+                                  'a different VRF %s on rbride-id %s',
+                                  ve_name, config_tmp, rbridge_id)
                 sys.exit(-1)
 
         for each_ve in ves:
@@ -376,7 +377,7 @@ class CreateVe(NosDeviceAction):
             # vlan_router_ve also creates VE interface
             if device.os_type != 'NI':
                 device.interface.create_ve(enable=True, ve_name=ve_name,
-                                    rbridge_id=rbridge_id)
+                                           rbridge_id=rbridge_id)
             self._admin_state(device, ve_name=ve_name,
                               rbridge_id=rbridge_id)
         except (ValueError, KeyError) as e:
@@ -412,7 +413,7 @@ class CreateVe(NosDeviceAction):
         except (ValueError, KeyError) as e:
             self.logger.error('Invalid Input values while configuring VRF %s on'
                               ' Ve %s on rbridge-id %s %s' % (vrf_name, ve_name,
-                              rbridge_id, e.message))
+                                                              rbridge_id, e.message))
             sys.exit(-1)
         return True
 

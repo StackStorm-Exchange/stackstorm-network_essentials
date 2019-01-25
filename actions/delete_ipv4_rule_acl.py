@@ -28,6 +28,7 @@ class Delete_Ipv4_Rule_Acl(NosDeviceAction):
             self.logger.info('Deleting Rule from L2 ACL: {}'
                              .format(acl_name))
 
+            # pylint: disable=no-member
             if seq_id.isdigit():
                 parameters['seq_id'] = int(parameters['seq_id'])
                 output = device.acl.delete_ipv4_acl_rule(**parameters)
