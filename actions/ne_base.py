@@ -200,6 +200,7 @@ class NosDeviceAction(Action):
 
     def get_device(self):
         try:
+            # pylint: disable=unexpected-keyword-arg
             device = self.asset(ip_addr=self.host, auth_snmp=self.auth_snmp,
                                 rest_proto=self.rest_proto)
             self.logger.info('successfully connected to %s',

@@ -87,9 +87,8 @@ class CreateVe(NosDeviceAction):
                 if ip_address is None:
                     rbridge_id = each_rb
                 else:
-                    # pylint: disable=unsubscriptable-object
-                    rbridge_id = each_rb[0]
-                    temp_address = each_rb[1]
+                    rbridge_id = each_rb[0]  # pylint: disable=unsubscriptable-object
+                    temp_address = each_rb[1]  # pylint: disable=unsubscriptable-object
                 if device.os_type != 'nos':
                     rbridge_id = None
                 # pylint: disable=no-member
