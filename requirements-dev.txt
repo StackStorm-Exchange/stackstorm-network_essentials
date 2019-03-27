@@ -4,8 +4,7 @@ pep8>=1.6.0,<1.7
 flake8>=2.3.0,<2.4
 pylint==1.5.5
 pylint-plugin-utils>=0.2.3,<0.3
-pyyaml<4.0,>=3.11
-pyyaml<4.0,>=3.11
+pyyaml==4.2b1
 ruamel.yaml>=0.15
 ipython
 six
