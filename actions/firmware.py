@@ -67,7 +67,7 @@ class Firmware(NosDeviceAction):
                 num_success = 0
                 for fwdl_status_dict in fwdl_status_dictlist:
                     num_entries += 1
-                    if device.os_type is 'nos':
+                    if device.os_type == 'nos':
                         self.logger.info("Rbridge:%d Download Status code: %d Status message:%s",
                                          fwdl_status_dict['rbridge-id'],
                                          fwdl_status_dict['status_code'],

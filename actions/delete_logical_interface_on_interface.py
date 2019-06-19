@@ -99,9 +99,8 @@ class DeleteLogicalInterface(NosDeviceAction):
                                                           intf_name=intf_name,
                                                           lif_name=each_lif)
         except ValueError as e:
-                self.logger.exception("Deleting logical interface failed %s"
-                                      % (e.message))
-                raise ValueError("Deleting logical interface failed")
+            self.logger.exception("Deleting logical interface failed %s" % (e.message))
+            raise ValueError("Deleting logical interface failed")
         return True
 
     def _logical_interface_delete_all(self, device, intf_type, intf_name):
@@ -112,7 +111,6 @@ class DeleteLogicalInterface(NosDeviceAction):
                                                       intf_name=intf_name)
             self.logger.info('Deleted all lifs under intf_name %s', intf_name)
         except ValueError as e:
-                self.logger.exception("Deleting logical interface failed %s"
-                                      % (e.message))
-                raise ValueError("Deleting logical interface failed")
+            self.logger.exception("Deleting logical interface failed %s" % (e.message))
+            raise ValueError("Deleting logical interface failed")
         return True
