@@ -1,5 +1,7 @@
 netmiko==1.4.3
 git+https://github.com/extremenetworks/PySwitchLib.git@v1.2.2#egg=pyswitchlib
 requests>=2.22.0,<2.23.0
+# transitive dependency from PySwitchLib that was not properly pinned upstream causing build errors with Python 2.7
+serpent==1.28
 six==1.11.0
 xmljson==0.1.9
